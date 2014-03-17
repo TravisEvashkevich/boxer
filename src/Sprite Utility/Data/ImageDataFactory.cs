@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Boxer.Services;
 using FarseerPhysics;
@@ -22,7 +22,6 @@ namespace Boxer.Data
                 ShowNewFolderButton = false,
                 SelectedPath = Settings.Default.LastFolderBrowsed
             };
-
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -44,7 +43,6 @@ namespace Boxer.Data
                 SelectedPath = Settings.Default.LastFolderBrowsed
             };
 
-
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Settings.Default.LastFolderBrowsed = dialog.SelectedPath;
@@ -53,7 +51,6 @@ namespace Boxer.Data
                 var rootFolder = ImportFromFolder(dialog.SelectedPath);
                 folder.AddChild(rootFolder);
             }
-
         }
 
         private static Folder ImportFromFolder(string selectedPath)
@@ -92,18 +89,67 @@ namespace Boxer.Data
 
             if (Settings.Default.TrimToMinimalNonTransparentArea)
             {
-                foreach (ImageFrame frame in imageData.Children)
+                foreach (var node in imageData.Children)
                 {
-                    AddAttackBoxStub(frame);
-                    AddClippingBoxStub(frame);
-                    AddPlatformBoxStub(frame);
-                    AddDefaultFootBox(frame);
-                    AddDefaultDepthBox(frame);
-                    AddBodyTrace(frame);
+                    var frame = (ImageFrame) node;
+
                     SetNaturalCenter(frame);
+
+                    EnsureDefaults(frame);
                 }
             }
             return imageData;
+        }
+
+        public static bool EnsureDefaults(ImageFrame frame)
+        {
+            bool addAttack = true,
+                 addClipping = true,
+                 addPlatform = true,
+                 addFoot = true,
+                 addDepth = true,
+                 addBody = true
+                 ;
+
+            foreach (var child in frame.Children)
+            {
+                if (child is PolygonGroup)
+                {
+                    if (child.Name == "Attack")
+                    {
+                        addAttack = false;
+                    }
+                    if (child.Name == "Clipping")
+                    {
+                        addClipping = false;
+                    }
+                    if (child.Name == "Platform")
+                    {
+                        addPlatform = false;
+                    }
+                    if (child.Name == "Foot")
+                    {
+                        addFoot = false;
+                    }
+                    if (child.Name == "Depth")
+                    {
+                        addDepth = false;
+                    }
+                    if (child.Name == "Body")
+                    {
+                        addBody = false;
+                    }
+                }
+            }
+
+            if(addAttack) AddAttackBoxStub(frame);
+            if(addClipping) AddClippingBoxStub(frame);
+            if(addPlatform) AddPlatformBoxStub(frame);
+            if(addFoot) AddDefaultFootBox(frame);
+            if(addDepth) AddDefaultDepthBox(frame);
+            if(addBody) AddBodyTrace(frame);
+
+            return addAttack || addClipping || addPlatform || addFoot || addDepth || addBody;
         }
 
         private static void AddDefaultDepthBox(ImageFrame frame)
@@ -206,25 +252,25 @@ namespace Boxer.Data
 
         private static void AddPlatformBoxStub(ImageFrame frame)
         {
-            var platformGroup = new PolygonGroup() { Name = "Platform" };
+            var platformGroup = new PolygonGroup { Name = "Platform" };
             frame.AddChild(platformGroup);
-            var attack = new Polygon() { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1" };
             platformGroup.AddChild(attack);
         }
 
         private static void AddAttackBoxStub(ImageFrame frame)
         {
-            var attackGroup = new PolygonGroup() { Name = "Attack" };
+            var attackGroup = new PolygonGroup { Name = "Attack" };
             frame.AddChild(attackGroup);
-            var attack = new Polygon() { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1" };
             attackGroup.AddChild(attack);
         }
 
         private static void AddClippingBoxStub(ImageFrame frame)
         {
-            var attackGroup = new PolygonGroup() { Name = "Clipping" };
+            var attackGroup = new PolygonGroup { Name = "Clipping" };
             frame.AddChild(attackGroup);
-            var attack = new Polygon() { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1" };
             attackGroup.AddChild(attack);
         }
     }

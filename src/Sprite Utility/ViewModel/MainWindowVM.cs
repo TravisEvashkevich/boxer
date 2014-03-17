@@ -210,13 +210,13 @@ namespace Boxer.ViewModel
         {
             if (Glue.Document != null && !Glue.DocumentIsSaved)
             {
-                var result = MessageBox.Show("Would you like to save current document before opening another one?", "Save file", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("Would you like to save the current project before opening another?", "Save file", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     Glue.Document.Save(false);
                 }
             }
-            Glue.Document = Document.Open();
+            Glue.Document = Document.Open(Glue);
             Glue.DocumentIsSaved = true;
             Documents.Clear();
             Documents.Add(Glue.Document);
