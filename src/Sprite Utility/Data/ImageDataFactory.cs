@@ -98,11 +98,38 @@ namespace Boxer.Data
                     AddClippingBoxStub(frame);
                     AddPlatformBoxStub(frame);
                     AddDefaultFootBox(frame);
+                    AddDefaultDepthBox(frame);
                     AddBodyTrace(frame);
                     SetNaturalCenter(frame);
                 }
             }
             return imageData;
+        }
+
+        private static void AddDefaultDepthBox(ImageFrame frame)
+        {
+            var footGroup = new PolygonGroup { Name = "Depth" };
+            frame.AddChild(footGroup);
+            var foot = new Polygon { Name = "Depth" };
+
+            var bottom = frame.TrimRectangle.Bottom;
+            var left = frame.TrimRectangle.Left;
+            var right = frame.TrimRectangle.Right;
+            var width = frame.TrimRectangle.Width;
+
+            var defaultDepthPercentage = (int)(frame.TrimRectangle.Height * 0.33f);
+            const float defaultWidthBorder = 0.9f; // 10% on each side = 80%
+
+            var tl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage);
+            var tr = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage);
+            var br = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom);
+            var bl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom);
+            foot.AddChild(tl);
+            foot.AddChild(tr);
+            foot.AddChild(br);
+            foot.AddChild(bl);
+
+            footGroup.AddChild(foot);
         }
 
         private static void AddBodyTrace(ImageFrame frame)
