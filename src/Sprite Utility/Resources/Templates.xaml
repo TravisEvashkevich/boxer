@@ -30,9 +30,12 @@
     <DataTemplate DataType="{x:Type viewModel:ImageViewVM}">
         <views:ImageView HorizontalAlignment="Left" VerticalAlignment="Top"/>
     </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModel:PreferencesVM}">
+        <views:Preferences HorizontalAlignment="Left" VerticalAlignment="Top"/>
+    </DataTemplate>
 
     <HierarchicalDataTemplate DataType="{x:Type data:Document}" ItemsSource="{Binding Path=Children, Converter={StaticResource OrderNodesConverter}}">
-        <Border MinWidth="250" BorderBrush="{Binding Default.DocumentStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" Background="{Binding Default.DocumentStubColor, Source={StaticResource Settings}, Mode=TwoWay, Converter={StaticResource ColorToBrushConterver}}"  BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+        <Border MinWidth="250" Background="{Binding Default.DocumentStubColor, Source={StaticResource Settings}, Mode=TwoWay, Converter={StaticResource ColorToBrushConterver}}"  BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
             <Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto"/>
@@ -44,13 +47,14 @@
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="New Folder" Command="{Binding NewFolderCommand}"></MenuItem>
+                    <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>
     </HierarchicalDataTemplate>
 
     <HierarchicalDataTemplate DataType="{x:Type data:Folder}" ItemsSource="{Binding Children, Converter={StaticResource OrderNodesConverter}}">
-        <Border MinWidth="250"  Background="{Binding FolderStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40">
+        <Border MinWidth="250"  Background="{Binding Default.FolderStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40">
             <Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto"/>
@@ -66,6 +70,7 @@
                 <ContextMenu>
                     <MenuItem Header="New Folder" Command="{Binding NewFolderCommand}"></MenuItem>
                     <MenuItem Header="New Image" Command="{Binding NewImageCommand}"></MenuItem>
+                    <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
@@ -73,7 +78,7 @@
     </HierarchicalDataTemplate>
 
     <HierarchicalDataTemplate DataType="{x:Type data:ImageData}" ItemsSource="{Binding Children}">
-        <Border MinWidth="250"  Background="{Binding ImageStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+        <Border MinWidth="250"  Background="{Binding Default.ImageStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
             <Grid>
                 <Grid.RowDefinitions>
 					<RowDefinition Height="Auto"/>
@@ -90,7 +95,7 @@
         </Border>
     </HierarchicalDataTemplate>
     <HierarchicalDataTemplate DataType="{x:Type data:ImageFrame}" ItemsSource="{Binding Children, Converter={StaticResource OrderNodesConverter}}">
-        <Border MinWidth="250" Background="{Binding FrameStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+        <Border MinWidth="250" Background="{Binding Default.FrameStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -122,7 +127,7 @@
         </Border>
     </HierarchicalDataTemplate>
     <HierarchicalDataTemplate DataType="{x:Type data:PolygonGroup}" ItemsSource="{Binding Children, Converter={StaticResource OrderNodesConverter}}">
-        <Border MinWidth="250" Background="{Binding PolygonGroupStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+        <Border MinWidth="250" Background="{Binding Default.PolygonGroupStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -140,7 +145,7 @@
         </Border>
     </HierarchicalDataTemplate>
     <HierarchicalDataTemplate DataType="{x:Type data:Polygon}" >
-        <Border MinWidth="250" Background="{Binding PolygonStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+        <Border MinWidth="250" Background="{Binding Default.PolygonStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

@@ -144,6 +144,8 @@ namespace Boxer.ViewModel
             else if (e.NewValue is ImageFrame)
             {
                 _viewModelLocator.ImageFrameView.Frame = e.NewValue as ImageFrame;
+                _viewModelLocator.ImageFrameView.PolygonGroup = null;
+                _viewModelLocator.ImageFrameView.Polygon = null;
                 _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = false;
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                 CurrentView = _viewModelLocator.ImageFrameView;
@@ -152,6 +154,7 @@ namespace Boxer.ViewModel
             {
                 _viewModelLocator.ImageFrameView.Frame = (e.NewValue as PolygonGroup).Parent as ImageFrame;
                 _viewModelLocator.ImageFrameView.PolygonGroup = e.NewValue as PolygonGroup;
+                _viewModelLocator.ImageFrameView.Polygon = null;
                 _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                 CurrentView = _viewModelLocator.ImageFrameView;
@@ -240,8 +243,7 @@ namespace Boxer.ViewModel
 
         public void ExecuteOpenPreferencesWindowCommand(object o)
         {
-            var preferencesWindow = new Preferences();
-            preferencesWindow.ShowDialog();
+            CurrentView = _viewModelLocator.Preferences;
         }
 
         public SmartCommand<object> SaveAsCommand { get; private set; }

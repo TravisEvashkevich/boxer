@@ -116,8 +116,25 @@ namespace Boxer.Data
             AddChild(folder);
         }
 
+        #region AddExistingFolderCommand
+         [JsonIgnore]
+        public SmartCommand<object> AddExistingFolderCommand { get; private set; }
+
+        public bool CanExecuteAddExistingFolderCommand(object o)
+        {
+            return true;
+        }
+
+        public async void ExecuteAddExistingFolderCommand(object o)
+        {
+            ImageDataFactory.ImportFromExistingDirectoryDialog(this);
+        }
+
+        #endregion
+
         protected override void InitializeCommands()
         {
+            AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);  
             NewFolderCommand = new SmartCommand<object>(ExecuteNewFolderCommand, CanExecuteNewFolderCommand);
             base.InitializeCommands();
         }

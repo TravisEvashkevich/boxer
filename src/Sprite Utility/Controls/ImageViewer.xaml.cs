@@ -41,7 +41,7 @@ namespace Boxer.Controls
             }
         }
         public static readonly DependencyProperty ImageFrameProperty = DependencyProperty.Register(
-          "ImageFrame", typeof(ImageFrame), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PropertyChangedCallback));
+          "ImageFrame", typeof(ImageFrame), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ImageFrameChangedCallback));
 
         public Polygon Polygon
         {
@@ -52,7 +52,7 @@ namespace Boxer.Controls
             }
         }
         public static readonly DependencyProperty PolygonProperty = DependencyProperty.Register(
-          "Polygon", typeof(Polygon), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PropertyChangedCallback));
+          "Polygon", typeof(Polygon), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PolygonChangedCallback));
 
         public PolygonGroup PolygonGroup
         {
@@ -63,7 +63,7 @@ namespace Boxer.Controls
             }
         }
         public static readonly DependencyProperty PolygonGroupProperty = DependencyProperty.Register(
-          "PolygonGroup", typeof(PolygonGroup), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PropertyChangedCallback));
+          "PolygonGroup", typeof(PolygonGroup), typeof(ImageViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PolygonGroupChangedCallback));
 
         public bool IsNormalMode
         {
@@ -87,20 +87,19 @@ namespace Boxer.Controls
         public static readonly DependencyProperty IsPolygonModeProperty = DependencyProperty.Register(
           "IsPolygonMode", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsPolygonModeChangedCallback));
 
-        private static void PropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        private static void PolygonChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
-            if (dependencyPropertyChangedEventArgs.NewValue is ImageFrame)
-            {
-                (dependencyObject as ImageViewer).imageViewer.Image = (dependencyPropertyChangedEventArgs.NewValue) as ImageFrame;
-            }
-            if (dependencyPropertyChangedEventArgs.NewValue is Polygon)
-            {
-                (dependencyObject as ImageViewer).imageViewer.Polygon = (dependencyPropertyChangedEventArgs.NewValue) as Polygon;
-            }
-            if (dependencyPropertyChangedEventArgs.NewValue is PolygonGroup)
-            {
-                (dependencyObject as ImageViewer).imageViewer.PolygonGroup = (dependencyPropertyChangedEventArgs.NewValue) as PolygonGroup;
-            }
+            (dependencyObject as ImageViewer).imageViewer.Polygon = dependencyPropertyChangedEventArgs.NewValue as Polygon;
+        }
+
+        private static void PolygonGroupChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+                (dependencyObject as ImageViewer).imageViewer.PolygonGroup = dependencyPropertyChangedEventArgs.NewValue as PolygonGroup;
+        }
+
+        private static void ImageFrameChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+                (dependencyObject as ImageViewer).imageViewer.Image = dependencyPropertyChangedEventArgs.NewValue as ImageFrame;
         }
 
         private static void IsNormalModeChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
@@ -194,9 +193,8 @@ namespace Boxer.Controls
                 IsPolygonMode = true;
             }
 
-            //ctrl + +, ctrl + - to control zoom
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Add)
-                imageViewer.DoZoom(1);
+             if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.Add))
+                 imageViewer.DoZoom(1);
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Subtract)
                 imageViewer.DoZoom(-1);

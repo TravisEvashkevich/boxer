@@ -97,7 +97,6 @@ namespace SpriteUtility
             set
             {
                 _polyGroup = value;
-                _poly = null;
             }
         }
 
@@ -687,8 +686,6 @@ namespace SpriteUtility
                 _centerRectangle = new Rectangle(0, 0, 16, 16);
                 _polygonRectangle = new Rectangle(0, 0, 8, 8);
                 _imageRectangle = new Rectangle(-1, -1, _image.Width + 1, _image.Height + 1);
-                _poly = null;
-                _polyGroup = null;
             }
         }
 

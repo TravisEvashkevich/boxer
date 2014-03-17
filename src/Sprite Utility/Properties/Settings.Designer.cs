@@ -262,5 +262,17 @@ namespace Boxer.Properties {
                 this["MarkAllAsOpen"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastFolderBrowsed {
+            get {
+                return ((string)(this["LastFolderBrowsed"]));
+            }
+            set {
+                this["LastFolderBrowsed"] = value;
+            }
+        }
     }
 }

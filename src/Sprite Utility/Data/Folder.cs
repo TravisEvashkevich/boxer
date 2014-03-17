@@ -118,63 +118,39 @@ namespace Boxer.Data
 
         public void ExecuteNewImageCommand(object o)
         {
+
             var dialog = new OpenFileDialog {Filter = "Image Files (*.png, *.gif)|*.png;*.gif", Multiselect = true};
             var result = dialog.ShowDialog();
             if (result.Value)
             {
                 foreach (var filename in dialog.FileNames)
                 {
-                    var image = new ImageData(filename);
+                    var imageData = ImageDataFactory.CreateFromFilename(filename);
 
-                    if (Settings.Default.TrimToMinimalNonTransparentArea)
-                    {
-                        foreach (ImageFrame frame in image.Children)
-                        {
-                            var polyGroup = new PolygonGroup("Body");
-
-                            frame.AddChild(polyGroup);
-
-                            // Add an attack box stub
-                            var attack = new Polygon();
-                            attack.Name = "Attack";
-                            polyGroup.AddChild(attack);
-
-                            // Add a default foot box
-                            var foot = new Polygon();
-                            foot.Name = "Foot";
-
-                            var bottom = frame.TrimRectangle.Bottom;
-                            var left = frame.TrimRectangle.Left;
-                            var top = frame.TrimRectangle.Top;
-                            var right = frame.TrimRectangle.Right;
-                            var width = frame.TrimRectangle.Width;
-                            var height = frame.TrimRectangle.Height;
-
-                            var tl = new PolyPoint(left + (int)(width * 0.25f), bottom - 2);
-                            var tr = new PolyPoint(right - (int)(width * 0.25f), bottom - 2);
-                            var br = new PolyPoint(right - (int)(width * 0.25f), bottom);
-                            var bl = new PolyPoint(left + (int)(width * 0.25f), bottom);
-                            foot.AddChild(tl);
-                            foot.AddChild(tr);
-                            foot.AddChild(br);
-                            foot.AddChild(bl);
-
-                            polyGroup.AddChild(foot);
-
-                            // Set the center to best effort with no half-pixels
-                            frame.CenterPointX = left + (int)(width * 0.5f);
-                            frame.CenterPointY = top + (int)(height * 0.5f);
-                        }
-                    }
-
-                    AddChild(image);
+                    AddChild(imageData);
                 }
             }
         }
 
+        #region AddExistingFolderCommand
+         [JsonIgnore]
+        public SmartCommand<object> AddExistingFolderCommand { get; private set; }
+
+        public bool CanExecuteAddExistingFolderCommand(object o)
+        {
+            return true;
+        }
+
+        public async void ExecuteAddExistingFolderCommand(object o)
+        {
+            ImageDataFactory.ImportFromExistingDirectoryDialog(this);
+        }
+
+        #endregion
 
         protected override void InitializeCommands()
         {
+            AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);  
             NewFolderCommand = new SmartCommand<object>(ExecuteNewFolderCommand, CanExecuteNewFolderCommand);
             NewImageCommand = new SmartCommand<object>(ExecuteNewImageCommand, CanExecuteNewImageCommand);
             base.InitializeCommands();

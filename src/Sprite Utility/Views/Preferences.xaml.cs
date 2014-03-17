@@ -17,7 +17,7 @@ namespace Boxer.Views
     /// <summary>
     /// Interaction logic for Preferences.xaml
     /// </summary>
-    public partial class Preferences : Window
+    public partial class Preferences : UserControl
     {
         public Preferences()
         {

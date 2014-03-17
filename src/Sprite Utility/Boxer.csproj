@@ -145,6 +145,7 @@
     <Compile Include="Data\Export\PolygonGroupExport.cs" />
     <Compile Include="Data\Export\PolyPointExport.cs" />
     <Compile Include="Data\Folder.cs" />
+    <Compile Include="Data\ImageDataFactory.cs" />
     <Compile Include="Data\ImageFrame.cs" />
     <Compile Include="Data\ImageData.cs" />
     <Compile Include="Data\IName.cs" />
