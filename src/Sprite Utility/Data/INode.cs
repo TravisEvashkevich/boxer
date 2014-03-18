@@ -14,6 +14,8 @@ namespace Boxer.Data
 {
     public interface INode : IName
     {
+        string Type { get; set; }
+
         ObservableCollection<INode> Children { get; set; }
 
         INode Parent { get; set; }
@@ -45,6 +47,7 @@ namespace Boxer.Data
 
         protected ObservableCollection<INode> _children;
 
+        public string Type { get; set; }
         public  virtual ObservableCollection<INode> Children { get { return _children; } set { Set(ref _children, value); } }
 
         public INode Parent { get; set; }

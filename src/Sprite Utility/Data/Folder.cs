@@ -46,6 +46,7 @@ namespace Boxer.Data
             Children = new ObservableCollection<INode>();
             Children.CollectionChanged += ChildrenOnCollectionChanged;
             Name = "New Folder";
+            Type = "Folder";
         }
 
         private void ChildrenOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)

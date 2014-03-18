@@ -173,7 +173,9 @@ namespace Boxer.Converters
 
                 AutoRefreshCollectionViewSource view = new AutoRefreshCollectionViewSource();
                 view.Source = collection;
-                SortDescription sort = new SortDescription("Name", ListSortDirection.Ascending);
+                var sort = new SortDescription("Type", ListSortDirection.Ascending);
+                view.SortDescriptions.Add(sort);
+                sort = new SortDescription("Name", ListSortDirection.Ascending);
                 view.SortDescriptions.Add(sort);
 
                 return view.View;

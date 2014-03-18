@@ -74,6 +74,7 @@ namespace Boxer.Data
         public ImageData()
         {
             Name = "New Image";
+            Type = "Image";
             Children = new ObservableCollection<INode>();
         }
 

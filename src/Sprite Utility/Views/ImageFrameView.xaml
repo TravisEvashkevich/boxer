@@ -18,16 +18,16 @@
         <ToolBarTray Orientation="Vertical" Grid.RowSpan="2">
             <ToolBar Width="30">
                 <ToggleButton IsChecked="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <Image Source="/Boxer;component/res/ArrowNorm.png" Stretch="None"/>
+                    <Image  Stretch="None" Source="/Boxer;component/Cursors/ArrowNorm.png"/>
                 </ToggleButton>
                 <ToggleButton IsChecked="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    <Image Source="/Boxer;component/res/Pen.png" Stretch="None"/>
+                    <Image Stretch="None" Source="/Boxer;component/Cursors/Pen.png"/>
                 </ToggleButton>
                 <Button Command="{Binding ZoomInCommand}">
-                    <Image Source="/Boxer;component/res/ZoomInCursor.png" Stretch="None"/>
+                    <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomInCursor.png"/>
                 </Button>
                 <Button Command="{Binding ZoomOutCommand}">
-                    <Image Source="/Boxer;component/res/ZoomOutCursor.png" Stretch="None"/>
+                    <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomOutCursor.png"/>
                 </Button>
                 <Button Command="{Binding ResetZoomCommand}">
                     <TextBlock Text="RES"></TextBlock>

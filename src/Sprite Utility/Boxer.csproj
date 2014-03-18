@@ -268,15 +268,19 @@
     <Content Include="Cursors\ArrowNorm.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Cursors\ArrowNorm.png" />
     <Content Include="Cursors\ArrowOver.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Cursors\Pen.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Cursors\Pen.png" />
     <Content Include="Cursors\PenOver.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Cursors\ZoomInCursor.png" />
+    <Resource Include="Cursors\ZoomOutCursor.png" />
     <Content Include="icon%402x.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
