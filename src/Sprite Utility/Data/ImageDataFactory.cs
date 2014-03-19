@@ -95,13 +95,13 @@ namespace Boxer.Data
 
                     SetNaturalCenter(frame);
 
-                    EnsureDefaults(frame);
+                    EnsureDefaults(frame, false);
                 }
             }
             return imageData;
         }
 
-        public static bool EnsureDefaults(ImageFrame frame)
+        public static bool EnsureDefaults(ImageFrame frame, bool rebuildAll)
         {
             bool addAttack = true,
                  addClipping = true,
@@ -111,35 +111,81 @@ namespace Boxer.Data
                  addBody = true
                  ;
 
+            var toRemove = new List<INode>();
             foreach (var child in frame.Children)
             {
-                if (child is PolygonGroup)
+                if (!(child is PolygonGroup)) continue;
+                if (child.Name == "Attack")
                 {
-                    if (child.Name == "Attack")
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
                     {
                         addAttack = false;
                     }
-                    if (child.Name == "Clipping")
+                }
+                if (child.Name == "Clipping")
+                {
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
                     {
                         addClipping = false;
                     }
-                    if (child.Name == "Platform")
+                }
+                if (child.Name == "Platform")
+                {
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
                     {
                         addPlatform = false;
                     }
-                    if (child.Name == "Foot")
+                }
+                if (child.Name == "Foot")
+                {
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
                     {
                         addFoot = false;
                     }
-                    if (child.Name == "Depth")
+                }
+                if (child.Name == "Depth")
+                {
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
                     {
                         addDepth = false;
                     }
                     if (child.Name == "Body")
                     {
-                        addBody = false;
+                        if (rebuildAll)
+                        {
+                            toRemove.Add(child);
+                        }
+                        else
+                        {
+                            addBody = false;
+                        }
                     }
                 }
+            }
+
+            foreach (var child in toRemove)
+            {
+                frame.Children.Remove(child);
             }
 
             if(addAttack) AddAttackBoxStub(frame);
@@ -158,7 +204,7 @@ namespace Boxer.Data
             frame.AddChild(footGroup);
             var foot = new Polygon { Name = "Depth" };
 
-            var bottom = frame.TrimRectangle.Bottom;
+            var bottom = frame.TrimRectangle.Bottom - 1;
             var left = frame.TrimRectangle.Left;
             var right = frame.TrimRectangle.Right;
             var width = frame.TrimRectangle.Width;
@@ -228,11 +274,11 @@ namespace Boxer.Data
 
         private static void AddDefaultFootBox(ImageFrame frame)
         {
-            var footGroup = new PolygonGroup() { Name = "Foot" };
+                        var footGroup = new PolygonGroup { Name = "Foot" };
             frame.AddChild(footGroup);
-            var foot = new Polygon() { Name = "Foot" };
+            var foot = new Polygon { Name = "Foot" };
 
-            var bottom = frame.TrimRectangle.Bottom;
+            var bottom = frame.TrimRectangle.Bottom - 1;
             var left = frame.TrimRectangle.Left;
             var right = frame.TrimRectangle.Right;
             var width = frame.TrimRectangle.Width;
@@ -241,6 +287,7 @@ namespace Boxer.Data
             var tr = new PolyPoint(right - (int)(width * 0.25f), bottom - 2);
             var br = new PolyPoint(right - (int)(width * 0.25f), bottom);
             var bl = new PolyPoint(left + (int)(width * 0.25f), bottom);
+
             foot.AddChild(tl);
             foot.AddChild(tr);
             foot.AddChild(br);
@@ -248,7 +295,6 @@ namespace Boxer.Data
 
             footGroup.AddChild(foot);
         }
-
 
         private static void AddPlatformBoxStub(ImageFrame frame)
         {

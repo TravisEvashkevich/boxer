@@ -74,7 +74,7 @@ namespace Boxer.Data
             return deserialized;
         }
 
-        public static bool EnsureDefaultsRecursively(ObservableCollection<INode> nodes, bool dirty = false)
+        public static bool EnsureDefaultsRecursively(ObservableCollection<INode> nodes, bool dirty = false, bool rebuildAll = false)
         {
             foreach (var node in nodes)
             {
@@ -82,13 +82,13 @@ namespace Boxer.Data
                 {
                     foreach (var frame in node.Children)
                     {
-                        dirty |= ImageDataFactory.EnsureDefaults((ImageFrame)frame);
+                        dirty |= ImageDataFactory.EnsureDefaults((ImageFrame)frame, rebuildAll);
                     }
                 }
 
                 if (node is Folder)
                 {
-                    dirty |= EnsureDefaultsRecursively(node.Children, dirty);
+                    dirty |= EnsureDefaultsRecursively(node.Children, dirty, rebuildAll);
                 }
             }
 
