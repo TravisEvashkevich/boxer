@@ -127,7 +127,14 @@
     <Compile Include="Controls\ImageViewer.xaml.cs">
       <DependentUpon>ImageViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\Converters.cs" />
+    <Compile Include="Converters\CollapseIfTrueConverter.cs" />
+    <Compile Include="Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Converters\DocumentHeaderConverter.cs" />
+    <Compile Include="Converters\ImageFrameHeaderConverter.cs" />
+    <Compile Include="Converters\IsDocumentSavedToHeaderConverter.cs" />
+    <Compile Include="Converters\IsOpenToHeaderConverter.cs" />
+    <Compile Include="Converters\OrderNodesConverter.cs" />
+    <Compile Include="Converters\ShowIfTrueConverter.cs" />
     <Compile Include="Core\AutoRefreshCollectionViewSource.cs" />
     <Compile Include="Core\BitmapTools.cs" />
     <Compile Include="Core\Camera2D.cs" />
