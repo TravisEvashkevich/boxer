@@ -36,33 +36,33 @@ namespace Boxer.Data.Formats
             ReadChildren(reader, document);
         }
 
-        private static void ReadChildren(BinaryReader reader, INode node)
+        private static void ReadChildren(BinaryReader reader, INode parent)
         {
             var count = reader.ReadInt32();
-            node.Children.PauseNotification();
+            parent.Children.PauseNotification();
             for (var i = 0; i < count; i++)
             {
-                ReadChild(reader, node.Children);
+                ReadChild(reader, parent, parent.Children);
             }
-            node.Children.ResumeNotification();
+            parent.Children.ResumeNotification();
         }
 
-        private static void ReadChild(BinaryReader reader, ICollection<INode> container)
+        private static void ReadChild(BinaryReader reader, INode parent, ICollection<INode> container)
         {
             var type = (Type)reader.ReadSByte();
             if (type == Type.Folder)
             {
-                ReadFolder(reader, container);
+                ReadFolder(reader, parent, container);
             }
             else
             {
-                ReadImageData(reader, container);
+                ReadImageData(reader, parent, container);
             }
         }
 
-        private static void ReadFolder(BinaryReader reader, ICollection<INode> container)
+        private static void ReadFolder(BinaryReader reader, INode parent, ICollection<INode> container)
         {
-            var folder = new Folder { Name = reader.ReadString() };
+            var folder = new Folder {Name = reader.ReadString(), Parent = parent};
             container.Add(folder);
             ReadChildren(reader, folder);
         }
@@ -98,14 +98,15 @@ namespace Boxer.Data.Formats
             WriteChildren(writer, child.Children);
         }
 
-        private static void ReadImageData(BinaryReader reader, ICollection<INode> container)
+        private static void ReadImageData(BinaryReader reader, INode parent, ICollection<INode> container)
         {
             var name = reader.ReadString();
             var extension = reader.ReadString();
             var imageData = new ImageData
             {
                 Name = name, 
-                Extension = extension
+                Extension = extension,
+                Parent = parent
             };
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
@@ -131,8 +132,10 @@ namespace Boxer.Data.Formats
                 }
                 frame.CenterPointX = reader.ReadInt32();
                 frame.CenterPointY = reader.ReadInt32();
+                ReadPolygons(reader, frame, frame.Children);
 
-                ReadPolygons(reader, frame.Children);
+                frame.Parent = imageData;
+                imageData.Children.Add(frame);
             }
             container.Add(imageData);
         }
@@ -163,22 +166,23 @@ namespace Boxer.Data.Formats
             }
         }
 
-        private static void ReadPolygons(BinaryReader reader, ICollection<INode> container)
+        private static void ReadPolygons(BinaryReader reader, INode parent, ICollection<INode> container)
         {
             var groupCount = reader.ReadInt32();
             for (var i = 0; i < groupCount; i++)
             {
-                var polyGroup = new PolygonGroup();
-                polyGroup.Name = reader.ReadString();
+                var polyGroup = new PolygonGroup {Name = reader.ReadString(), Parent = parent};
                 var polyCount = reader.ReadInt32();
+
                 for (var j = 0; j < polyCount; j++)
                 {
-                    var polygon = new Polygon();
-                    polygon.Name = reader.ReadString();
+                    var polygon = new Polygon {Name = reader.ReadString(), Parent = polyGroup};
+
                     var pointCount = reader.ReadInt32();
                     for (var k = 0; k < pointCount; k++)
                     {
-                        var point = new PolyPoint(reader.ReadInt32(), reader.ReadInt32());
+                        var point = new PolyPoint(reader.ReadInt32(), reader.ReadInt32()) {Parent = polygon};
+
                         polygon.Children.Add(point);
                     }
                     polyGroup.Children.Add(polygon);

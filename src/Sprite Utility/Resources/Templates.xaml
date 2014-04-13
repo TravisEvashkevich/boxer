@@ -12,7 +12,7 @@
     <converters:DocumentHeaderConverter x:Key="DocumentHeaderConverter" />
     <converters:ShowIfTrueConverter x:Key="ShowIfTrueConverter" />
     <converters:CollapseIfTrueConverter x:Key="CollapseIfTrueConverter" />
-    <converters:ColorToBrushConterver x:Key="ColorToBrushConterver" />
+    <converters:ColorToBrushConverter x:Key="ColorToBrushConterver" />
     <converters:IsOpenToHeaderConverter x:Key="IsOpenToHeaderConverter" />
     <converters:IsDocumentSavedToHeaderConverter x:Key="IsDocumentSavedToHeaderConverter" />
     <converters:OrderNodesConverter x:Key="OrderNodesConverter" />

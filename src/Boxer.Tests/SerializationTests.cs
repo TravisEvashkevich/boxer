@@ -22,6 +22,7 @@ namespace Boxer.Tests
         [Test]
         public void Load_binary()
         {
+            //#1: 1:14
             var sw = Stopwatch.StartNew();
             var binary = new BinaryFileFormat();
             var document = binary.Load(@"D:\src\rcr-game\meta\rcru2.suf");
