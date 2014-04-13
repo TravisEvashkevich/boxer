@@ -14,8 +14,11 @@ namespace Boxer.Data.Formats
 
         public override void Save(string path, Document document)
         {
-            var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
-            var writer = new BinaryWriter(stream);
+            BinaryWriter writer;
+            using (var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite))
+            {
+                writer = new BinaryWriter(stream);
+            }
             WriteDocument(writer, document);
         }
 
