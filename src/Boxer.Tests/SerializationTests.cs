@@ -1,8 +1,8 @@
 ﻿using System;
 using Boxer.Core;
 using Boxer.Data;
+using Boxer.Data.Formats;
 using NUnit.Framework;
-using JsonSerializer = SpriteUtility.JsonSerializer;
 
 namespace Boxer.Tests
 {
@@ -10,16 +10,13 @@ namespace Boxer.Tests
     public class SerializationTests
     {
         [Test]
-        public void Can_serialize_nested_folder()
+        public void Load_as_json_write_as_binary()
         {
-            var parent = new Folder {Name = "Parent"};
-            var child = new Folder {Name = "Child"};
-            child.AddChild(new Folder { Name = "Grandchild" });
-            parent.AddChild(child);
-            
-            var json = JsonSerializer.Serialize(parent);
-            Assert.IsNotNull(json);
-            Console.WriteLine(json);
+            var json = new JsonFileFormat();
+            var binary = new BinaryFileFormat();
+
+            var document = json.Load(@"D:\src\rcr-game\meta\rcru.suf");
+            binary.Save(@"D:\src\rcr-game\meta\rcru2.suf", document);
         }
     }
 }

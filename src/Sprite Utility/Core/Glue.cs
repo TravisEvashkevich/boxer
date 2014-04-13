@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Boxer.Data;
+﻿using Boxer.Data;
 
 namespace Boxer.Core
 {
     public class Glue : MainViewModel
     {
+        public static Glue Instance = new Glue();
+
         private bool _documentIsSaved;
         public bool DocumentIsSaved
         {

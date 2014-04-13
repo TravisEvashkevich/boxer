@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C44C6A69-3BD4-426D-8A8D-B8C8200FBBC9}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C44C6A
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boxer", "Sprite Utility\Boxer.csproj", "{26BF5A5F-B334-4FDC-AA7A-DEAC885D8CE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boxer.Tests", "Boxer.Tests\Boxer.Tests.csproj", "{50AB51C5-14BD-4AF2-B08B-55D79F13340A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,14 @@ Global
 		{26BF5A5F-B334-4FDC-AA7A-DEAC885D8CE8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{26BF5A5F-B334-4FDC-AA7A-DEAC885D8CE8}.Release|x86.ActiveCfg = Release|x86
 		{26BF5A5F-B334-4FDC-AA7A-DEAC885D8CE8}.Release|x86.Build.0 = Release|x86
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Debug|x86.ActiveCfg = Debug|x86
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Debug|x86.Build.0 = Debug|x86
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Release|x86.ActiveCfg = Release|x86
+		{50AB51C5-14BD-4AF2-B08B-55D79F13340A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

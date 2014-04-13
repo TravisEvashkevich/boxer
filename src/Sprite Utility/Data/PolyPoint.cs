@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Boxer.Properties;
+﻿using Boxer.Properties;
 using Newtonsoft.Json;
 
 namespace Boxer.Data

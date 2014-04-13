@@ -145,10 +145,14 @@
     <Compile Include="Data\Export\PolygonGroupExport.cs" />
     <Compile Include="Data\Export\PolyPointExport.cs" />
     <Compile Include="Data\Folder.cs" />
+    <Compile Include="Data\Formats\BinaryFileFormat.cs" />
+    <Compile Include="Data\Formats\FileFormat.cs" />
+    <Compile Include="Data\Formats\JsonFileFormat.cs" />
     <Compile Include="Data\ImageDataFactory.cs" />
     <Compile Include="Data\ImageFrame.cs" />
     <Compile Include="Data\ImageData.cs" />
     <Compile Include="Data\IName.cs" />
+    <Compile Include="Data\NodeWithName.cs" />
     <Compile Include="Data\Polygon.cs" />
     <Compile Include="Data\PolygonGroup.cs" />
     <Compile Include="Data\PolyPoint.cs" />

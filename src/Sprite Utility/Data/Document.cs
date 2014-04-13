@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Boxer.Core;
+using Boxer.Data.Formats;
 using Newtonsoft.Json;
-using JsonSerializer = Boxer.Core.JsonSerializer;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
@@ -17,6 +11,9 @@ namespace Boxer.Data
 {
     public sealed class Document : NodeWithName
     {
+        public static FileFormat Format = new BinaryFileFormat();
+
+
         public void Save(bool forceNewName)
         {
             if (forceNewName || Filename == "Not Saved")
@@ -34,10 +31,9 @@ namespace Boxer.Data
                 }
             }
 
-            var json = JsonSerializer.Serialize(this);
-            File.WriteAllText(Filename, json);
+            Format.Save(Filename, this);
 
-            Glue.DocumentIsSaved = true;
+            Glue.Instance.DocumentIsSaved = true;
         }
 
         public static Document Open(Glue glue)
@@ -46,7 +42,7 @@ namespace Boxer.Data
 
             var dialog = new OpenFileDialog();
             dialog.Filter = "Sprite Utility Files (*.suf)|*.suf";
-            
+
             var result = dialog.ShowDialog();
             if (result.Value)
             {
@@ -60,8 +56,7 @@ namespace Boxer.Data
             Document deserialized = null;
             Parallel.Invoke(() =>
             {
-                var json = File.ReadAllText(fileName);
-                deserialized = JsonSerializer.Deserialize<Document>(json);
+                deserialized = Format.Load(fileName);
                 Application.DoEvents();
                 var dirty = EnsureDefaultsRecursively(deserialized.Children);
                 if (dirty)
@@ -119,7 +114,7 @@ namespace Boxer.Data
             Children = new ObservableCollection<INode>();
         }
 
-         [JsonConstructor]
+        [JsonConstructor]
         public Document(ObservableCollection<Folder> folders)
             : this()
         {
@@ -144,7 +139,7 @@ namespace Boxer.Data
         }
 
         #region AddExistingFolderCommand
-         [JsonIgnore]
+        [JsonIgnore]
         public SmartCommand<object> AddExistingFolderCommand { get; private set; }
 
         public bool CanExecuteAddExistingFolderCommand(object o)
@@ -161,7 +156,7 @@ namespace Boxer.Data
 
         protected override void InitializeCommands()
         {
-            AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);  
+            AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);
             NewFolderCommand = new SmartCommand<object>(ExecuteNewFolderCommand, CanExecuteNewFolderCommand);
             base.InitializeCommands();
         }
