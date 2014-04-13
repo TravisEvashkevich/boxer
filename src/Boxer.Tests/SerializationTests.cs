@@ -18,5 +18,13 @@ namespace Boxer.Tests
             var document = json.Load(@"D:\src\rcr-game\meta\rcru.suf");
             binary.Save(@"D:\src\rcr-game\meta\rcru2.suf", document);
         }
+
+        [Test]
+        public void Load_binary()
+        {
+            var binary = new BinaryFileFormat();
+            var document = binary.Load(@"D:\src\rcr-game\meta\rcru2.suf");
+            Assert.IsNotNull(document);
+        }
     }
 }
