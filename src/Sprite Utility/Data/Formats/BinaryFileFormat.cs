@@ -33,7 +33,8 @@ namespace Boxer.Data.Formats
         {
             document.Name = reader.ReadString();
             document.Filename = reader.ReadString();
-            ReadChildren(reader, document.Children, reader.ReadInt32());
+            var count = reader.ReadInt32();
+            ReadChildren(reader, document.Children, count);
         }
 
         private static void WriteDocument(BinaryWriter writer, Document document)
