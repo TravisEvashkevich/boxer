@@ -17,16 +17,16 @@ namespace Boxer.Core
     /// </summary>
     public abstract class MainViewModel : ViewModelBase
     {
-        protected MainViewModel()
-        {
-            InitializeCommands();
-        }
-
         public virtual void Set<T>(ref T field, T value, [CallerMemberName] string name = "")
         {
             Set<T>(name, ref field, value, true);
         }
 
         protected abstract void InitializeCommands();
+
+        public void Initialize()
+        {
+            InitializeCommands();
+        }
     }
 }

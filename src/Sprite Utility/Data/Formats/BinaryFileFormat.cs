@@ -25,7 +25,6 @@ namespace Boxer.Data.Formats
             var reader = new BinaryReader(stream);
             var document = new Document();
             ReadDocument(reader, document);
-
             return document;
         }
 
@@ -121,9 +120,11 @@ namespace Boxer.Data.Formats
                 {
                     data[j] = reader.ReadByte();
                 }
-                var frame = new ImageFrame(data, width, height);
-                frame.Duration = duration;
-                frame.ImagePath = imagePath;
+                var frame = new ImageFrame(data, width, height)
+                {
+                    Duration = duration,
+                    ImagePath = imagePath
+                };
                 var thumbnailLength = reader.ReadInt64();
                 var thumbnail = new byte[thumbnailLength];
                 for (var j = 0; j < thumbnailLength; j++)
@@ -182,7 +183,6 @@ namespace Boxer.Data.Formats
                     for (var k = 0; k < pointCount; k++)
                     {
                         var point = new PolyPoint(reader.ReadInt32(), reader.ReadInt32()) {Parent = polygon};
-
                         polygon.Children.Add(point);
                     }
                     polyGroup.Children.Add(polygon);

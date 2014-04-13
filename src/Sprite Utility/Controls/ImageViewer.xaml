@@ -6,9 +6,10 @@
              xmlns:controls="clr-namespace:Boxer.Controls"
              xmlns:winForms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
              xmlns:spriteUtility="clr-namespace:SpriteUtility"
+             xmlns:winForm="clr-namespace:Boxer.WinForm"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <WindowsFormsHost>
-        <spriteUtility:ImageViewer x:Name="imageViewer"></spriteUtility:ImageViewer>
+        <winForm:ImageViewer x:Name="imageViewer"></winForm:ImageViewer>
     </WindowsFormsHost>
 </UserControl>

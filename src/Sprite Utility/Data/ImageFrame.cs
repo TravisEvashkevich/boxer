@@ -168,6 +168,7 @@ namespace Boxer.Data
         public void ExecuteNewPolygonGroupCommand(object o)
         {
             var polygonGroup = new PolygonGroup();
+            polygonGroup.Initialize();
             AddChild(polygonGroup);
         }
 
@@ -222,6 +223,8 @@ namespace Boxer.Data
                     if (shape != null)
                     {
                         var polygonGroup = new PolygonGroup("Body");
+                        polygonGroup.Initialize();
+
                         var count = 1;
                         foreach (var polygon in shape.Vertices)
                         {

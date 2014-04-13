@@ -73,32 +73,17 @@ namespace Boxer.Data
                 }
             }
         }
-
-        [JsonConstructor]
-        public Folder(IEnumerable<Folder> folders, IEnumerable<ImageData> images) : this()
-        {
-            foreach (var folder in folders)
-            {
-                AddChild(folder);
-            }
-            foreach (var image in images)
-            {
-                AddChild(image);
-            }
-        }
-
-
+        
         [JsonIgnore]
         public SmartCommand<object> NewFolderCommand { get; private set; }
-
         public bool CanExecuteNewFolderCommand(object o)
         {
             return true;
         }
-
         public void ExecuteNewFolderCommand(object o)
         {
             var folder = new Folder();
+            folder.Initialize();
             AddChild(folder);
         }
 

@@ -52,12 +52,13 @@ namespace Boxer.Core
             SimpleIoc.Default.Register<Glue>();
         }
 
-
         public MainWindowVM MainWindow
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<MainWindowVM>();
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -65,7 +66,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<PreferencesVM>();
+                var instance = ServiceLocator.Current.GetInstance<PreferencesVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -73,7 +76,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<DocumentViewVM>();
+                var instance = ServiceLocator.Current.GetInstance<DocumentViewVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -81,7 +86,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<FolderViewVM>();
+                var instance = ServiceLocator.Current.GetInstance<FolderViewVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -89,7 +96,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<ImageFrameViewVM>();
+                var instance = ServiceLocator.Current.GetInstance<ImageFrameViewVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -97,7 +106,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<ImageViewVM>();
+                var instance = ServiceLocator.Current.GetInstance<ImageViewVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 
@@ -105,7 +116,9 @@ namespace Boxer.Core
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<AutoTraceWindowVM>();
+                var instance = ServiceLocator.Current.GetInstance<AutoTraceWindowVM>();
+                instance.Initialize();
+                return instance;
             }
         }
 

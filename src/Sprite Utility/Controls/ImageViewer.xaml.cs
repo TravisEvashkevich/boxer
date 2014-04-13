@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.ViewModel;
+using Boxer.WinForm;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

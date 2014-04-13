@@ -1,17 +1,11 @@
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
-using Boxer.Controls;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.Properties;
 using Boxer.Services;
-using Boxer.Views;
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
@@ -44,7 +38,7 @@ namespace Boxer.ViewModel
             get { return ServiceLocator.Current.GetInstance<Glue>(); }
         }
 
-        private ViewModelLocator _viewModelLocator;
+        private readonly ViewModelLocator _viewModelLocator;
 
         private MainViewModel _currentView;
 
@@ -107,7 +101,7 @@ namespace Boxer.ViewModel
             }
         }
 
-        void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        static void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SimulationRatio")
             {
@@ -192,7 +186,10 @@ namespace Boxer.ViewModel
                     Glue.Document.Save(false);
                 }
             }
-            Glue.Document = new Document();
+            var document = new Document();
+            document.Initialize();
+
+            Glue.Document = document;
             Glue.DocumentIsSaved = true;
             Glue.DocumentIsSaved = false;
             Documents.Clear();

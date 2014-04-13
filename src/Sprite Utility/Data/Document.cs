@@ -114,16 +114,6 @@ namespace Boxer.Data
             Children = new FastObservableCollection<INode>();
         }
 
-        [JsonConstructor]
-        public Document(IEnumerable<Folder> folders)
-            : this()
-        {
-            foreach (var folder in folders)
-            {
-                AddChild(folder);
-            }
-        }
-
         [JsonIgnore]
         public SmartCommand<object> NewFolderCommand { get; private set; }
 
@@ -135,6 +125,7 @@ namespace Boxer.Data
         public void ExecuteNewFolderCommand(object o)
         {
             var folder = new Folder();
+            folder.Initialize();
             AddChild(folder);
         }
 

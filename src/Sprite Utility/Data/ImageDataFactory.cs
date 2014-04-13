@@ -57,6 +57,7 @@ namespace Boxer.Data
         {
             var rootDirectory = selectedPath;
             var rootFolder = new Folder();
+            rootFolder.Initialize();
             rootFolder.Name = Path.GetFileNameWithoutExtension(rootDirectory);
 
             var directories = Directory.GetDirectories(rootDirectory);
@@ -83,6 +84,7 @@ namespace Boxer.Data
         public static ImageData CreateFromFilename(string filename)
         {
             var imageData = new ImageData(filename);
+            imageData.Initialize();
 
             // Since we are adding new images we can stub in some
             //    conventional defaults (currently for trimmed frames only)
@@ -201,6 +203,8 @@ namespace Boxer.Data
         private static void AddDefaultDepthBox(ImageFrame frame)
         {
             var footGroup = new PolygonGroup { Name = "Depth" };
+            footGroup.Initialize();
+
             frame.AddChild(footGroup);
             var foot = new Polygon { Name = "Depth" };
 
@@ -235,6 +239,8 @@ namespace Boxer.Data
                 if (shape != null)
                 {
                     var bodyGroup = new PolygonGroup() { Name = "Body" };
+                    bodyGroup.Initialize();
+
                     var count = 1;
                     foreach (var polygon in shape.Vertices)
                     {
@@ -274,7 +280,9 @@ namespace Boxer.Data
 
         private static void AddDefaultFootBox(ImageFrame frame)
         {
-                        var footGroup = new PolygonGroup { Name = "Foot" };
+            var footGroup = new PolygonGroup { Name = "Foot" };
+            footGroup.Initialize();
+
             frame.AddChild(footGroup);
             var foot = new Polygon { Name = "Foot" };
 
@@ -299,6 +307,8 @@ namespace Boxer.Data
         private static void AddPlatformBoxStub(ImageFrame frame)
         {
             var platformGroup = new PolygonGroup { Name = "Platform" };
+            platformGroup.Initialize();
+
             frame.AddChild(platformGroup);
             var attack = new Polygon { Name = "Polygon 1" };
             platformGroup.AddChild(attack);
@@ -307,6 +317,8 @@ namespace Boxer.Data
         private static void AddAttackBoxStub(ImageFrame frame)
         {
             var attackGroup = new PolygonGroup { Name = "Attack" };
+            attackGroup.Initialize();
+
             frame.AddChild(attackGroup);
             var attack = new Polygon { Name = "Polygon 1" };
             attackGroup.AddChild(attack);
@@ -315,6 +327,8 @@ namespace Boxer.Data
         private static void AddClippingBoxStub(ImageFrame frame)
         {
             var attackGroup = new PolygonGroup { Name = "Clipping" };
+            attackGroup.Initialize();
+
             frame.AddChild(attackGroup);
             var attack = new Polygon { Name = "Polygon 1" };
             attackGroup.AddChild(attack);

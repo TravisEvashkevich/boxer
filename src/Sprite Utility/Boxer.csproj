@@ -60,6 +60,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="container">
+      <HintPath>..\packages\container.1.1.1\lib\net40\container.dll</HintPath>
+    </Reference>
     <Reference Include="fwd.farseer">
       <HintPath>..\..\lib\fwd.farseer.dll</HintPath>
     </Reference>

@@ -25,16 +25,6 @@ namespace Boxer.Data
             Children = new FastObservableCollection<INode>();
         }
 
-        [JsonConstructor]
-        public PolygonGroup(IEnumerable<Polygon> polygons)
-            : this()
-        {
-            foreach (var polygon in polygons)
-            {
-                AddChild(polygon);
-            }
-        }
-
         [JsonIgnore]
         public SmartCommand<object> NewPolygonCommand { get; private set; }
 

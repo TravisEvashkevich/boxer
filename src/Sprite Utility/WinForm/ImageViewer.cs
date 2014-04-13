@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using System.Windows.Forms.PropertyGridInternal;
-using System.Windows.Media;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.Properties;
@@ -14,9 +11,8 @@ using Color = Microsoft.Xna.Framework.Color;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace SpriteUtility
+namespace Boxer.WinForm
 {
-
     public enum Mode
     {
         Center,

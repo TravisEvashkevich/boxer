@@ -69,15 +69,6 @@ namespace Boxer.Data
             Children = new FastObservableCollection<INode>();
         }
 
-        [JsonConstructor]
-        public ImageData(IEnumerable<ImageFrame> frames) : this()
-        {
-            foreach (var frame in frames)
-            {
-                AddChild(frame);
-            }
-        }
-
         public ImageData(string filename)
             : this()
         {
@@ -104,6 +95,7 @@ namespace Boxer.Data
                                 Name = "Frame 1",
                             };
 
+                            frame.Initialize();
                             AddChild(frame);
                         }
                     }
@@ -126,7 +118,10 @@ namespace Boxer.Data
                                 {
                                     image.Save(ms, ImageFormat.Png);
 
-                                    AddChild(new ImageFrame(ms.ToArray(), image.Width, image.Height));
+                                    var child = new ImageFrame(ms.ToArray(), image.Width, image.Height);
+                                    child.Initialize();
+                                    AddChild(child);
+
                                     var frame = Children[i] as ImageFrame;
                                     if (frame == null) continue;
 
