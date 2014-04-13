@@ -29,10 +29,10 @@ namespace Boxer.Data
             RemoveCommand = new SmartCommand<object>(ExecuteRemoveCommand, CanExecuteRemoveCommand);
         }
 
-        protected ObservableCollection<INode> _children;
+        protected FastObservableCollection<INode> _children;
 
         public string Type { get; set; }
-        public  virtual ObservableCollection<INode> Children { get { return _children; } set { Set(ref _children, value); } }
+        public virtual FastObservableCollection<INode> Children { get { return _children; } set { Set(ref _children, value); } }
 
         public INode Parent { get; set; }
 

@@ -14,11 +14,8 @@ namespace Boxer.Data.Formats
 
         public override void Save(string path, Document document)
         {
-            BinaryWriter writer;
-            using (var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite))
-            {
-                writer = new BinaryWriter(stream);
-            }
+            var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
+            var writer = new BinaryWriter(stream);
             WriteDocument(writer, document);
         }
 
@@ -36,8 +33,38 @@ namespace Boxer.Data.Formats
         {
             document.Name = reader.ReadString();
             document.Filename = reader.ReadString();
+            ReadChildren(reader, document);
+        }
+
+        private static void ReadChildren(BinaryReader reader, INode node)
+        {
             var count = reader.ReadInt32();
-            ReadChildren(reader, document.Children, count);
+            node.Children.PauseNotification();
+            for (var i = 0; i < count; i++)
+            {
+                ReadChild(reader, node.Children);
+            }
+            node.Children.ResumeNotification();
+        }
+
+        private static void ReadChild(BinaryReader reader, ICollection<INode> container)
+        {
+            var type = (Type)reader.ReadSByte();
+            if (type == Type.Folder)
+            {
+                ReadFolder(reader, container);
+            }
+            else
+            {
+                ReadImageData(reader, container);
+            }
+        }
+
+        private static void ReadFolder(BinaryReader reader, ICollection<INode> container)
+        {
+            var folder = new Folder { Name = reader.ReadString() };
+            container.Add(folder);
+            ReadChildren(reader, folder);
         }
 
         private static void WriteDocument(BinaryWriter writer, Document document)
@@ -46,22 +73,6 @@ namespace Boxer.Data.Formats
             writer.Write(document.Filename);
             writer.Write(document.Children.Count);
             WriteChildren(writer, document.Children);
-        }
-        
-        private static void ReadChildren(BinaryReader reader, ICollection<INode> children, int count)
-        {
-            for (var i = 0; i < count; i++)
-            {
-                var type = (Type)reader.ReadSByte();
-                if (type == Type.Folder)
-                {
-                    ReadFolder(reader, children, reader.ReadInt32());
-                }
-                else
-                {
-                    ReadImageData(reader, children);
-                }
-            }
         }
 
         private static void WriteChildren(BinaryWriter writer, IEnumerable<INode> children)
@@ -79,16 +90,9 @@ namespace Boxer.Data.Formats
             }
         }
 
-        private static void ReadFolder(BinaryReader reader, ICollection<INode> container, int count)
-        {
-            var folder = new Folder {Name = reader.ReadString()};
-            container.Add(folder);
-            ReadChildren(reader, folder.Children, count);
-        }
-
         private static void WriteFolder(BinaryWriter writer, INode child)
         {
-            writer.Write((sbyte) Type.Folder);
+            writer.Write((sbyte)Type.Folder);
             writer.Write(child.Name);
             writer.Write(child.Children.Count);
             WriteChildren(writer, child.Children);
@@ -97,9 +101,12 @@ namespace Boxer.Data.Formats
         private static void ReadImageData(BinaryReader reader, ICollection<INode> container)
         {
             var name = reader.ReadString();
-            var filename = reader.ReadString();
             var extension = reader.ReadString();
-            var imageData = new ImageData(filename) { Name = name, Extension = extension };
+            var imageData = new ImageData
+            {
+                Name = name, 
+                Extension = extension
+            };
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
             {
@@ -132,10 +139,9 @@ namespace Boxer.Data.Formats
 
         private static void WriteImageData(BinaryWriter writer, INode child)
         {
-            var imageData = (ImageData) child;
-            writer.Write((sbyte) Type.Images);
+            var imageData = (ImageData)child;
+            writer.Write((sbyte)Type.Images);
             writer.Write(imageData.Name);
-            writer.Write(imageData.Filename);
             writer.Write(imageData.Extension);
 
             var frameCount = imageData.Children;

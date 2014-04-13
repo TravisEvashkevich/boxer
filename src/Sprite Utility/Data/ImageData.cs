@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Media;
 using Boxer.Core;
 using Newtonsoft.Json;
 using Image = System.Drawing.Image;
@@ -16,9 +10,6 @@ namespace Boxer.Data
 {
     public sealed class ImageData : NodeWithName
     {
-
-        private string _filename;
-
         [JsonProperty("filename")]
         public string Filename
         {
@@ -59,7 +50,7 @@ namespace Boxer.Data
 
 
         [JsonProperty("frames")]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -75,11 +66,11 @@ namespace Boxer.Data
         {
             Name = "New Image";
             Type = "Image";
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
         }
 
         [JsonConstructor]
-        public ImageData(ObservableCollection<ImageFrame> frames) : this()
+        public ImageData(IEnumerable<ImageFrame> frames) : this()
         {
             foreach (var frame in frames)
             {
@@ -124,10 +115,10 @@ namespace Boxer.Data
                             var dimension = new FrameDimension(image.FrameDimensionsList[0]);
 
                             // Number of frames
-                            int frameCount = image.GetFrameCount(dimension);
+                            var frameCount = image.GetFrameCount(dimension);
                             // Return an Image at a certain index
 
-                            for (int i = 0; i < frameCount; i++)
+                            for (var i = 0; i < frameCount; i++)
                             {
                                 image.SelectActiveFrame(dimension, i);
 
@@ -137,14 +128,15 @@ namespace Boxer.Data
 
                                     AddChild(new ImageFrame(ms.ToArray(), image.Width, image.Height));
                                     var frame = Children[i] as ImageFrame;
+                                    if (frame == null) continue;
 
                                     frame.CenterPointX = image.Width / 2;
                                     frame.CenterPointY = image.Height / 2;
                                     frame.Thumbnail = ImageHelper.ImageToByteArray(thumbnail);
                                     frame.Name = "Frame " + (i + 1);
-                                    PropertyItem item = image.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
+                                    var item = image.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
                                     // Time is in 1/100th of a second, in miliseconds
-                                    int time = (item.Value[0] + item.Value[1] * 256) * 10;
+                                    var time = (item.Value[0] + item.Value[1] * 256) * 10;
                                     frame.Duration = time;
                                 }
                             }

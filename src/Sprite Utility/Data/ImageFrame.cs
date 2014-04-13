@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Boxer.Core;
 using Boxer.Properties;
 using Boxer.Services;
 using Boxer.ViewModel;
 using Boxer.Views;
-using Microsoft.Win32;
 using Newtonsoft.Json;
 
 namespace Boxer.Data
@@ -100,7 +95,7 @@ namespace Boxer.Data
 
 
         [JsonProperty("polygons")]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -129,7 +124,7 @@ namespace Boxer.Data
         public string ImagePath { get { return _imagePath; } set { Set(ref _imagePath, value); } }
 
         [JsonConstructor]
-        public ImageFrame(ObservableCollection<PolygonGroup> polygons)
+        public ImageFrame(IEnumerable<PolygonGroup> polygons)
             : this()
         {
             foreach (var polygonGroup in polygons)
@@ -143,7 +138,7 @@ namespace Boxer.Data
             Data = data;
             using (var imageData = new MemoryStream(Data))
             {
-                TrimRectangle = BitmapTools.TrimRect(new Bitmap(imageData)); ;
+                TrimRectangle = BitmapTools.TrimRect(new Bitmap(imageData));
             }
         }
 
@@ -152,14 +147,14 @@ namespace Boxer.Data
             Data = null;
             Width = width;
             Height = height;
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
             CenterPointX = CenterPointY = 0;
         }
 
         public ImageFrame()
         {
             Name = "Frame";
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
         }
 
         [JsonIgnore]
@@ -186,14 +181,13 @@ namespace Boxer.Data
 
         public void ExecuteNewMarkOpenClosedStateCommand(object o)
         {
-            this.IsOpen = !IsOpen;
-            if (Settings.Default.MarkAllAsOpen && IsOpen)
+            IsOpen = !IsOpen;
+            if (!Settings.Default.MarkAllAsOpen || !IsOpen) return;
+            var index = Parent.Children.IndexOf(this);
+            for (var i = index; i < Parent.Children.Count; i++)
             {
-                var index = this.Parent.Children.IndexOf(this);
-                for (int i = index; i < Parent.Children.Count; i++)
-                {
-                    (Parent.Children[i] as ImageFrame).IsOpen = true;
-                }
+                var imageFrame = Parent.Children[i] as ImageFrame;
+                if (imageFrame != null) imageFrame.IsOpen = true;
             }
         }
 
@@ -258,6 +252,5 @@ namespace Boxer.Data
             AutoTraceCommand = new SmartCommand<object>(ExecuteAutoTraceCommand, CanExecuteAutoTraceCommand);
             base.InitializeCommands();
         }
-
     }
 }

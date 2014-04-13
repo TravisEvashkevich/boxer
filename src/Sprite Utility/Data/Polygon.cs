@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Boxer.Data
@@ -11,7 +7,7 @@ namespace Boxer.Data
     public sealed class Polygon : NodeWithName
     {
         [JsonProperty("points")]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -26,11 +22,11 @@ namespace Boxer.Data
         public Polygon()
         {
             Name = "New Polygon";
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
         }
 
         [JsonConstructor]
-        public Polygon(ObservableCollection<PolyPoint> points)
+        public Polygon(IEnumerable<PolyPoint> points)
             : this()
         {
             foreach (var point in points)

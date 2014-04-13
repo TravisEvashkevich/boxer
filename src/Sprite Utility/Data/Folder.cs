@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Media.Imaging;
 using Boxer.Core;
-using Boxer.Properties;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -16,18 +9,18 @@ namespace Boxer.Data
 {
     public sealed class Folder : NodeWithName
     {
-        private ObservableCollection<Folder> _folders;
+        private FastObservableCollection<Folder> _folders;
         
         [JsonProperty("folders")]
-        public ObservableCollection<Folder> Folders { get { return _folders; } set { Set(ref _folders, value); } }
+        public FastObservableCollection<Folder> Folders { get { return _folders; } set { Set(ref _folders, value); } }
 
-        private ObservableCollection<ImageData> _images;
+        private FastObservableCollection<ImageData> _images;
         
         [JsonProperty("images")]
-        public ObservableCollection<ImageData> Images { get { return _images; } set { Set(ref _images, value); } }
+        public FastObservableCollection<ImageData> Images { get { return _images; } set { Set(ref _images, value); } }
 
        [JsonIgnore]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -41,9 +34,9 @@ namespace Boxer.Data
 
         public Folder()
         {
-            Folders = new ObservableCollection<Folder>();
-            Images = new ObservableCollection<ImageData>();
-            Children = new ObservableCollection<INode>();
+            Folders = new FastObservableCollection<Folder>();
+            Images = new FastObservableCollection<ImageData>();
+            Children = new FastObservableCollection<INode>();
             Children.CollectionChanged += ChildrenOnCollectionChanged;
             Name = "New Folder";
             Type = "Folder";
@@ -82,7 +75,7 @@ namespace Boxer.Data
         }
 
         [JsonConstructor]
-        public Folder(ObservableCollection<Folder> folders, ObservableCollection<ImageData> images) : this()
+        public Folder(IEnumerable<Folder> folders, IEnumerable<ImageData> images) : this()
         {
             foreach (var folder in folders)
             {
@@ -142,7 +135,7 @@ namespace Boxer.Data
             return true;
         }
 
-        public async void ExecuteAddExistingFolderCommand(object o)
+        public void ExecuteAddExistingFolderCommand(object o)
         {
             ImageDataFactory.ImportFromExistingDirectoryDialog(this);
         }

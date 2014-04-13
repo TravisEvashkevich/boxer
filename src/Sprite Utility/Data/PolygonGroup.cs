@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Boxer.Core;
 using Newtonsoft.Json;
 
@@ -12,7 +7,7 @@ namespace Boxer.Data
     public sealed class PolygonGroup : NodeWithName
     {
         [JsonProperty("polygons")]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -27,11 +22,11 @@ namespace Boxer.Data
         public PolygonGroup(string name = "New Polygon Group")
         {
             Name = name;
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
         }
 
         [JsonConstructor]
-        public PolygonGroup(ObservableCollection<Polygon> polygons)
+        public PolygonGroup(IEnumerable<Polygon> polygons)
             : this()
         {
             foreach (var polygon in polygons)

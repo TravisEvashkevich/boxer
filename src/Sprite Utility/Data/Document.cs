@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Boxer.Core;
@@ -12,18 +13,17 @@ namespace Boxer.Data
     public sealed class Document : NodeWithName
     {
         public static FileFormat Format = new BinaryFileFormat();
-
-
+        
         public void Save(bool forceNewName)
         {
             if (forceNewName || Filename == "Not Saved")
             {
-                SaveFileDialog Dialog = new SaveFileDialog();
-                Dialog.Filter = "Sprite Utility Files (*.suf)|*.suf";
-                var result = Dialog.ShowDialog();
+                var dialog = new SaveFileDialog();
+                dialog.Filter = "Sprite Utility Files (*.suf)|*.suf";
+                var result = dialog.ShowDialog();
                 if (result.Value)
                 {
-                    Filename = Dialog.FileName;
+                    Filename = dialog.FileName;
                 }
                 else
                 {
@@ -91,7 +91,7 @@ namespace Boxer.Data
         }
 
         [JsonProperty("folders")]
-        public override ObservableCollection<INode> Children
+        public override FastObservableCollection<INode> Children
         {
             get
             {
@@ -111,11 +111,11 @@ namespace Boxer.Data
         {
             Name = "New Document";
             Filename = "Not Saved";
-            Children = new ObservableCollection<INode>();
+            Children = new FastObservableCollection<INode>();
         }
 
         [JsonConstructor]
-        public Document(ObservableCollection<Folder> folders)
+        public Document(IEnumerable<Folder> folders)
             : this()
         {
             foreach (var folder in folders)
@@ -147,7 +147,7 @@ namespace Boxer.Data
             return true;
         }
 
-        public async void ExecuteAddExistingFolderCommand(object o)
+        public void ExecuteAddExistingFolderCommand(object o)
         {
             ImageDataFactory.ImportFromExistingDirectoryDialog(this);
         }

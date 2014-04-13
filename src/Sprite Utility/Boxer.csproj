@@ -57,6 +57,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="fwd.farseer">
@@ -144,6 +145,7 @@
     <Compile Include="Data\Export\PolygonExport.cs" />
     <Compile Include="Data\Export\PolygonGroupExport.cs" />
     <Compile Include="Data\Export\PolyPointExport.cs" />
+    <Compile Include="Data\FastObservableCollection.cs" />
     <Compile Include="Data\Folder.cs" />
     <Compile Include="Data\Formats\BinaryFileFormat.cs" />
     <Compile Include="Data\Formats\FileFormat.cs" />

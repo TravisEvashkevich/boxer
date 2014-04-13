@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Boxer.Data;
+using Boxer.Data.Export;
 using Newtonsoft.Json;
 
 namespace SpriteUtility.Data.Export
