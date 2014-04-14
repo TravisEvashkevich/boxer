@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Boxer.Data.Formats
 {
@@ -14,18 +16,47 @@ namespace Boxer.Data.Formats
 
         public override void Save(string path, Document document)
         {
-            var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
-            var writer = new BinaryWriter(stream);
-            WriteDocument(writer, document);
+            using (var stream = File.Open(path, FileMode.Create, FileAccess.ReadWrite))
+            {
+                var writer = new BinaryWriter(stream);
+                WriteDocument(writer, document);
+                stream.Flush();
+            }
         }
 
         public override Document Load(string path)
         {
-            var stream = File.OpenRead(path);
-            var reader = new BinaryReader(stream);
-            var document = new Document();
-            ReadDocument(reader, document);
-            return document;
+            using (var stream = File.OpenRead(path))
+            {
+                var reader = new BinaryReader(stream);
+                var document = new Document();
+                ReadDocument(reader, document);
+
+                InitializeCommandTree(document);
+
+                return document;
+            }
+        }
+
+        public static void InitializeCommandTree(NodeWithName document)
+        {
+            // Initialize commands
+            document.Initialize();
+            var elements = Flatten(document.Children);
+            Parallel.ForEach(elements, e => e.Initialize());
+        }
+
+        static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
+        {
+            foreach (var node in collection)
+            {
+                yield return node;
+                if (node.Children == null) continue;
+                foreach (var child in Flatten(node.Children))
+                {
+                    yield return child;
+                }
+            }
         }
 
         private static void ReadDocument(BinaryReader reader, Document document)
@@ -110,35 +141,41 @@ namespace Boxer.Data.Formats
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
             {
-                var width = reader.ReadInt32();
-                var height = reader.ReadInt32();
-                var duration = reader.ReadInt32();
-                var imagePath = reader.ReadString();
-                var dataLength = reader.ReadInt64();
-                var data = new byte[dataLength];
-                for (var j = 0; j < dataLength; j++)
-                {
-                    data[j] = reader.ReadByte();
-                }
-                var frame = new ImageFrame(data, width, height)
-                {
-                    Duration = duration,
-                    ImagePath = imagePath
-                };
-                var thumbnailLength = reader.ReadInt64();
-                var thumbnail = new byte[thumbnailLength];
-                for (var j = 0; j < thumbnailLength; j++)
-                {
-                    thumbnail[j] = reader.ReadByte();
-                }
-                frame.CenterPointX = reader.ReadInt32();
-                frame.CenterPointY = reader.ReadInt32();
-                ReadPolygons(reader, frame, frame.Children);
-
-                frame.Parent = imageData;
-                imageData.Children.Add(frame);
+                ReadImageFrame(reader, imageData);
             }
             container.Add(imageData);
+        }
+
+        private static void ReadImageFrame(BinaryReader reader, INode imageData)
+        {
+            var width = reader.ReadInt32();
+            var height = reader.ReadInt32();
+            var duration = reader.ReadInt32();
+            var imagePath = reader.ReadString();
+            var dataLength = reader.ReadInt64();
+            var data = new byte[dataLength];
+            for (var j = 0; j < dataLength; j++)
+            {
+                data[j] = reader.ReadByte();
+            }
+            var frame = new ImageFrame(data, width, height)
+            {
+                Duration = duration,
+                ImagePath = imagePath
+            };
+            var thumbnailLength = reader.ReadInt64();
+            var thumbnail = new byte[thumbnailLength];
+            for (var j = 0; j < thumbnailLength; j++)
+            {
+                thumbnail[j] = reader.ReadByte();
+            }
+            frame.CenterPointX = reader.ReadInt32();
+            frame.CenterPointY = reader.ReadInt32();
+            frame.FailsAutoTrace = reader.ReadBoolean();
+
+            ReadPolygons(reader, frame, frame.Children);
+            frame.Parent = imageData;
+            imageData.Children.Add(frame);
         }
 
         private static void WriteImageData(BinaryWriter writer, INode child)
@@ -152,19 +189,25 @@ namespace Boxer.Data.Formats
             writer.Write(frameCount.Count);
             foreach (var frame in imageData.Children.Cast<ImageFrame>())
             {
-                writer.Write(frame.Width);
-                writer.Write(frame.Height);
-                writer.Write(frame.Duration);
-                writer.Write(frame.ImagePath ?? imageData.Filename);
-                writer.Write(frame.Data.LongLength);
-                writer.Write(frame.Data);
-                writer.Write(frame.Thumbnail.LongLength);
-                writer.Write(frame.Thumbnail);
-                writer.Write(frame.CenterPointX);
-                writer.Write(frame.CenterPointY);
-
-                WritePolygons(writer, frame);
+                WriteImageFrame(writer, frame, imageData);
             }
+        }
+
+        private static void WriteImageFrame(BinaryWriter writer, ImageFrame frame, ImageData imageData)
+        {
+            writer.Write(frame.Width);
+            writer.Write(frame.Height);
+            writer.Write(frame.Duration);
+            writer.Write(frame.ImagePath ?? imageData.Filename);
+            writer.Write(frame.Data.LongLength);
+            writer.Write(frame.Data);
+            writer.Write(frame.Thumbnail.LongLength);
+            writer.Write(frame.Thumbnail);
+            writer.Write(frame.CenterPointX);
+            writer.Write(frame.CenterPointY);
+            writer.Write(frame.FailsAutoTrace);
+
+            WritePolygons(writer, frame);
         }
 
         private static void ReadPolygons(BinaryReader reader, INode parent, ICollection<INode> container)
@@ -178,7 +221,6 @@ namespace Boxer.Data.Formats
                 for (var j = 0; j < polyCount; j++)
                 {
                     var polygon = new Polygon {Name = reader.ReadString(), Parent = polyGroup};
-
                     var pointCount = reader.ReadInt32();
                     for (var k = 0; k < pointCount; k++)
                     {
@@ -193,14 +235,14 @@ namespace Boxer.Data.Formats
 
         private static void WritePolygons(BinaryWriter writer, INode parent)
         {
-            var polyGroup = parent.Children.Cast<PolygonGroup>();
+            var polyGroups = parent.Children.Cast<PolygonGroup>();
             var groupCount = parent.Children.Count();
             writer.Write(groupCount);
-            foreach (var group in polyGroup)
+            foreach (var polyGroup in polyGroups)
             {
-                writer.Write(@group.Name);
-                writer.Write(@group.Children.Count);
-                foreach (var polygon in @group.Children.Cast<Polygon>())
+                writer.Write(polyGroup.Name);
+                writer.Write(polyGroup.Children.Count);
+                foreach (var polygon in polyGroup.Children.Cast<Polygon>())
                 {
                     writer.Write(polygon.Name);
                     writer.Write(polygon.Children.Count);

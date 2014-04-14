@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Boxer.Data
 {
@@ -22,16 +21,6 @@ namespace Boxer.Data
         {
             Name = "New Polygon";
             Children = new FastObservableCollection<INode>();
-        }
-
-        [JsonConstructor]
-        public Polygon(IEnumerable<PolyPoint> points)
-            : this()
-        {
-            foreach (var point in points)
-            {
-                AddChild(point);
-            }
         }
     }
 }

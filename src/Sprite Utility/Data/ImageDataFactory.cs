@@ -86,20 +86,12 @@ namespace Boxer.Data
             var imageData = new ImageData(filename);
             imageData.Initialize();
 
-            // Since we are adding new images we can stub in some
-            //    conventional defaults (currently for trimmed frames only)
-
-            if (Settings.Default.TrimToMinimalNonTransparentArea)
+            foreach (var frame in imageData.Children.Cast<ImageFrame>())
             {
-                foreach (var node in imageData.Children)
-                {
-                    var frame = (ImageFrame) node;
-
-                    SetNaturalCenter(frame);
-
-                    EnsureDefaults(frame, false);
-                }
+                SetNaturalCenter(frame);
+                EnsureDefaults(frame, false);
             }
+
             return imageData;
         }
 
@@ -171,16 +163,16 @@ namespace Boxer.Data
                     {
                         addDepth = false;
                     }
-                    if (child.Name == "Body")
+                }
+                if (child.Name == "Body")
+                {
+                    if (rebuildAll)
                     {
-                        if (rebuildAll)
-                        {
-                            toRemove.Add(child);
-                        }
-                        else
-                        {
-                            addBody = false;
-                        }
+                        toRemove.Add(child);
+                    }
+                    else
+                    {
+                        addBody = false;
                     }
                 }
             }
@@ -195,7 +187,7 @@ namespace Boxer.Data
             if(addPlatform) AddPlatformBoxStub(frame);
             if(addFoot) AddDefaultFootBox(frame);
             if(addDepth) AddDefaultDepthBox(frame);
-            if(addBody) AddBodyTrace(frame);
+            if(addBody && !frame.FailsAutoTrace) AddBodyTrace(frame);
 
             return addAttack || addClipping || addPlatform || addFoot || addDepth || addBody;
         }
@@ -213,7 +205,7 @@ namespace Boxer.Data
             var right = frame.TrimRectangle.Right;
             var width = frame.TrimRectangle.Width;
 
-            var defaultDepthPercentage = (int)(frame.TrimRectangle.Height * 0.33f);
+            var defaultDepthPercentage = (int)(frame.TrimRectangle.Height * 0.125f);
             const float defaultWidthBorder = 0.9f; // 10% on each side = 80%
 
             var tl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage);
@@ -234,36 +226,39 @@ namespace Boxer.Data
             {
                 var imageBitmap = Image.FromStream(ms);
                 var errorBuilder = new StringBuilder();
-                var shape = TraceService.CreateSimpleShape(imageBitmap, 2000, errorBuilder);
+                var shape = TraceService.CreateSimpleShape(imageBitmap, 200, errorBuilder);
 
-                if (shape != null)
+                if (shape == null)
                 {
-                    var bodyGroup = new PolygonGroup() { Name = "Body" };
-                    bodyGroup.Initialize();
+                    frame.FailsAutoTrace = true;
+                    return;
+                }
 
-                    var count = 1;
-                    foreach (var polygon in shape.Vertices)
+                var bodyGroup = new PolygonGroup { Name = "Body" };
+                bodyGroup.Initialize();
+
+                var count = 1;
+                foreach (var polygon in shape.Vertices)
+                {
+                    var poly = new Polygon() { Name = "Polygon " + count };
+
+
+                    foreach (var point in polygon)
                     {
-                        var poly = new Polygon() { Name = "Polygon " + count };
+                        var x = (int)ConvertUnits.ToDisplayUnits(point.X);
+                        var y = (int)ConvertUnits.ToDisplayUnits(point.Y);
 
+                        x += (int)(frame.Width * 0.5f);
+                        y += (int)(frame.Height * 0.5f);
 
-                        foreach (var point in polygon)
-                        {
-                            var x = (int)ConvertUnits.ToDisplayUnits(point.X);
-                            var y = (int)ConvertUnits.ToDisplayUnits(point.Y);
-
-                            x += (int)(frame.Width * 0.5f);
-                            y += (int)(frame.Height * 0.5f);
-
-                            poly.AddChild(new PolyPoint(x, y));
-                        }
-
-                        bodyGroup.AddChild(poly);
-                        count++;
+                        poly.AddChild(new PolyPoint(x, y));
                     }
 
-                    frame.AddChild(bodyGroup);
+                    bodyGroup.AddChild(poly);
+                    count++;
                 }
+
+                frame.AddChild(bodyGroup);
             }
         }
 

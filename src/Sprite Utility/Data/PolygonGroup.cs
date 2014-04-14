@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Boxer.Core;
+﻿using Boxer.Core;
 using Newtonsoft.Json;
 
 namespace Boxer.Data
@@ -25,20 +24,17 @@ namespace Boxer.Data
             Children = new FastObservableCollection<INode>();
         }
 
-        [JsonIgnore]
         public SmartCommand<object> NewPolygonCommand { get; private set; }
-
         public bool CanExecuteNewPolygonCommand(object o)
         {
             return true;
         }
-
         public void ExecuteNewPolygonCommand(object o)
         {
             var polygonGroup = new Polygon();
             AddChild(polygonGroup);
         }
-
+        
         protected override void InitializeCommands()
         {
             NewPolygonCommand = new SmartCommand<object>(ExecuteNewPolygonCommand, CanExecuteNewPolygonCommand);

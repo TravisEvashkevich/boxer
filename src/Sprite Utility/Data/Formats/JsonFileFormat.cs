@@ -1,7 +1,7 @@
 using System.IO;
 using Boxer.Core;
 
-namespace Boxer.Data
+namespace Boxer.Data.Formats
 {
     public class JsonFileFormat : FileFormat
     {

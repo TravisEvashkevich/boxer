@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Boxer.Core;
@@ -12,8 +11,8 @@ namespace Boxer.Data
 {
     public sealed class Document : NodeWithName
     {
-        public static FileFormat Format = new BinaryFileFormat();
-        
+        private static readonly FileFormat Format = new BinaryFileFormat();
+
         public void Save(bool forceNewName)
         {
             if (forceNewName || Filename == "Not Saved")
@@ -32,7 +31,6 @@ namespace Boxer.Data
             }
 
             Format.Save(Filename, this);
-
             Glue.Instance.DocumentIsSaved = true;
         }
 
@@ -57,6 +55,7 @@ namespace Boxer.Data
             Parallel.Invoke(() =>
             {
                 deserialized = Format.Load(fileName);
+                
                 Application.DoEvents();
                 var dirty = EnsureDefaultsRecursively(deserialized.Children);
                 if (dirty)
@@ -104,7 +103,6 @@ namespace Boxer.Data
         }
 
         private string _filename;
-
         public string Filename { get { return _filename; } set { Set(ref _filename, value); } }
 
         public Document()

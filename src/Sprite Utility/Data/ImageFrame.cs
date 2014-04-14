@@ -56,6 +56,9 @@ namespace Boxer.Data
             }
         }
 
+        [JsonIgnore]
+        public bool FailsAutoTrace { get; set; }
+
         [JsonProperty("mapped_center_point_y")]
         public int MappedCenterPointY
         {
@@ -73,7 +76,7 @@ namespace Boxer.Data
         private int _centerPointY;
 
         [JsonProperty("center_point_x")]
-        public int CenterPointX { get { return _centerPointX; }set { Set(ref _centerPointX, value); } }
+        public int CenterPointX { get { return _centerPointX; } set { Set(ref _centerPointX, value); } }
 
         [JsonProperty("center_point_y")]
         public int CenterPointY { get { return _centerPointY; } set { Set(ref _centerPointY, value); } }

@@ -1,4 +1,4 @@
-namespace Boxer.Data
+namespace Boxer.Data.Formats
 {
     public abstract class FileFormat
     {

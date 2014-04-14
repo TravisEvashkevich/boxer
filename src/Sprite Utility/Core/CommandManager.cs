@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Boxer.Core
 {
     public class CommandManager
     {
-        public static List<ISmartCommand> Commands { get; private set; }
+        public static HashSet<ISmartCommand> Commands { get; private set; }
 
         static CommandManager()
         {
-            Commands = new List<ISmartCommand>();
+            Commands = new HashSet<ISmartCommand>();
         }
 
         public static void InvalidateRequerySuggested()
@@ -21,19 +17,23 @@ namespace Boxer.Core
             {
                 c.RaiseCanExecuteChanged();
             }
-
         }
 
         public static void Register(ISmartCommand command)
         {
             if (!Commands.Contains(command))
+            {
                 Commands.Add(command);
+            }
         }
 
         public static void Unregister(ISmartCommand command)
         {
             if (Commands.Contains(command))
+            {
                 Commands.Remove(command);
+            }
         }
     }
 }
+

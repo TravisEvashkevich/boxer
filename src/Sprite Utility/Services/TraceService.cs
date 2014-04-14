@@ -88,7 +88,6 @@ namespace Boxer.Services
             return ScaleConvertAndPartition(spool, strict, imageBitmap, polygons, algorithm);
         }
 
-
         private static Shape ScaleConvertAndPartition(StringBuilder spool, bool strict, Image image, IEnumerable<Vertices> polygons, TriangulationAlgorithm algorithm)
         {
             var scale = ConvertUnits.ToSimUnits(1, 1);
