@@ -13,15 +13,15 @@ namespace Boxer.Converters
             if (value is bool)
             {
                 var glue = ServiceLocator.Current.GetInstance<Glue>();
-                if (glue.Document != null)
+                if (Glue.Instance.Document != null)
                 {
-                    if (glue.DocumentIsSaved)
+                    if (Glue.Instance.DocumentIsSaved)
                     {
-                        return "Sprite Utility [" + glue.Document.Filename + "]";
+                        return "Sprite Utility [" + Glue.Instance.Document.Filename + "]";
                     }
                     else
                     {
-                        return "Sprite Utility [" + glue.Document.Filename + "*]";
+                        return "Sprite Utility [" + Glue.Instance.Document.Filename + "*]";
                     }
                 }
                 else

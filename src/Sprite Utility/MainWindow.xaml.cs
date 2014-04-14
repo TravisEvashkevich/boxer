@@ -13,8 +13,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Boxer.Core;
 using Boxer.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Boxer
 {
@@ -34,6 +36,31 @@ namespace Boxer
             Icon = new BitmapImage(new Uri("icon@2x.png", UriKind.Relative));
 
             TreeView.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
+
+            /*------------------------HotKeys----------------*/
+            //Get the MainWindowViewModel as it has all the menu related commands
+            var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+            InputBindings.Add(new KeyBinding(instance.OpenDocumentCommand, new KeyGesture(Key.O, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.SaveDocumentCommand, new KeyGesture(Key.S, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.SaveAsCommand, new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)));
+            InputBindings.Add(new KeyBinding(instance.CloseCommand, new KeyGesture(Key.Q, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.ExportCommand, new KeyGesture(Key.E, ModifierKeys.Control)));
+
+
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (!Glue.Instance.DocumentIsSaved)
+            {
+                if (MessageBox.Show("You have Un-Saved Changes. Would you like to save them now?", "Un-Saved Changes",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    //If they want to save then we save else whatever.
+                    Glue.Instance.Document.Save(false);
+                }
+            }
+            
         }
     }
 }

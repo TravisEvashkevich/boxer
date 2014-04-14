@@ -544,7 +544,11 @@ namespace Boxer.WinForm
                     PolyPoint poly = CheckIfMouseIsInPolygon(e.X, e.Y);
 
                     if (poly != null)
+                    {
                         _poly.Children.Remove(poly);
+                        //set dirty
+                        Glue.Instance.DocumentIsSaved = false;
+                    }
                 }
             }
         }
