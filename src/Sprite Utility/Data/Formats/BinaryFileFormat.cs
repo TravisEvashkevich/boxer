@@ -171,6 +171,7 @@ namespace Boxer.Data.Formats
             }
             frame.CenterPointX = reader.ReadInt32();
             frame.CenterPointY = reader.ReadInt32();
+            frame.IsOpen = reader.ReadBoolean();
             frame.FailsAutoTrace = reader.ReadBoolean();
 
             ReadPolygons(reader, frame, frame.Children);
@@ -201,10 +202,11 @@ namespace Boxer.Data.Formats
             writer.Write(frame.ImagePath ?? imageData.Filename);
             writer.Write(frame.Data.LongLength);
             writer.Write(frame.Data);
-            writer.Write(frame.Thumbnail.LongLength);
-            writer.Write(frame.Thumbnail);
+            writer.Write(frame.Thumbnail != null? frame.Thumbnail.LongLength : 0);
+            writer.Write(frame.Thumbnail ?? new byte[0]);
             writer.Write(frame.CenterPointX);
             writer.Write(frame.CenterPointY);
+            writer.Write(frame.IsOpen);
             writer.Write(frame.FailsAutoTrace);
 
             WritePolygons(writer, frame);
