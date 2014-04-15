@@ -32,6 +32,7 @@ namespace Boxer.Data
 
             Format.Save(Filename, this);
             Glue.Instance.DocumentIsSaved = true;
+            MessageBox.Show("Saved.");
         }
 
         public static Document Open(Glue glue)
@@ -60,7 +61,7 @@ namespace Boxer.Data
                 var dirty = EnsureDefaultsRecursively(deserialized.Children);
                 if (dirty)
                 {
-                    glue.DocumentIsSaved = false;
+                    Glue.Instance.DocumentIsSaved = false;
                 }
             });
 

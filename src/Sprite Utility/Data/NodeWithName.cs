@@ -39,7 +39,11 @@ namespace Boxer.Data
         public void Remove()
         {
             if (Parent != null)
+            {
                 Parent.Children.Remove(this);
+                //set the doc to dirty since you removed something
+                Glue.Instance.DocumentIsSaved = false;
+            }
         }
 
         public void AddChild(INode child)
