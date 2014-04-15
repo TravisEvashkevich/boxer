@@ -100,6 +100,7 @@ namespace Boxer.Data
             bool addAttack = true,
                  addClipping = true,
                  addPlatform = true,
+                 addLanding = true,
                  addFoot = true,
                  addDepth = true,
                  addBody = true
@@ -140,6 +141,17 @@ namespace Boxer.Data
                     else
                     {
                         addPlatform = false;
+                    }
+                }
+                if (child.Name == "Landing")
+                {
+                    if (rebuildAll)
+                    {
+                        toRemove.Add(child);
+                    }
+                    else
+                    {
+                        addLanding = false;
                     }
                 }
                 if (child.Name == "Foot")
@@ -185,6 +197,7 @@ namespace Boxer.Data
             if(addAttack) AddAttackBoxStub(frame);
             if(addClipping) AddClippingBoxStub(frame);
             if(addPlatform) AddPlatformBoxStub(frame);
+            if(addLanding) AddLandingBoxStub(frame);
             if(addFoot) AddDefaultFootBox(frame);
             if(addDepth) AddDefaultDepthBox(frame);
             if(addBody && !frame.FailsAutoTrace) AddBodyTrace(frame);
@@ -302,6 +315,16 @@ namespace Boxer.Data
         private static void AddPlatformBoxStub(ImageFrame frame)
         {
             var platformGroup = new PolygonGroup { Name = "Platform" };
+            platformGroup.Initialize();
+
+            frame.AddChild(platformGroup);
+            var attack = new Polygon { Name = "Polygon 1" };
+            platformGroup.AddChild(attack);
+        }
+
+        private static void AddLandingBoxStub(ImageFrame frame)
+        {
+            var platformGroup = new PolygonGroup { Name = "Landing" };
             platformGroup.Initialize();
 
             frame.AddChild(platformGroup);
