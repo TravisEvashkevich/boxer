@@ -670,7 +670,7 @@ namespace Boxer.WinForm
                 new Vector2(centerX, _currentCenterRectangle.Bottom), ConvertDrawingColorToXNAColor(Settings.Default.CenterPointColor));
         }
 
-        //load image to texture, rest neccesery fields
+        //load image to texture, rest neccesary fields
         private void LoadImageToTexture()
         {
             if (Image != null && GraphicsDevice != null)
