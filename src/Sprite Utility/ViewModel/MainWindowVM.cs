@@ -385,7 +385,9 @@ namespace Boxer.ViewModel
             //Setting the data to the Polygon itself doesn't raise propertyChanged so you have to do it directly to the collection
             //This updates in the view automatically as well.  This only changes the points within the poly and nothing else
             //(makes sense to me that it doesn't change the name and such but that is easy to implement as well if desired)
-           _viewModelLocator.ImageFrameView.Polygon.Children = _copyPolygon.Children;
+            var clone = new Polygon().ClonePolygon(_copyPolygon);
+
+            _viewModelLocator.ImageFrameView.Polygon.Children = clone.Children;
         }
 
         protected override void InitializeCommands()
