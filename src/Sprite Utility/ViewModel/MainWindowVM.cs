@@ -35,6 +35,7 @@ namespace Boxer.ViewModel
     public class MainWindowVM : MainViewModel
     {
         private string _lastPolygonGroupName;
+        private NodeWithName _currentSelectedNode;
 
         public Glue Glue
         {
@@ -122,21 +123,26 @@ namespace Boxer.ViewModel
         public void ExecuteSelectedItemChangedCommand(object o)
         {
             var e = o as RoutedPropertyChangedEventArgs<object>;
+            //To enable Delete key to remove nodes, we will store the last item you clicked on 
+            //cause you won't try to delete something without clicking on it anyways
 
             if (e.NewValue is Document)
             {
                 _viewModelLocator.DocumentView.Document = e.NewValue as Document;
                 CurrentView = _viewModelLocator.DocumentView;
+                _currentSelectedNode = e.NewValue as Document;
             }
             else if (e.NewValue is Folder)
             {
                 _viewModelLocator.FolderView.Folder = e.NewValue as Folder;
                 CurrentView = _viewModelLocator.FolderView;
+                _currentSelectedNode = e.NewValue as Folder;
             }
             else if (e.NewValue is ImageData)
             {
                 _viewModelLocator.ImageView.Image = e.NewValue as ImageData;
                 CurrentView = _viewModelLocator.ImageView;
+                _currentSelectedNode = e.NewValue as ImageData;
             }
             else if (e.NewValue is ImageFrame)
             {
@@ -166,9 +172,10 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.Polygon = null;
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = false;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
-                    CurrentView = _viewModelLocator.ImageFrameView; 
+                    CurrentView = _viewModelLocator.ImageFrameView;
+                    
                 }
-
+                _currentSelectedNode = e.NewValue as ImageFrame;
                 
             }
             else if (e.NewValue is PolygonGroup)
@@ -183,7 +190,7 @@ namespace Boxer.ViewModel
                 _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                 CurrentView = _viewModelLocator.ImageFrameView;
-                
+                _currentSelectedNode = e.NewValue as PolygonGroup;
             }
             else if (e.NewValue is Polygon)
             {
@@ -193,6 +200,7 @@ namespace Boxer.ViewModel
                 _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = false;
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = true;
                 CurrentView = _viewModelLocator.ImageFrameView;
+                _currentSelectedNode = e.NewValue as Polygon;
             }
             else
             {
@@ -334,6 +342,18 @@ namespace Boxer.ViewModel
             }
         }
 
+        public SmartCommand<object> RemoveCommand { get; private set; }
+
+        public bool CanExecuteRemoveCommand(object o)
+        {
+            return _currentSelectedNode != null;
+        }
+
+        public void ExecutreRemoveCommand(object o)
+        {
+            _currentSelectedNode.Remove();
+        }
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -344,6 +364,7 @@ namespace Boxer.ViewModel
             SaveAsCommand = new SmartCommand<object>(ExecuteSaveAsCommand, CanExecuteSaveAsCommand);
             CloseCommand = new SmartCommand<object>(ExecuteCloseCommand, CanExecuteCloseCommand);
             ExportCommand = new SmartCommand<object>(ExecuteExportCommand, CanExecuteExportCommand);
+            RemoveCommand = new SmartCommand<object>(ExecutreRemoveCommand, CanExecuteRemoveCommand);
         }
     }
 }
