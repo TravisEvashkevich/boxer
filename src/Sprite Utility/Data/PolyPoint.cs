@@ -48,6 +48,5 @@ namespace Boxer.Data
             X = x;
             Y = y;
         }
-
     }
 }
