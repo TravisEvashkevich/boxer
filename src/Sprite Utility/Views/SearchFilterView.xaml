@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="Boxer.Views.SearchFilterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.DataContext>
+        <Binding Path="SearchFilter" Source="{StaticResource Locator}"></Binding>
+    </UserControl.DataContext>
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Image Search"/>
+            <TextBox x:Name="SearchBox" Text="{Binding SearchText}" Width="150" Height="25"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

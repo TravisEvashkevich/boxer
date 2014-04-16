@@ -37,7 +37,6 @@ namespace Boxer.ViewModel
         private string _lastPolygonGroupName;
         private NodeWithName _currentSelectedNode;
         private Polygon _copyPolygon;
-        private object _pastePlace;
 
         public Glue Glue
         {

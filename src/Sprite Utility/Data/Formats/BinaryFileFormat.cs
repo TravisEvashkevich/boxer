@@ -69,12 +69,14 @@ namespace Boxer.Data.Formats
         private static void ReadChildren(BinaryReader reader, INode parent)
         {
             var count = reader.ReadInt32();
-            parent.Children.PauseNotification();
+            //This causes the event of adding folders and images to the children to NOT
+            //update the count of them. 
+            //parent.Children.PauseNotification();
             for (var i = 0; i < count; i++)
             {
                 ReadChild(reader, parent, parent.Children);
             }
-            parent.Children.ResumeNotification();
+            //parent.Children.ResumeNotification();
         }
 
         private static void ReadChild(BinaryReader reader, INode parent, ICollection<INode> container)

@@ -180,6 +180,7 @@
     <Compile Include="Core\MainViewModel.cs" />
     <Compile Include="Core\ViewModelLocator.cs" />
     <Compile Include="ViewModel\PreferencesVM.cs" />
+    <Compile Include="ViewModel\SearchFilterVM.cs" />
     <Compile Include="Views\AutoTraceWindow.xaml.cs">
       <DependentUpon>AutoTraceWindow.xaml</DependentUpon>
     </Compile>
@@ -197,6 +198,9 @@
     </Compile>
     <Compile Include="Views\Preferences.xaml.cs">
       <DependentUpon>Preferences.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchFilterView.xaml.cs">
+      <DependentUpon>SearchFilterView.xaml</DependentUpon>
     </Compile>
     <Compile Include="WinForm\GraphicsDeviceControl.cs">
       <SubType>Component</SubType>
@@ -249,6 +253,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Preferences.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchFilterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

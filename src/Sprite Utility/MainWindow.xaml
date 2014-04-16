@@ -36,7 +36,12 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TreeView x:Name="TreeView" Margin="0" ItemsSource="{Binding Documents}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <views:SearchFilterView Grid.Row="0"/>
+            <TreeView x:Name="TreeView" Margin="0" ItemsSource="{Binding Documents}" Grid.Row="1" Grid.Column="0" >
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectedItemChanged">
                         <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"
@@ -46,7 +51,7 @@
             </TreeView>
             <GridSplitter HorizontalAlignment="Right" 
                   VerticalAlignment="Stretch" 
-                  Grid.Column="1" ResizeBehavior="PreviousAndNext"
+                  Grid.Column="1" Grid.RowSpan="2" ResizeBehavior="PreviousAndNext"
                   Width="5" Background="#FFBCBCBC"/>
             <!--<Border x:Name="Dupa" Grid.Column="1" Background="#FFB83737" Child="{Binding CurrentControl}"></Border>-->
             <!--<wpfHostedXna:GraphicsDeviceControl Grid.Column="1" x:Name="ContentControl"></wpfHostedXna:GraphicsDeviceControl>-->
