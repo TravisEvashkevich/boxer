@@ -388,15 +388,15 @@ namespace Boxer.WinForm
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             //mouse wheel to control zoom with ctrl button
-            //if (ModifierKeys == Keys.Control)
-            //{
+            if (ModifierKeys == Keys.Control)
+            {
                 if (e.Delta > 0)
                     DoZoom(1, new Point(e.X, e.Y));
                 else if (e.Delta < 0)
                 {
                     DoZoom(-1, new Point(e.X, e.Y));
                 }
-            //}
+            }
         }
 
         protected override void OnMouseEnter(EventArgs e)

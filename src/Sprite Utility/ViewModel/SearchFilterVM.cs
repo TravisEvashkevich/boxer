@@ -10,8 +10,9 @@ namespace Boxer.ViewModel
 {
     public class SearchFilterVM :MainViewModel
     {
+        private string _searchText;
         //The string entered in the searchbox
-        public string SearchText { get; set; }
+        public string SearchText { get { return _searchText; } set { Set(ref _searchText, value); } }
 
         //We will store the original document as well so that way if the search is cleared, 
         //we can reset the view to the original.

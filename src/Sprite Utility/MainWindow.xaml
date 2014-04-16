@@ -61,7 +61,7 @@
             <!--<ContentControl Grid.Column="1" x:Name="ContentControl" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Content="{Binding CurrentControl}">
 
             </ContentControl>-->
-            <ContentControl Grid.Column="2" Content="{Binding CurrentView}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" >
+            <ContentControl Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Content="{Binding CurrentView}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" >
             </ContentControl>
             <!--<controls:ImageViewer x:Name="ContentControl" Grid.Column="1" Visibility="{Binding IsImageViewerViewVisible, Converter={StaticResource ShowIfTrueConverter}}" ImageFrame="{Binding ImageFrame, UpdateSourceTrigger=PropertyChanged}"/>
             <views:DocumentWindow Grid.Column="1" Visibility="{Binding IsDocumentViewVisible, Converter={StaticResource ShowIfTrueConverter}}"></views:DocumentWindow>-->
