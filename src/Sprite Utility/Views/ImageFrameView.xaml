@@ -26,11 +26,13 @@
                     <Image Stretch="None" Source="/Boxer;component/Cursors/Pen.png"/>
                 </ToggleButton>
                 <Button Command="{Binding ZoomInCommand}"
-                        ToolTip="Ctrl + Numpad +">
+                        ToolTip="Ctrl + Numpad +
+                        OR Scroll Wheel">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomInCursor.png"/>
                 </Button>
                 <Button Command="{Binding ZoomOutCommand}"
-                        ToolTip="Ctrl + Numpad -">
+                        ToolTip="Ctrl + Numpad - 
+                        OR Scroll Wheel">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomOutCursor.png"/>
                 </Button>
                 <Button Command="{Binding ResetZoomCommand}"
