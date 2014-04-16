@@ -32,24 +32,8 @@ namespace Boxer.Data
         {
             _pause = false;
         }
-        
-        public void AddRange(IEnumerable<T> items)
-        {
-            PauseNotification();
-            try
-            {
-                foreach (var i in items)
-                {
-                    base.InsertItem(Count, i);
-                }
-            }
-            finally
-            {
-                Refresh();
-            }
-        }
 
-        private void Refresh()
+        public void Refresh()
         {
             ResumeNotification();
             var arg = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
