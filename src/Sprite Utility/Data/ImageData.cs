@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Boxer.Core;
@@ -116,7 +117,9 @@ namespace Boxer.Data
 
                                 using (var ms = new MemoryStream())
                                 {
-                                    image.Save(ms, ImageFormat.Png);
+                                    // Replace indexed transparency (for use with spritesheets with indexed color)
+                                    var img = BitmapTools.ReplaceIndexTransparency((Bitmap)image);
+                                    img.Save(ms, ImageFormat.Png);
 
                                     var child = new ImageFrame(ms.ToArray(), image.Width, image.Height);
                                     child.Initialize();

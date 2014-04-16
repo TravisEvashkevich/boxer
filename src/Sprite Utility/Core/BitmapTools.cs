@@ -9,17 +9,20 @@ namespace Boxer.Core
         public static readonly Color DefaultTransparency = Color.FromArgb(255, 255, 0, 255);
         public static readonly Color PngTransparency = Color.FromArgb(0, 255, 255, 255);
 
-        public static Rectangle TrimRect(Bitmap source, int minWidth = 0, int minHeight = 0)
+        public static Image ReplaceIndexTransparency(Bitmap source)
         {
             // First replace any faux transparency with real for trimming purposes
             var replaced = ReplaceColor(source, DefaultTransparency, PngTransparency);
-            replaced.Save("frim.png", ImageFormat.Png);
+            return replaced;
+        }
 
+        public static Rectangle TrimRect(Bitmap source, int minWidth = 0, int minHeight = 0)
+        {
             Rectangle srcRect;
             BitmapData data = null;
             try
             {
-                data = replaced.LockBits(new Rectangle(0, 0, replaced.Width, replaced.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                data = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
                 var buffer = new byte[data.Height * data.Stride];
                 Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
 
@@ -120,7 +123,7 @@ namespace Boxer.Core
             {
                 if (data != null)
                 {
-                    replaced.UnlockBits(data);
+                    source.UnlockBits(data);
                 }
             }
 
