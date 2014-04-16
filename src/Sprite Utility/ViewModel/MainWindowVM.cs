@@ -36,6 +36,8 @@ namespace Boxer.ViewModel
     {
         private string _lastPolygonGroupName;
         private NodeWithName _currentSelectedNode;
+        private Polygon _copyPolygon;
+        private object _pastePlace;
 
         public Glue Glue
         {
@@ -112,6 +114,8 @@ namespace Boxer.ViewModel
                 TraceService.SetDisplayUnitToSimUnitRatio(Settings.Default.SimulationRatio);
             }
         }
+
+        
 
         public SmartCommand<object> SelectedItemChangedCommand { get; private set; }
 
@@ -207,6 +211,8 @@ namespace Boxer.ViewModel
                 CurrentView = null;
             }
         }
+
+        #region Commands
 
         public SmartCommand<object> NewDocumentCommand { get; private set; }
 
@@ -354,6 +360,42 @@ namespace Boxer.ViewModel
             _currentSelectedNode.Remove();
         }
 
+        public SmartCommand<object> CopyCommand { get; private set; }
+
+        public bool CanExecuteCopyCommand(object o)
+        {
+            return _currentSelectedNode is Polygon;
+        }
+
+        public void ExecuteCopyCommand(object o)
+        {
+            //put the polygon data in a copy variable (as the _currentSelectedNode will end up being whatever you click to paste in)
+            _copyPolygon = _currentSelectedNode as Polygon;
+        }
+
+        public SmartCommand<object> PasteCommand { get; private set; }
+
+        public bool CanExecutePasteCommand(object o)
+        {
+            return _currentSelectedNode !=null;
+        }
+
+        public void ExecutePasteCommand(object o)
+        {
+            //find the polygon that is "currently selected" and then change it with the copy data
+            foreach (var document in Documents)
+            {
+                foreach (var child in document.Children)
+                {
+                    if (child == _currentSelectedNode && child is Polygon)
+                    {
+                        
+                    }
+                }
+            }
+            _viewModelLocator.ImageFrameView.Polygon = _copyPolygon;
+        }
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -365,6 +407,12 @@ namespace Boxer.ViewModel
             CloseCommand = new SmartCommand<object>(ExecuteCloseCommand, CanExecuteCloseCommand);
             ExportCommand = new SmartCommand<object>(ExecuteExportCommand, CanExecuteExportCommand);
             RemoveCommand = new SmartCommand<object>(ExecutreRemoveCommand, CanExecuteRemoveCommand);
+
+            //Copy Paste commands
+            CopyCommand = new SmartCommand<object>(ExecuteCopyCommand, CanExecuteCopyCommand);
+            PasteCommand = new SmartCommand<object>(ExecutePasteCommand, CanExecutePasteCommand);
         }
+
+#endregion
     }
 }
