@@ -200,6 +200,8 @@ namespace Boxer.Controls
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Subtract)
                 imageViewer.DoZoom(-1);
 
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.R)
+                imageViewer.ResetZoom();
             e.Handled = true;
 
             base.OnKeyUp(e);
