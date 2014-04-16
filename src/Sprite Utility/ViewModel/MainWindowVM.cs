@@ -382,18 +382,10 @@ namespace Boxer.ViewModel
 
         public void ExecutePasteCommand(object o)
         {
-            //find the polygon that is "currently selected" and then change it with the copy data
-            foreach (var document in Documents)
-            {
-                foreach (var child in document.Children)
-                {
-                    if (child == _currentSelectedNode && child is Polygon)
-                    {
-                        
-                    }
-                }
-            }
-            _viewModelLocator.ImageFrameView.Polygon = _copyPolygon;
+            //Setting the data to the Polygon itself doesn't raise propertyChanged so you have to do it directly to the collection
+            //This updates in the view automatically as well.  This only changes the points within the poly and nothing else
+            //(makes sense to me that it doesn't change the name and such but that is easy to implement as well if desired)
+           _viewModelLocator.ImageFrameView.Polygon.Children = _copyPolygon.Children;
         }
 
         protected override void InitializeCommands()
