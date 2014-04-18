@@ -6,6 +6,7 @@
                     xmlns:properties="clr-namespace:Boxer.Properties"
                     xmlns:viewModel="clr-namespace:Boxer.ViewModel"
                     xmlns:views="clr-namespace:Boxer.Views"
+                    
                     xmlns:controls="clr-namespace:Boxer.Controls">
 
     <converters:ImageFrameHeaderConverter x:Key="ImageFrameHeaderConverter" />
@@ -16,6 +17,7 @@
     <converters:IsOpenToHeaderConverter x:Key="IsOpenToHeaderConverter" />
     <converters:IsDocumentSavedToHeaderConverter x:Key="IsDocumentSavedToHeaderConverter" />
     <converters:OrderNodesConverter x:Key="OrderNodesConverter" />
+    <converters:BooleanToVisiblityConverter x:Key="BooleanToVisiblityConverter"/>
     
     <properties:Settings x:Key="Settings" />
     <DataTemplate DataType="{x:Type viewModel:DocumentViewVM}">
@@ -33,27 +35,57 @@
     <DataTemplate DataType="{x:Type viewModel:PreferencesVM}">
         <views:Preferences HorizontalAlignment="Left" VerticalAlignment="Top"/>
     </DataTemplate>
-
-    <HierarchicalDataTemplate DataType="{x:Type data:Document}" ItemsSource="{Binding Path=Children, Converter={StaticResource OrderNodesConverter}}">
-        <Border MinWidth="250" Background="{Binding Default.DocumentStubColor, Source={StaticResource Settings}, Mode=TwoWay, Converter={StaticResource ColorToBrushConterver}}"  BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
-            <Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-				</Grid.RowDefinitions>
-				<TextBlock Text="{Binding Name}" />
-                <TextBlock Text="{Binding Children.Count, StringFormat={}Folders: {0}}" Grid.Row="1" />  
-            </Grid>
-            <Border.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="New Folder" Command="{Binding NewFolderCommand}"></MenuItem>
-                    <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
-                </ContextMenu>
-            </Border.ContextMenu>
-        </Border>
-    </HierarchicalDataTemplate>
-
+    
+    <Style x:Key="SearchableTreeView" TargetType="{x:Type TreeView}">
+        <Style.Resources>
+            <HierarchicalDataTemplate DataType="{x:Type data:Document}" ItemsSource="{Binding Path=Children, Converter={StaticResource OrderNodesConverter}}">
+                <Border Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisiblityConverter}}" MinWidth="250" Background="{Binding Default.DocumentStubColor, Source={StaticResource Settings}, Mode=TwoWay, Converter={StaticResource ColorToBrushConterver}}"  BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40" >
+                    <Grid >
+				        <Grid.RowDefinitions>
+					        <RowDefinition Height="Auto"/>
+					        <RowDefinition Height="Auto"/>
+				        </Grid.RowDefinitions>
+				        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Children.Count, StringFormat={}Folders: {0}}" Grid.Row="1" />  
+                    </Grid>
+                    <Border.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="New Folder" Command="{Binding NewFolderCommand}"></MenuItem>
+                            <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
+                        </ContextMenu>
+                    </Border.ContextMenu>
+                </Border>
+            </HierarchicalDataTemplate>
+        </Style.Resources>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="BorderThickness" Value="1.5"/>
+                    <Setter Property="Visibility" Value="{Binding Path=IsVisible, Mode=OneWay, Converter={StaticResource ResourceKey=BooleanToVisiblityConverter}}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="BorderBrush" Value="#FFABC0F0"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="IsSelectionActive" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="BorderBrush" Value="LightGray"/>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                    <Style.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </Style.Resources>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        
+        </Style>
     <HierarchicalDataTemplate DataType="{x:Type data:Folder}" ItemsSource="{Binding Children, Converter={StaticResource OrderNodesConverter}}">
+
         <Border MinWidth="250"  Background="{Binding Default.FolderStubColor, Source={StaticResource Settings}, Converter={StaticResource ColorToBrushConterver}}" BorderThickness="1" CornerRadius="2" Margin="2" Padding="2" Height="40">
             <Grid>
 				<Grid.RowDefinitions>

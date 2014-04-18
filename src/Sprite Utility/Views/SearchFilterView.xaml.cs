@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Boxer.Data;
+using Boxer.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Boxer.Views
 {
@@ -23,6 +26,28 @@ namespace Boxer.Views
         public SearchFilterView()
         {
             InitializeComponent();
+        }
+
+        private void SearchBox_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var instance = ServiceLocator.Current.GetInstance<SearchFilterVM>();
+                if (SearchBox.Text == "")
+                {
+                    instance.ResetDocument();
+                }
+                if (SearchBox.Text != instance.SearchText)
+                {
+                    instance.SearchText = SearchBox.Text;
+                    instance.ExecuteSearchCommand(instance);
+                }
+            }
+        }
+
+        private void SearchBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
