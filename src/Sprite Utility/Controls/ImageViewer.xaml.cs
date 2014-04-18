@@ -17,6 +17,7 @@ using Boxer.Data;
 using Boxer.ViewModel;
 using Boxer.WinForm;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpriteUtility;
@@ -162,6 +163,53 @@ namespace Boxer.Controls
             if (e.Key == Key.Left)
                 imageViewer.MoveCamera(-Vector2.UnitX);
 
+            //----------Hotkey support---------
+            //for users while in the imageviewer View (since apparently hotkeys in the mainwindow that usually work across the whole
+            //application, don't get down to the other view)
+            //TODO Kind of a hack, see if able to do another way
+            //(already tried doing in the same way as mainwindow but in the ImageFrameView.xaml.cs, didn't work
+            
+            //Save As Command call 
+            //NOTE: THIS HAS TO BE BEFORE SAVE, ELSE SAVE ONLY GETS CALLED
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftShift) && (e.Key == Key.S))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteSaveAsCommand(instance);
+            }
+            //Save Command call
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.S))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteSaveDocumentCommand(instance);
+            }
+            
+            //Export Command call
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.E))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteExportCommand(instance);
+            }
+            //Open Command call
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.O))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteOpenDocumentCommand(instance);
+            }
+            //New Command call
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.N))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteNewDocumentCommand(instance);
+            }
+            //Close Command call
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.Q))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.ExecuteCloseCommand(instance);
+            }
+
+            
+
             e.Handled = true;
 
             base.OnKeyDown(e);
@@ -200,6 +248,8 @@ namespace Boxer.Controls
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Subtract)
                 imageViewer.DoZoom(-1);
 
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.R)
+                imageViewer.ResetZoom();
             e.Handled = true;
 
             base.OnKeyUp(e);

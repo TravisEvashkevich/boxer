@@ -41,10 +41,14 @@ namespace Boxer
             //Get the MainWindowViewModel as it has all the menu related commands
             var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
             InputBindings.Add(new KeyBinding(instance.OpenDocumentCommand, new KeyGesture(Key.O, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.NewDocumentCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
             InputBindings.Add(new KeyBinding(instance.SaveDocumentCommand, new KeyGesture(Key.S, ModifierKeys.Control)));
             InputBindings.Add(new KeyBinding(instance.SaveAsCommand, new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)));
             InputBindings.Add(new KeyBinding(instance.CloseCommand, new KeyGesture(Key.Q, ModifierKeys.Control)));
             InputBindings.Add(new KeyBinding(instance.ExportCommand, new KeyGesture(Key.E, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.RemoveCommand, new KeyGesture(Key.Delete)));
+            InputBindings.Add(new KeyBinding(instance.CopyCommand, new KeyGesture(Key.C ,ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(instance.PasteCommand, new KeyGesture(Key.V, ModifierKeys.Control)));
 
 
         }

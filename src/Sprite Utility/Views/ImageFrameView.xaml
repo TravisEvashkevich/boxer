@@ -17,19 +17,26 @@
         </Grid.RowDefinitions>
         <ToolBarTray Orientation="Vertical" Grid.RowSpan="2">
             <ToolBar Width="30">
-                <ToggleButton IsChecked="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ToggleButton IsChecked="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              ToolTip="(C)enter Mode">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ArrowNorm.png"/>
                 </ToggleButton>
-                <ToggleButton IsChecked="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ToggleButton IsChecked="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              ToolTip="(P)olygon Mode">
                     <Image Stretch="None" Source="/Boxer;component/Cursors/Pen.png"/>
                 </ToggleButton>
-                <Button Command="{Binding ZoomInCommand}">
+                <Button Command="{Binding ZoomInCommand}"
+                        ToolTip="Ctrl + Numpad +
+                        OR Ctrl + Scroll Wheel">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomInCursor.png"/>
                 </Button>
-                <Button Command="{Binding ZoomOutCommand}">
+                <Button Command="{Binding ZoomOutCommand}"
+                        ToolTip="Ctrl + Numpad - 
+                        OR Ctrl + Scroll Wheel">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ZoomOutCursor.png"/>
                 </Button>
-                <Button Command="{Binding ResetZoomCommand}">
+                <Button Command="{Binding ResetZoomCommand}"
+                        ToolTip="Ctrl + R">
                     <TextBlock Text="RES"></TextBlock>
                 </Button>
             </ToolBar>

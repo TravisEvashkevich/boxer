@@ -49,6 +49,7 @@ namespace Boxer.Core
             SimpleIoc.Default.Register<ImageFrameViewVM>();
             SimpleIoc.Default.Register<ImageViewVM>();
             SimpleIoc.Default.Register<AutoTraceWindowVM>();
+            SimpleIoc.Default.Register<SearchFilterVM>();
             SimpleIoc.Default.Register<Glue>();
         }
 
@@ -69,6 +70,17 @@ namespace Boxer.Core
                 var instance = ServiceLocator.Current.GetInstance<PreferencesVM>();
                 instance.Initialize();
                 return instance;
+            }
+        }
+
+        public SearchFilterVM SearchFilter
+        {
+            get
+            {
+                var instance = ServiceLocator.Current.GetInstance<SearchFilterVM>();
+                instance.Initialize();
+                return instance;
+                
             }
         }
 

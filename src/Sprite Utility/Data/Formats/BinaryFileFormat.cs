@@ -69,7 +69,9 @@ namespace Boxer.Data.Formats
         private static void ReadChildren(BinaryReader reader, INode parent)
         {
             var count = reader.ReadInt32();
+
             //parent.Children.PauseNotification();
+
             for (var i = 0; i < count; i++)
             {
                 ReadChild(reader, parent, parent.Children);
@@ -132,12 +134,14 @@ namespace Boxer.Data.Formats
         {
             var name = reader.ReadString();
             var extension = reader.ReadString();
+            //create the image and set it's data
             var imageData = new ImageData
             {
                 Name = name, 
                 Extension = extension,
                 Parent = parent
             };
+            //read in the frames of the image
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
             {
