@@ -51,39 +51,8 @@ namespace Boxer.ViewModel
             }
             _bFirstSearch = false;
 
-            //clear the desired Document 
-            DesiredDocument = new Document();
-            DesiredDocument.Name = OriginalDocument.Name;
-            
-            var images = new List<ImageData>();
-
-            foreach (var child in OriginalDocument.Children)
-            {
-                if (child is Folder)
-                {
-                   var image = FindImage(child as Folder);
-                    if (image.Count > 0)
-                    {
-                        images.AddRange(image);
-                    }
-                }
-                else if (child is ImageData && child.Name.Contains(SearchText))
-                {
-                    images.Add(child as ImageData);
-                }
-            }
-
-            if (images.Count > 0)
-            {
-                //we now have all the images and now we want to reconstruct the hierarchy
-                //find the parent of the image, see if it's parent is already part of the folder hierarchy or not
-                //if it isn't, keep going up, if it is, add the structure BELOW the dupe parent to the folder
-
-                /*foreach (var image in images)
-                {*/
-                   ApplyCriteria(SearchText,new Stack<NodeWithName>(),instance.Documents[0] );
-                //}
-            }
+            ApplyCriteria(SearchText,new Stack<NodeWithName>(),instance.Documents[0] );
+            instance.Documents[0].IsExpanded = true;
         }
 
         private bool IsCriteriaMatched(string criteria, NodeWithName check)
@@ -93,13 +62,13 @@ namespace Boxer.ViewModel
 
         public void ApplyCriteria(string criteria, Stack<NodeWithName> ancestors,NodeWithName startPoint)
         {
-            if (IsCriteriaMatched(criteria,startPoint))
+           if (IsCriteriaMatched(criteria,startPoint))
             {
                 startPoint.IsVisible = true;
                 foreach (var ancestor in ancestors)
                 {
                     ancestor.IsVisible = true;
-                    //ancestor.IsExpanded = !String.IsNullOrEmpty(criteria);
+                    ancestor.IsExpanded = !String.IsNullOrEmpty(criteria);
                 }
             }
             else
@@ -114,28 +83,6 @@ namespace Boxer.ViewModel
             ancestors.Pop();
         }
 
-        //Search a folder for images matching the searchText
-        private List<ImageData> FindImage(Folder folder)
-        {
-            var outImages = new List<ImageData>();
-            foreach (var child in folder.Children)
-            {
-                if (child is Folder)
-                {
-                    var temp = FindImage(child as Folder);
-                    if (temp.Count > 0)
-                    {
-                        outImages.AddRange(temp);
-                    }
-                }
-                if (child is ImageData && child.Name.Contains(SearchText))
-                {
-                    outImages.Add(child as ImageData);
-                }
-            }
-            return outImages;
-        }
-
         protected override void InitializeCommands()
         {
             _desiredDocument = new Document();
@@ -148,6 +95,7 @@ namespace Boxer.ViewModel
             //store the original doc
             var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
             instance.Documents[0] = OriginalDocument;
+
         }
     }
 }

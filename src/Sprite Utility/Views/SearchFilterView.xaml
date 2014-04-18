@@ -7,7 +7,7 @@
     <Grid>
         <StackPanel Orientation="Horizontal">
             <Label Content="Image Search"/>
-            <TextBox x:Name="SearchBox" Text="{Binding SearchText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="150" Height="25" KeyDown="SearchBox_OnKeyDown"/>
+            <TextBox x:Name="SearchBox" Text="{Binding SearchText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="150" Height="25" TextChanged="SearchBox_OnTextChanged"/>
         </StackPanel>
     </Grid>
 </UserControl>

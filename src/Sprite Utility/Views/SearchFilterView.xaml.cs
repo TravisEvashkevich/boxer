@@ -23,31 +23,32 @@ namespace Boxer.Views
     /// </summary>
     public partial class SearchFilterView : UserControl
     {
+        private SearchFilterVM _searchFilterVm = ServiceLocator.Current.GetInstance<SearchFilterVM>();
         public SearchFilterView()
         {
             InitializeComponent();
         }
 
-        private void SearchBox_OnKeyDown(object sender, KeyEventArgs e)
+        /*private void SearchBox_OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                var instance = ServiceLocator.Current.GetInstance<SearchFilterVM>();
-                if (SearchBox.Text == "")
-                {
-                    instance.ResetDocument();
-                }
-                if (SearchBox.Text != instance.SearchText)
-                {
-                    instance.SearchText = SearchBox.Text;
-                    instance.ExecuteSearchCommand(instance);
-                }
+                
             }
-        }
+        }*/
 
         private void SearchBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-
+            
+            if (SearchBox.Text == "")
+            {
+                _searchFilterVm.ResetDocument();
+            }
+            if (SearchBox.Text != _searchFilterVm.SearchText)
+            {
+                _searchFilterVm.SearchText = SearchBox.Text;
+                _searchFilterVm.ExecuteSearchCommand(_searchFilterVm);
+            }
         }
     }
 }
