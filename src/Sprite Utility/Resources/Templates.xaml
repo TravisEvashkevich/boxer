@@ -63,18 +63,6 @@
                     <Setter Property="BorderThickness" Value="1.5"/>
                     <Setter Property="IsExpanded" Value="{Binding Path=IsExpanded, Mode=TwoWay}" />
                     <Setter Property="Visibility" Value="{Binding Path=IsVisible, Mode=OneWay, Converter={StaticResource ResourceKey=BooleanToVisiblityConverter}}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="BorderBrush" Value="#FFABC0F0"/>
-                        </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsSelected" Value="True"/>
-                                <Condition Property="IsSelectionActive" Value="False"/>
-                            </MultiTrigger.Conditions>
-                            <Setter Property="BorderBrush" Value="LightGray"/>
-                        </MultiTrigger>
-                    </Style.Triggers>
                     <Style.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="3"/>
