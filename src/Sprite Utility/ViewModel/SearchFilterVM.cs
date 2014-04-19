@@ -44,7 +44,7 @@ namespace Boxer.ViewModel
                 foreach (var ancestor in ancestors)
                 {
                     ancestor.IsVisible = true;
-                    ancestor.IsExpanded = !String.IsNullOrEmpty(criteria);
+                    ancestor.Expanded = !String.IsNullOrEmpty(criteria);
                 }
             }
             else
