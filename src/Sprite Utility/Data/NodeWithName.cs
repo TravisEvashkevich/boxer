@@ -22,16 +22,11 @@ namespace Boxer.Data
         public virtual bool IsVisible { get { return _isVisible; } set { Set(ref _isVisible, value); } }
         
         private bool _expanded;
-        public bool IsExpanded
+        public bool Expanded
         {
             get { return _expanded; }
             set
             {
-                if (value == _expanded)
-                    return;
-
-                _expanded = value;
-
                 Set(ref _expanded, value);
             }
         }
@@ -48,9 +43,7 @@ namespace Boxer.Data
         }
 
         protected FastObservableCollection<INode> _children;
-        
-
-
+      
         public string Type { get; set; }
         public virtual FastObservableCollection<INode> Children { get { return _children; } set { Set(ref _children, value); } }
 

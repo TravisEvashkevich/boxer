@@ -39,11 +39,6 @@ namespace Boxer.Views
 
         private void SearchBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            
-            if (SearchBox.Text == "")
-            {
-                _searchFilterVm.ResetDocument();
-            }
             if (SearchBox.Text != _searchFilterVm.SearchText)
             {
                 _searchFilterVm.SearchText = SearchBox.Text;
