@@ -12,12 +12,14 @@ namespace Boxer.ViewModel
 {
     public class SearchFilterVM : MainViewModel
     {
-
         private string _searchText;
+        private bool _excludeUnApproved;
+        public bool ExcludeUnApproved { get { return _excludeUnApproved; } set { Set(ref _excludeUnApproved, value); } }
 
         //The string entered in the searchbox
         public string SearchText { get { return _searchText; } set { Set(ref _searchText, value); } }
 
+ 
 
         public SmartCommand<object> SearchCommand { get; private set; }
 
