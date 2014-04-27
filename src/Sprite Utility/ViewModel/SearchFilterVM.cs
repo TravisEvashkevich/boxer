@@ -13,13 +13,19 @@ namespace Boxer.ViewModel
     public class SearchFilterVM : MainViewModel
     {
         private string _searchText;
-        private bool _excludeUnApproved;
-        public bool ExcludeUnApproved { get { return _excludeUnApproved; } set { Set(ref _excludeUnApproved, value); } }
+        private bool _excludeApproved;
+        public bool ExcludeApproved 
+        {
+            get { return _excludeApproved; }
+            set
+            {
+                Set(ref _excludeApproved, value);
+                ExecuteSearchCommand(null);
+            } 
+        }
 
         //The string entered in the searchbox
         public string SearchText { get { return _searchText; } set { Set(ref _searchText, value); } }
-
- 
 
         public SmartCommand<object> SearchCommand { get; private set; }
 
@@ -40,25 +46,49 @@ namespace Boxer.ViewModel
 
         public void ApplyCriteria(string criteria, Stack<NodeWithName> ancestors,NodeWithName startPoint)
         {
-           if (IsCriteriaMatched(criteria,startPoint))
+            //If we are supposed to exclude approved then we check if the startpoint is approved
+            //before checking if it matches or not. then run the same 
+            if (ExcludeApproved)
             {
-                startPoint.IsVisible = true;
-                foreach (var ancestor in ancestors)
+                if (startPoint.Approved)
                 {
-                    ancestor.IsVisible = true;
-                    ancestor.Expanded = !String.IsNullOrEmpty(criteria);
+                    startPoint.IsVisible = false;
+                }
+                else
+                {
+                    if (IsCriteriaMatched(criteria, startPoint))
+                    {
+                        startPoint.IsVisible = true;
+                        foreach (var ancestor in ancestors)
+                        {
+                            ancestor.IsVisible = true;
+                            ancestor.Expanded = !String.IsNullOrEmpty(criteria);
+                        }
+                    }
                 }
             }
             else
-                startPoint.IsVisible = false;
-
+            {
+                if (IsCriteriaMatched(criteria, startPoint))
+                {
+                    startPoint.IsVisible = true;
+                    foreach (var ancestor in ancestors)
+                    {
+                        ancestor.IsVisible = true;
+                        ancestor.Expanded = !String.IsNullOrEmpty(criteria);
+                    }
+                }
+                else
+                    startPoint.IsVisible = false;
+            }
             ancestors.Push(startPoint);
-            foreach (var child in startPoint.Children)
-                if(child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString() )&& 
-                    !child.Type.Contains(typeof(Polygon).ToString()) )
-                ApplyCriteria(criteria, ancestors,child as NodeWithName);
+                foreach (var child in startPoint.Children)
+                    if(child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString() )&& 
+                       !child.Type.Contains(typeof(Polygon).ToString()) )
+                        ApplyCriteria(criteria, ancestors,child as NodeWithName);
 
-            ancestors.Pop();
+                ancestors.Pop();
+            
         }
 
         protected override void InitializeCommands()

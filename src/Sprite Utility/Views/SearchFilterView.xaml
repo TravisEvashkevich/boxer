@@ -8,7 +8,7 @@
         <StackPanel Orientation="Horizontal">
             <Label Content="Image Search"/>
             <TextBox x:Name="SearchBox" Text="{Binding SearchText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="150" Height="25" TextChanged="SearchBox_OnTextChanged"/>
-            <CheckBox Name="ApprovedCheckBox" IsChecked="{Binding ExcludeUnApproved}" Content="Exclude Un-Approved" Margin="0,5,0,0"/>
+            <CheckBox Name="ApprovedCheckBox" IsChecked="{Binding ExcludeApproved, UpdateSourceTrigger=PropertyChanged}" Content="Exclude Approved" Margin="5,5,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>
