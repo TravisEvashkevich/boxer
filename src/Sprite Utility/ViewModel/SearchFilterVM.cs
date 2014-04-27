@@ -34,8 +34,11 @@ namespace Boxer.ViewModel
             var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
             if (instance.Documents == null)
                 return;
+
+            if (instance.Documents.Count == 0) return;
             
-            ApplyCriteria(SearchText,new Stack<NodeWithName>(),instance.Documents[0] );
+            var start = instance.Documents[0];
+            ApplyCriteria(SearchText,new Stack<NodeWithName>(),start );
             //instance.Documents[0].IsExpanded = true;
         }
 
