@@ -107,6 +107,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Text="{Binding Path=Name}" />
+                <CheckBox Grid.Row="0" HorizontalAlignment="Right" Content="Approved" IsChecked="{Binding Approved, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Binding Path=Children.Count, StringFormat={}Frames: {0}}" Grid.Row="1" />
             </Grid>
             <Border.ContextMenu>
