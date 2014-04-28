@@ -44,7 +44,7 @@ namespace Boxer.ViewModel
 
         private bool IsCriteriaMatched(string criteria, NodeWithName check)
         {
-            return String.IsNullOrEmpty(criteria) || check.Name.Contains(criteria);
+            return String.IsNullOrEmpty(criteria) || check.Name.ToLower().Contains(criteria.ToLower());
         }
 
         public void ApplyCriteria(string criteria, Stack<NodeWithName> ancestors,NodeWithName startPoint)
