@@ -25,6 +25,8 @@ namespace Boxer
     /// </summary>
     public partial class MainWindow : Window
     {
+        //want to save in a var so I can use across methods, can't load right at the start cause it doesn't exist till after the initcomp
+        private MainWindowVM _mainWindowVm = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -39,16 +41,16 @@ namespace Boxer
 
             /*------------------------HotKeys----------------*/
             //Get the MainWindowViewModel as it has all the menu related commands
-            var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
-            InputBindings.Add(new KeyBinding(instance.OpenDocumentCommand, new KeyGesture(Key.O, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.NewDocumentCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.SaveDocumentCommand, new KeyGesture(Key.S, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.SaveAsCommand, new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)));
-            InputBindings.Add(new KeyBinding(instance.CloseCommand, new KeyGesture(Key.Q, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.ExportCommand, new KeyGesture(Key.E, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.RemoveCommand, new KeyGesture(Key.Delete)));
-            InputBindings.Add(new KeyBinding(instance.CopyCommand, new KeyGesture(Key.C ,ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(instance.PasteCommand, new KeyGesture(Key.V, ModifierKeys.Control)));
+            _mainWindowVm = ServiceLocator.Current.GetInstance<MainWindowVM>();
+            InputBindings.Add(new KeyBinding(_mainWindowVm.OpenDocumentCommand, new KeyGesture(Key.O, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.NewDocumentCommand, new KeyGesture(Key.N, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.SaveDocumentCommand, new KeyGesture(Key.S, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.SaveAsCommand, new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.CloseCommand, new KeyGesture(Key.Q, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.ExportCommand, new KeyGesture(Key.E, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.RemoveCommand, new KeyGesture(Key.Delete)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.CopyCommand, new KeyGesture(Key.C, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(_mainWindowVm.PasteCommand, new KeyGesture(Key.V, ModifierKeys.Control)));
 
 
         }
@@ -65,6 +67,15 @@ namespace Boxer
                 }
             }
             
+        }
+
+        private void TreeView_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                _mainWindowVm.JumpToNextImageFrame();
+
+            }
         }
     }
 }
