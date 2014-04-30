@@ -114,6 +114,23 @@ namespace Boxer.ViewModel
             }
         }
 
+        public void CreateNewPolygon()
+        {
+            if (_currentSelectedNode is Polygon)
+            {
+                var group = _currentSelectedNode.Parent as PolygonGroup;
+                var newPoly = new Polygon();
+                newPoly.Parent = group;
+                newPoly.Name = "Polygon " + (group.Children.Count + 1);
+
+                group.Children.Add(newPoly);
+
+                var index = group.Children.IndexOf(newPoly);
+                (group.Children[index] as Polygon).IsSelected = true;
+                _currentSelectedNode = group.Children[index] as NodeWithName;
+            }
+        }
+
         //when we hit enter in the mainwindow and we are on a pgroup we want to jump to the next frame and open the same p group
         public void JumpToNextImageFrame()
         {
