@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.Properties;
+using Boxer.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WinFormsGraphicsDevice;
@@ -550,6 +552,15 @@ namespace Boxer.WinForm
                         Glue.Instance.DocumentIsSaved = false;
                     }
                 }
+            }
+
+
+            //if middle Mouse middle click add a new polygon and select it automatically for quickest way to keep making polys without extra movements etc.
+            if (e.Button == MouseButtons.Middle)
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.CreateNewPolygon();
+                Glue.Instance.DocumentIsSaved = false;
             }
         }
 

@@ -207,7 +207,12 @@ namespace Boxer.Controls
                 var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
                 instance.ExecuteCloseCommand(instance);
             }
-
+            //Jump from frame and polygroup you're working on to the next frame and open/select the same polygroup if it exists.
+            if (Keyboard.IsKeyDown(Key.Enter))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.JumpToNextImageFrame();
+            }
             
 
             e.Handled = true;

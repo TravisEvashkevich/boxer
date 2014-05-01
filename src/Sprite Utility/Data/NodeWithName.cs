@@ -35,6 +35,9 @@ namespace Boxer.Data
         public bool Approved { get { return _approved; } 
             set { Set(ref _approved, value); } }
 
+        private bool _isSelected;
+        public bool IsSelected { get { return _isSelected; } set { Set(ref _isSelected, value); } }
+
         public override void Set<T>(ref T field, T value, [CallerMemberName] string name = "")
         {
             Glue.Instance.DocumentIsSaved = false;
