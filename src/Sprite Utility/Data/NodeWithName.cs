@@ -47,10 +47,6 @@ namespace Boxer.Data
             base.Set(ref field, value, name);
         }
 
-        protected override void InitializeCommands()
-        {
-            RemoveCommand = new SmartCommand<object>(ExecuteRemoveCommand, CanExecuteRemoveCommand);
-        }
 
         protected FastObservableCollection<INode> _children;
       
@@ -86,6 +82,11 @@ namespace Boxer.Data
         public void ExecuteRemoveCommand(object o)
         {
             Remove();
+        }
+
+        protected override void InitializeCommands()
+        {
+            RemoveCommand = new SmartCommand<object>(ExecuteRemoveCommand, CanExecuteRemoveCommand);
         }
     }
 }
