@@ -122,6 +122,7 @@ namespace Boxer.ViewModel
                 var newPoly = new Polygon();
                 newPoly.Parent = group;
                 newPoly.Name = "Polygon " + (group.Children.Count + 1);
+                newPoly.Initialize();
 
                 group.Children.Add(newPoly);
 
