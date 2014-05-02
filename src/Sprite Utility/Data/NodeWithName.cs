@@ -19,9 +19,11 @@ namespace Boxer.Data
         }
 
         private bool _isVisible = true;
+        [JsonIgnore]
         public virtual bool IsVisible { get { return _isVisible; } set { Set(ref _isVisible, value); } }
         
         private bool _expanded;
+        [JsonIgnore]
         public bool Expanded
         {
             get { return _expanded; }
@@ -36,6 +38,7 @@ namespace Boxer.Data
             set { Set(ref _approved, value); } }
 
         private bool _isSelected;
+        [JsonIgnore]
         public bool IsSelected { get { return _isSelected; } set { Set(ref _isSelected, value); } }
 
         public override void Set<T>(ref T field, T value, [CallerMemberName] string name = "")

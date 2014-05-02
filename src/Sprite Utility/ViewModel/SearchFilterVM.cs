@@ -44,46 +44,33 @@ namespace Boxer.ViewModel
 
         private bool IsCriteriaMatched(string criteria, NodeWithName check)
         {
-            return String.IsNullOrEmpty(criteria) || check.Name.ToLower().Contains(criteria.ToLower());
+            if(!ExcludeApproved)
+                return String.IsNullOrEmpty(criteria) || check.Name.ToLower().Contains(criteria.ToLower());
+            
+            if(check.Approved)
+                return false;
+
+                return String.IsNullOrEmpty(criteria) || check.Name.ToLower().Contains(criteria.ToLower());
+            
+                
+            
         }
 
         public void ApplyCriteria(string criteria, Stack<NodeWithName> ancestors,NodeWithName startPoint)
         {
-            //If we are supposed to exclude approved then we check if the startpoint is approved
-            //before checking if it matches or not. then run the same 
-            if (ExcludeApproved)
+
+            if (IsCriteriaMatched(criteria, startPoint))
             {
-                if (startPoint.Approved)
+                startPoint.IsVisible = true;
+                foreach (var ancestor in ancestors)
                 {
-                    startPoint.IsVisible = false;
-                }
-                else
-                {
-                    if (IsCriteriaMatched(criteria, startPoint))
-                    {
-                        startPoint.IsVisible = true;
-                        foreach (var ancestor in ancestors)
-                        {
-                            ancestor.IsVisible = true;
-                            ancestor.Expanded = !String.IsNullOrEmpty(criteria);
-                        }
-                    }
+                    ancestor.IsVisible = true;
+                    ancestor.Expanded = !String.IsNullOrEmpty(criteria);
                 }
             }
             else
-            {
-                if (IsCriteriaMatched(criteria, startPoint))
-                {
-                    startPoint.IsVisible = true;
-                    foreach (var ancestor in ancestors)
-                    {
-                        ancestor.IsVisible = true;
-                        ancestor.Expanded = !String.IsNullOrEmpty(criteria);
-                    }
-                }
-                else
-                    startPoint.IsVisible = false;
-            }
+                startPoint.IsVisible = false;
+            
             ancestors.Push(startPoint);
                 foreach (var child in startPoint.Children)
                     if(child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString() )&& 
