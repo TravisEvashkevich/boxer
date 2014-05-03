@@ -7,12 +7,7 @@ namespace Boxer.Core
         private static Glue _instance;
         public static Glue Instance
         {
-            get
-            {
-                if (_instance == null)
-                    _instance = new Glue();
-                return _instance;
-            }
+            get { return _instance ?? (_instance = new Glue()); }
         }
 
         private bool _documentIsSaved;
@@ -33,8 +28,6 @@ namespace Boxer.Core
             set { Set(ref _document, value); }
         }
 
-        protected override void InitializeCommands()
-        {
-        }
+        protected override void InitializeCommands() { }
     }
 }

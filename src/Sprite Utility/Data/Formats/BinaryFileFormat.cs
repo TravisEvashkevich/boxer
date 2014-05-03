@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,14 +68,10 @@ namespace Boxer.Data.Formats
         private static void ReadChildren(BinaryReader reader, INode parent)
         {
             var count = reader.ReadInt32();
-
-            //parent.Children.PauseNotification();
-
             for (var i = 0; i < count; i++)
             {
                 ReadChild(reader, parent, parent.Children);
             }
-            //parent.Children.ResumeNotification();
         }
 
         private static void ReadChild(BinaryReader reader, INode parent, ICollection<INode> container)
