@@ -607,6 +607,14 @@ namespace Boxer.ViewModel
                     clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
                         _viewModelLocator.ImageFrameView.Polygon.Children = clone.Children;
                     break;
+
+                case "PolygonGroup":
+                    clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
+                    if (_viewModelLocator.ImageFrameView.PolygonGroup.Children.Count != 0)
+                        _viewModelLocator.ImageFrameView.PolygonGroup.Children[0] = clone;
+                    else
+                        _viewModelLocator.ImageFrameView.PolygonGroup.Children.Add(clone);
+                    break;
                 case "ImageFrame":
                     //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
                     //group that matches, if there is, we then paste the polygon into the first spot, overwriting whatever is there.
