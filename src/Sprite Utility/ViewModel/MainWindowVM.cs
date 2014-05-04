@@ -132,6 +132,113 @@ namespace Boxer.ViewModel
             }
         }
 
+        //when we hit Ctrl+Enter in the mainwindow and we are on a poly or group we want to go up one frame and open the same p group
+        public void JumpBackOneImageFrame()
+        {
+            //if we have an polygroup selected go up to the parent imagedata and go to the next child frame and then open to the polygroup.
+            if (_currentSelectedNode is PolygonGroup)
+            {
+                //Close all the previous children
+                var parentFrame = ((_currentSelectedNode as PolygonGroup).Parent as ImageFrame);
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+
+                //Get the index of the current Frame from the ImageData and close and deselect the imageFrame
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).Expanded = false;
+
+                //Check to see if there is another frame or not
+                if (index - 1 >= 0)
+                {
+                    --index;
+                }
+
+                //Set the viewmodellocator varialbes and Open the next Frame
+                _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                _viewModelLocator.ImageFrameView.Polygon = null;
+                _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                CurrentView = _viewModelLocator.ImageFrameView;
+                var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+
+                (pGroup as PolygonGroup).Expanded = true;
+
+                _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+                //Set the current node to the first Polygon of the group
+                if ((pGroup as NodeWithName).Children.Count != 0)
+                {
+                    _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                    ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                }
+                else
+                {
+                    (pGroup as PolygonGroup).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName);
+                }
+            }
+            //pretty the same as the above just with the currentselected as the polygon itself so you don't have to go back up to the parent Polygroup
+            else if (_currentSelectedNode is Polygon)
+            {
+                //Close all the previous children
+                var parentFrame = ((_currentSelectedNode as Polygon).Parent as PolygonGroup).Parent as ImageFrame;
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).Expanded = false;
+
+                if (index - 1 >= 0)
+                {
+                    --index;
+                }
+
+                _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                _viewModelLocator.ImageFrameView.Polygon = null;
+                _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                CurrentView = _viewModelLocator.ImageFrameView;
+                var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+
+                (pGroup as PolygonGroup).Expanded = true;
+
+                //double check if there is a polygon to set onto next frame else just select the group
+                if ((pGroup as PolygonGroup).Children.Count != 0)
+                {
+                    ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                }
+                else
+                {
+                    (pGroup as PolygonGroup).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName);
+                }
+                _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+
+            }
+        }
+
         //when we hit enter in the mainwindow and we are on a pgroup we want to jump to the next frame and open the same p group
         public void JumpToNextImageFrame()
         {

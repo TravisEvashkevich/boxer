@@ -71,11 +71,16 @@ namespace Boxer
 
         private void TreeView_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter && (Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl)))
+            {
+                _mainWindowVm.JumpBackOneImageFrame();
+            }
+            else if (e.Key == Key.Enter)
             {
                 _mainWindowVm.JumpToNextImageFrame();
 
             }
+            
         }
     }
 }
