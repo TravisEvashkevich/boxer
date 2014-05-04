@@ -193,7 +193,7 @@ namespace Boxer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool DrawBorder {
             get {
                 return ((bool)(this["DrawBorder"]));
@@ -205,7 +205,7 @@ namespace Boxer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool TrimToMinimalNonTransparentArea {
             get {
                 return ((bool)(this["TrimToMinimalNonTransparentArea"]));
@@ -241,7 +241,7 @@ namespace Boxer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("128")]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
         public float SimulationRatio {
             get {
                 return ((float)(this["SimulationRatio"]));
@@ -253,7 +253,7 @@ namespace Boxer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool MarkAllAsOpen {
             get {
                 return ((bool)(this["MarkAllAsOpen"]));
