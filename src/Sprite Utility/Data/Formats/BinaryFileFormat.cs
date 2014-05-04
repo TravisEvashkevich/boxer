@@ -129,6 +129,7 @@ namespace Boxer.Data.Formats
         {
             var name = reader.ReadString();
             var extension = reader.ReadString();
+            var approved = reader.ReadBoolean();
             //create the image and set it's data
             var imageData = new ImageData
             {
@@ -136,6 +137,7 @@ namespace Boxer.Data.Formats
                 Extension = extension,
                 Parent = parent
             };
+            imageData.Approved = approved;
             //read in the frames of the image
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
@@ -184,6 +186,7 @@ namespace Boxer.Data.Formats
             writer.Write((sbyte)Type.Images);
             writer.Write(imageData.Name);
             writer.Write(imageData.Extension);
+            writer.Write(imageData.Approved);
 
             var frameCount = imageData.Children;
             writer.Write(frameCount.Count);
