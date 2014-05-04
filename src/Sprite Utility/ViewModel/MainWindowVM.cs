@@ -132,6 +132,113 @@ namespace Boxer.ViewModel
             }
         }
 
+        //when we hit Ctrl+Enter in the mainwindow and we are on a poly or group we want to go up one frame and open the same p group
+        public void JumpBackOneImageFrame()
+        {
+            //if we have an polygroup selected go up to the parent imagedata and go to the next child frame and then open to the polygroup.
+            if (_currentSelectedNode is PolygonGroup)
+            {
+                //Close all the previous children
+                var parentFrame = ((_currentSelectedNode as PolygonGroup).Parent as ImageFrame);
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+
+                //Get the index of the current Frame from the ImageData and close and deselect the imageFrame
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).Expanded = false;
+
+                //Check to see if there is another frame or not
+                if (index - 1 >= 0)
+                {
+                    --index;
+                }
+
+                //Set the viewmodellocator varialbes and Open the next Frame
+                _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                _viewModelLocator.ImageFrameView.Polygon = null;
+                _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                CurrentView = _viewModelLocator.ImageFrameView;
+                var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+
+                (pGroup as PolygonGroup).Expanded = true;
+
+                _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+                //Set the current node to the first Polygon of the group
+                if ((pGroup as NodeWithName).Children.Count != 0)
+                {
+                    _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                    ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                }
+                else
+                {
+                    (pGroup as PolygonGroup).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName);
+                }
+            }
+            //pretty the same as the above just with the currentselected as the polygon itself so you don't have to go back up to the parent Polygroup
+            else if (_currentSelectedNode is Polygon)
+            {
+                //Close all the previous children
+                var parentFrame = ((_currentSelectedNode as Polygon).Parent as PolygonGroup).Parent as ImageFrame;
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as
+                    ImageFrame).Expanded = false;
+
+                if (index - 1 >= 0)
+                {
+                    --index;
+                }
+
+                _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                _viewModelLocator.ImageFrameView.Polygon = null;
+                _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                CurrentView = _viewModelLocator.ImageFrameView;
+                var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+
+                (pGroup as PolygonGroup).Expanded = true;
+
+                //double check if there is a polygon to set onto next frame else just select the group
+                if ((pGroup as PolygonGroup).Children.Count != 0)
+                {
+                    ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                }
+                else
+                {
+                    (pGroup as PolygonGroup).IsSelected = true;
+                    _currentSelectedNode = (pGroup as NodeWithName);
+                }
+                _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+
+            }
+        }
+
         //when we hit enter in the mainwindow and we are on a pgroup we want to jump to the next frame and open the same p group
         public void JumpToNextImageFrame()
         {
@@ -257,63 +364,34 @@ namespace Boxer.ViewModel
                 _viewModelLocator.DocumentView.Document = e.NewValue as Document;
                 CurrentView = _viewModelLocator.DocumentView;
                 _currentSelectedNode = e.NewValue as Document;
+                _currentSelectedNode.Type = "Document";
             }
             else if (e.NewValue is Folder)
             {
                 _viewModelLocator.FolderView.Folder = e.NewValue as Folder;
                 CurrentView = _viewModelLocator.FolderView;
                 _currentSelectedNode = e.NewValue as Folder;
+                _currentSelectedNode.Type = "Folder";
             }
             else if (e.NewValue is ImageData)
             {
                 _viewModelLocator.ImageView.Image = e.NewValue as ImageData;
                 CurrentView = _viewModelLocator.ImageView;
                 _currentSelectedNode = e.NewValue as ImageData;
+                _currentSelectedNode.Type = "ImageData";
             }
             else if (e.NewValue is ImageFrame)
             {
-                //Close all the polygon groups
-                /*if (_viewModelLocator.ImageFrameView.Frame != null)
-                {
-                    _viewModelLocator.ImageFrameView.Frame.Expanded = false;
-                    foreach (var child in _viewModelLocator.ImageFrameView.Frame.Children)
-                    {
-                        (child as NodeWithName).Expanded = false;
-                    }
-                }*/
-
                 _viewModelLocator.ImageFrameView.Frame = e.NewValue as ImageFrame;
-/*
-                //If the last selected pgroup isn't null then set it for the newly selected image frame. If a new group is wanted,
-                // they will have to manually select it. else do the regular
-                if (_lastPolygonGroupName != null)
-                {
-                    //Have to check to see if the newly selected image frame has the Polygroup that the last image frame did (does the new frame have
-                    //Attack or clip etc, then select it if it does.
-                    var newImageFrame = e.NewValue as ImageFrame;
-                    var pGroup = newImageFrame.Children.First(t => t.Name == _lastPolygonGroupName);
+                _viewModelLocator.ImageFrameView.PolygonGroup = null;
+                _viewModelLocator.ImageFrameView.Polygon = null;
+                _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = false;
+                _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                CurrentView = _viewModelLocator.ImageFrameView;
                     
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
-                    
-                    _viewModelLocator.ImageFrameView.Polygon = null;
-                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
-                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
-                    CurrentView = _viewModelLocator.ImageFrameView;
-
-                    _currentSelectedNode = pGroup as NodeWithName;
-                    return;
-                }
-                else
-                {*/
-                    _viewModelLocator.ImageFrameView.PolygonGroup = null;
-                    _viewModelLocator.ImageFrameView.Polygon = null;
-                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = false;
-                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
-                    CurrentView = _viewModelLocator.ImageFrameView;
-                    
-               /* }*/
                 _currentSelectedNode = e.NewValue as ImageFrame;
-                
+                _currentSelectedNode.Type = "ImageFrame";
+
             }
             else if (e.NewValue is PolygonGroup)
             {
@@ -328,6 +406,7 @@ namespace Boxer.ViewModel
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                 CurrentView = _viewModelLocator.ImageFrameView;
                 _currentSelectedNode = e.NewValue as PolygonGroup;
+                _currentSelectedNode.Type = "PolygonGroup";
             }
             else if (e.NewValue is Polygon)
             {
@@ -338,6 +417,7 @@ namespace Boxer.ViewModel
                 _viewModelLocator.ImageFrameView.ShowPolygonTextBox = true;
                 CurrentView = _viewModelLocator.ImageFrameView;
                 _currentSelectedNode = e.NewValue as Polygon;
+                _currentSelectedNode.Type = "Polygon";
             }
             else
             {
@@ -520,7 +600,39 @@ namespace Boxer.ViewModel
             //(makes sense to me that it doesn't change the name and such but that is easy to implement as well if desired)
             var clone = new Polygon().ClonePolygon(_copyPolygon);
 
-            _viewModelLocator.ImageFrameView.Polygon.Children = clone.Children;
+            switch (_currentSelectedNode.Type)
+            {
+                case "Polygon":
+                    //set the parent of the clone to the polygongroup that you're pasting into.
+                    clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
+                        _viewModelLocator.ImageFrameView.Polygon.Children = clone.Children;
+                    break;
+
+                case "PolygonGroup":
+                    clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
+                    if (_viewModelLocator.ImageFrameView.PolygonGroup.Children.Count != 0)
+                        _viewModelLocator.ImageFrameView.PolygonGroup.Children[0] = clone;
+                    else
+                        _viewModelLocator.ImageFrameView.PolygonGroup.Children.Add(clone);
+                    break;
+                case "ImageFrame":
+                    //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
+                    //group that matches, if there is, we then paste the polygon into the first spot, overwriting whatever is there.
+                    foreach (var child in _currentSelectedNode.Children)
+                    {
+                        if (child.Name == clone.Parent.Name)
+                        {
+                            clone.Parent = child;
+                            if(child.Children.Count == 0)
+                                child.Children.Add(clone);
+                            else
+                                child.Children[0] = clone;
+                            break;
+                        }
+                       
+                    }
+                    break;
+            }
         }
 
         protected override void InitializeCommands()
