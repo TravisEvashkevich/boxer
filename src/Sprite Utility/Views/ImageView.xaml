@@ -5,9 +5,20 @@
         <Binding Path="ImageView" Source="{StaticResource Locator}"/>
     </UserControl.DataContext>
     <Grid>
-        <Label Content="Image Name: " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox Height="23" Margin="93,13,10,0" TextWrapping="Wrap" Text="{Binding Image.Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" VerticalAlignment="Top"/>
-        <Label Content="File Type: " HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
-        <Label Content="{Binding Image.Extension}" HorizontalAlignment="Left" Margin="93,41,0,0" VerticalAlignment="Top"/>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Image Name: " HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <TextBox Height="23" Margin="10,0,0,0" Width="150" TextWrapping="Wrap" Text="{Binding Image.Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" VerticalAlignment="Top"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="File Type: " HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label Content="{Binding Image.Extension}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+            </StackPanel>
+            <!--<StackPanel Orientation="Horizontal">
+                <Label Content="File Last Modified: "/>
+                <Label Content="{Binding Image.FileLastModified, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>-->
+        
+        </StackPanel>
     </Grid>
 </UserControl>
