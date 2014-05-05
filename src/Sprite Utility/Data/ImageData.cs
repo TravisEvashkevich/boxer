@@ -209,6 +209,8 @@ namespace Boxer.Data
                     ReimportImageData(dialog.FileName);
                     MessageBox.Show(String.Format("{0} was reimported successfully!", Path.GetFileNameWithoutExtension(fileName)), "Success!");
                 }
+                //make it so the user has to re approve to make sure that things are double checked.
+                Approved = false;
             }
         }
 
