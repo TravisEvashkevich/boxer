@@ -427,6 +427,7 @@ namespace Boxer.ViewModel
 
         #region Commands
 
+        #region New Doc Command
         public SmartCommand<object> NewDocumentCommand { get; private set; }
 
         public bool CanExecuteNewDocumentCommand(object o)
@@ -453,7 +454,9 @@ namespace Boxer.ViewModel
             Documents.Clear();
             Documents.Add(Glue.Instance.Document);
         }
+        #endregion
 
+        #region Open Doc Command
         public SmartCommand<object> OpenDocumentCommand { get; private set; }
 
         public bool CanExecuteOpenDocumentCommand(object o)
@@ -486,7 +489,9 @@ namespace Boxer.ViewModel
                 Documents.Add(Glue.Instance.Document);
             }
         }
+        #endregion
 
+        #region Save Document Command
         public SmartCommand<object> SaveDocumentCommand { get; private set; }
 
         public bool CanExecuteSaveDocumentCommand(object o)
@@ -498,7 +503,9 @@ namespace Boxer.ViewModel
         {
             Glue.Instance.Document.Save(false);
         }
+        #endregion
 
+        #region Open Pref Command
         public SmartCommand<object> OpenPreferencesWindowCommand { get; private set; }
 
         public bool CanExecuteOpenPreferencesWindowCommand(object o)
@@ -510,7 +517,9 @@ namespace Boxer.ViewModel
         {
             CurrentView = _viewModelLocator.Preferences;
         }
+        #endregion
 
+        #region SaveAs Command
         public SmartCommand<object> SaveAsCommand { get; private set; }
 
         public bool CanExecuteSaveAsCommand(object o)
@@ -522,7 +531,9 @@ namespace Boxer.ViewModel
         {
             Glue.Instance.Document.Save(true);
         }
+        #endregion
 
+        #region Close Command
         public SmartCommand<object> CloseCommand { get; private set; }
 
         public bool CanExecuteCloseCommand(object o)
@@ -534,7 +545,9 @@ namespace Boxer.ViewModel
         {
             Messenger.Default.Send(new CloseMainWindowMessage());
         }
+        #endregion
 
+        #region Export Command
         public SmartCommand<object> ExportCommand { get; private set; }
 
         public bool CanExecuteExportCommand(object o)
@@ -560,7 +573,9 @@ namespace Boxer.ViewModel
                 MessageBox.Show("Json data has been exported!");
             }
         }
+        #endregion
 
+        #region Remove Command
         public SmartCommand<object> RemoveCommand { get; private set; }
 
         public bool CanExecuteRemoveCommand(object o)
@@ -572,7 +587,9 @@ namespace Boxer.ViewModel
         {
             _currentSelectedNode.Remove();
         }
+        #endregion
 
+        #region Copy Command
         public SmartCommand<object> CopyCommand { get; private set; }
 
         public bool CanExecuteCopyCommand(object o)
@@ -585,7 +602,9 @@ namespace Boxer.ViewModel
             //put the polygon data in a copy variable (as the _currentSelectedNode will end up being whatever you click to paste in)
             _copyPolygon = _currentSelectedNode as Polygon;
         }
+        #endregion
 
+        #region Paste Command
         public SmartCommand<object> PasteCommand { get; private set; }
 
         public bool CanExecutePasteCommand(object o)
@@ -635,6 +654,22 @@ namespace Boxer.ViewModel
             }
         }
 
+        #endregion
+
+        #region Reimport From New Path
+
+        public SmartCommand<object> ReimportFromNewPathCommand { get; private set; }
+
+        public void ExecuteReimportFromNewPathCommand(object o)
+        {
+            if (_currentSelectedNode is ImageData)
+            {
+                (_currentSelectedNode as ImageData).ExecuteReimportFromNewPathCommand(null);
+            }
+        }
+
+        #endregion
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -650,6 +685,9 @@ namespace Boxer.ViewModel
             //Copy Paste commands
             CopyCommand = new SmartCommand<object>(ExecuteCopyCommand, CanExecuteCopyCommand);
             PasteCommand = new SmartCommand<object>(ExecutePasteCommand, CanExecutePasteCommand);
+
+            //Reimport Commands
+            ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand);
         }
 
 #endregion

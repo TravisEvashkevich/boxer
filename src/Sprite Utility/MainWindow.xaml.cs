@@ -52,6 +52,8 @@ namespace Boxer
             InputBindings.Add(new KeyBinding(_mainWindowVm.CopyCommand, new KeyGesture(Key.C, ModifierKeys.Control)));
             InputBindings.Add(new KeyBinding(_mainWindowVm.PasteCommand, new KeyGesture(Key.V, ModifierKeys.Control)));
 
+            //Reimport commands
+            InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportFromNewPathCommand, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift)));
 
         }
 

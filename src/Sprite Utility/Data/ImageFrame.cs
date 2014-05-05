@@ -16,7 +16,6 @@ namespace Boxer.Data
     public sealed class ImageFrame : NodeWithName
     {
         private Rectangle _trimRectangle;
-
         [JsonProperty("trim_rectangle")]
         public Rectangle TrimRectangle
         {
@@ -25,7 +24,6 @@ namespace Boxer.Data
         }
 
         private bool _isOpen;
-
         [JsonProperty("is_open")]
         public bool IsOpen
         {
@@ -33,9 +31,7 @@ namespace Boxer.Data
             set { Set(ref _isOpen, value); }
         }
 
-
         private int _duration;
-
         [JsonProperty("duration")]
         public int Duration
         {
@@ -43,7 +39,7 @@ namespace Boxer.Data
             set { Set(ref _duration, value); }
         }
 
-         [JsonProperty("mapped_center_point_x")]
+        [JsonProperty("mapped_center_point_x")]
         public int MappedCenterPointX
         {
             get
@@ -84,7 +80,11 @@ namespace Boxer.Data
         private byte[] _data;
 
         [JsonProperty("data")]
-        public byte[] Data { get { return _data; } set { Set(ref _data, value); } }
+        public byte[] Data
+        {
+            get { return _data; } 
+            set { Set(ref _data, value); }
+        }
 
         private int _width;
 
@@ -113,18 +113,28 @@ namespace Boxer.Data
         private byte[] _thumbnail;
 
         [JsonProperty("thumbnail")]
-        public byte[] Thumbnail { get { return _thumbnail; } set { Set(ref _thumbnail, value); } }
+        public byte[] Thumbnail
+        {
+            get { return _thumbnail; }
+            set { Set(ref _thumbnail, value); }
+        }
 
         private string _imagePath;
 
+        private ImageSource _thumbnailSource;
         [JsonIgnore]
         public ImageSource ThumbnailSource
         {
             get { return ImageHelper.ByteArrayToImageSource(Data); }
+            set { Set(ref _thumbnailSource, value); }
         }
 
         [JsonProperty("image_path")]
-        public string ImagePath { get { return _imagePath; } set { Set(ref _imagePath, value); } }
+        public string ImagePath
+        {
+            get { return _imagePath; } 
+            set { Set(ref _imagePath, value); }
+        }
 
         [JsonConstructor]
         public ImageFrame(IEnumerable<PolygonGroup> polygons)
@@ -143,6 +153,8 @@ namespace Boxer.Data
             {
                 TrimRectangle = BitmapTools.TrimRect(new Bitmap(imageData));
             }
+            //since we can reimport we need to be able to update the thumbnail to reflect the new frames
+            ThumbnailSource = ImageHelper.ByteArrayToImageSource(Data);
         }
 
         public ImageFrame(int width, int height)
