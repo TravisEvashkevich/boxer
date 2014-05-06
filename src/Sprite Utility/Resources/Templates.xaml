@@ -114,6 +114,7 @@
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
+                    <MenuItem Header="Reimport From New Path" Command="{Binding ReimportFromNewPathCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>

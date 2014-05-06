@@ -841,6 +841,11 @@ namespace Boxer.ViewModel
 
         public SmartCommand<object> ReimportFromNewPathCommand { get; private set; }
 
+        public bool CanExecutreReimportFromNewPathCommand(object o)
+        {
+            return _currentSelectedNode is ImageData;
+        }
+
         public void ExecuteReimportFromNewPathCommand(object o)
         {
             if (_currentSelectedNode is ImageData)
@@ -932,7 +937,7 @@ namespace Boxer.ViewModel
             PasteCommand = new SmartCommand<object>(ExecutePasteCommand, CanExecutePasteCommand);
 
             //Reimport Commands
-            ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand);
+            ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand, CanExecutreReimportFromNewPathCommand);
             ReimportMultipleCommand = new SmartCommand<object>(ExecuteReimportMultipleCommand, CanExecuteReimportMultipleCommand);
         }
 

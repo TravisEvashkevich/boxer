@@ -190,7 +190,7 @@ namespace Boxer.Data.Formats
             writer.Write(imageData.Name);
             writer.Write(imageData.Extension);
             writer.Write(imageData.Approved);
-            writer.Write(imageData.FilePath);
+            //writer.Write(imageData.FilePath);
 
             var frameCount = imageData.Children;
             writer.Write(frameCount.Count);
