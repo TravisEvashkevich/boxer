@@ -14,10 +14,10 @@
                 <Label Content="File Type: " HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
                 <Label Content="{Binding Image.Extension}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
             </StackPanel>
-            <!--<StackPanel Orientation="Horizontal">
-                <Label Content="File Last Modified: "/>
-                <Label Content="{Binding Image.FileLastModified, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>-->
+            <StackPanel Orientation="Horizontal">
+                <Label Content="File Path: "/>
+                <Label Content="{Binding Image.FilePath, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
         
         </StackPanel>
     </Grid>

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
@@ -13,6 +15,7 @@ using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using SpriteUtility.Data.Export;
 using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace Boxer.ViewModel
 {
@@ -133,6 +136,7 @@ namespace Boxer.ViewModel
             }
         }
 
+        #region Frame Jumping Methods
         //when we hit Ctrl+Enter in the mainwindow and we are on a poly or group we want to go up one frame and open the same p group
         public void JumpBackOneImageFrame()
         {
@@ -521,6 +525,7 @@ namespace Boxer.ViewModel
                 }               
             }
         }
+        #endregion
 
         public SmartCommand<object> SelectedItemChangedCommand { get; private set; }
 
@@ -846,6 +851,70 @@ namespace Boxer.ViewModel
 
         #endregion
 
+        #region ReimportMultiple
+
+        public SmartCommand<object> ReimportMultipleCommand { get; private set; }
+
+        public bool CanExecuteReimportMultipleCommand(object o)
+        {
+            return Documents.Count != 0 && Documents != null;
+        }
+
+        public void ExecuteReimportMultipleCommand(object o)
+        {
+            if (Documents.Count != 0)
+            {
+                var dialog = new OpenFileDialog();
+                dialog.Title = string.Format("Find Image");
+                dialog.Filter = ".png,.gif| *.png; *.gif";
+                dialog.Multiselect = true;
+
+                bool? result = dialog.ShowDialog();
+                if (result == true)
+                {
+                    string[] names = dialog.FileNames;
+
+                    for (int i = 0; i < names.Count(); i++)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(names[i]);
+                        FindMatches(name, names[i], new Stack<NodeWithName>(), Documents[0]);
+                    }
+                }
+            }
+        }
+
+        public void FindMatches(string criteria, string fullPath, Stack<NodeWithName> ancestors, NodeWithName startPoint)
+        {
+            if (IsCriteriaMatched(criteria, startPoint))
+            {
+                if(startPoint is ImageData)
+                {
+                    (startPoint as ImageData).ReimportImageData(fullPath);
+
+                    MessageBox.Show(String.Format("We reimported {0} successfully.", Path.GetFileNameWithoutExtension(criteria)));
+                    
+                }
+            }
+
+            ancestors.Push(startPoint);
+            if (startPoint.Children != null && startPoint.Children.Count > 0 )
+            {
+                foreach (var child in startPoint.Children)
+                    if (child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString()) &&
+                       !child.Type.Contains(typeof(Polygon).ToString()))
+                        FindMatches(criteria, fullPath, ancestors, child as NodeWithName);
+            }
+
+            ancestors.Pop();
+        }
+
+        private bool IsCriteriaMatched(string criteria, NodeWithName check)
+        {
+            return String.IsNullOrEmpty(criteria) || check.Name.ToLower() == (criteria.ToLower()) && check is ImageData;
+        }
+
+        #endregion
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -864,6 +933,7 @@ namespace Boxer.ViewModel
 
             //Reimport Commands
             ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand);
+            ReimportMultipleCommand = new SmartCommand<object>(ExecuteReimportMultipleCommand, CanExecuteReimportMultipleCommand);
         }
 
 #endregion

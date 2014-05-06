@@ -40,6 +40,7 @@ namespace Boxer.Data
                 }
 
                 Set(ref _name, name);
+                base.Name = name;
             }
         }
 
@@ -65,7 +66,7 @@ namespace Boxer.Data
             }
         }
 
-/*        private DateTime _fileLastModified;
+        private DateTime _fileLastModified;
         [JsonProperty("fileLastModified")] 
         public DateTime FileLastModified 
         {
@@ -87,7 +88,7 @@ namespace Boxer.Data
                 Set(ref _filePath, value);
                 Glue.Instance.DocumentIsSaved = false;
             }
-        }*/
+        }
 
         public ImageData()
         {
@@ -214,7 +215,7 @@ namespace Boxer.Data
             }
         }
 
-        private void ReimportImageData(string fileName)
+        public void ReimportImageData(string fileName)
         {
             string extension;
             using (var stream = File.Open(fileName, FileMode.Open))
@@ -297,7 +298,7 @@ namespace Boxer.Data
                     }
                 }
             }
-            //FilePath = filename;
+            FilePath = fileName;
             //FileLastModified = File.GetLastAccessTimeUtc(filename).ToUniversalTime();
             Name = Path.GetFileNameWithoutExtension(fileName);
             Extension = extension;
