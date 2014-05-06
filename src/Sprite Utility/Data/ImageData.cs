@@ -201,21 +201,31 @@ namespace Boxer.Data
                     {
                         //pass the filename from the dialog to the Reimport new version so it will Create and overwrite
                         //the sound thus updating in the program.
-                        ReimportImageData(dialog.FileName);
-                        MessageBox.Show(String.Format("{0} was reimported successfully!", Path.GetFileNameWithoutExtension(fileName)), "Success!");
+                        var check = ReimportImageData(dialog.FileName);
+                        if(check)
+                            MessageBox.Show(String.Format("{0} was reimported successfully!", Path.GetFileNameWithoutExtension(fileName)), "Success!");
+                        else
+                        {
+                            MessageBox.Show(String.Format("{0} was NOT reimported. This is probably due to having different amount of frames in the animation.", Path.GetFileNameWithoutExtension(fileName)), "Failure");
+                        }
                     }
                 }
                 else
                 {
-                    ReimportImageData(dialog.FileName);
-                    MessageBox.Show(String.Format("{0} was reimported successfully!", Path.GetFileNameWithoutExtension(fileName)), "Success!");
+                    var check = ReimportImageData(dialog.FileName);
+                    if(check)
+                        MessageBox.Show(String.Format("{0} was reimported successfully!", Path.GetFileNameWithoutExtension(fileName)), "Success!");
+                    else
+                    {
+                        MessageBox.Show(String.Format("{0} was NOT reimported. This is probably due to having different amount of frames in the animation.", Path.GetFileNameWithoutExtension(fileName)), "Failure");
+                    }
                 }
                 //make it so the user has to re approve to make sure that things are double checked.
                 Approved = false;
             }
         }
 
-        public void ReimportImageData(string fileName)
+        public bool ReimportImageData(string fileName)
         {
             string extension;
             using (var stream = File.Open(fileName, FileMode.Open))
@@ -243,6 +253,7 @@ namespace Boxer.Data
                             frame.Initialize();
                             AddChild(frame);
                         }
+                        return true;
                     }
                     else
                     {
@@ -262,9 +273,9 @@ namespace Boxer.Data
                                 using (var ms = new MemoryStream())
                                 {
                                     // Replace indexed transparency (for use with spritesheets with indexed color)
-                                    var img = BitmapTools.ReplaceIndexTransparency((Bitmap)image);
+                                    var img = BitmapTools.ReplaceIndexTransparency((Bitmap) image);
                                     img.Save(ms, ImageFormat.Png);
-                                    
+
                                     var child = new ImageFrame(ms.ToArray(), image.Width, image.Height);
                                     //child.Initialize();
                                     //AddChild(child);
@@ -273,35 +284,36 @@ namespace Boxer.Data
                                         (Children[i] as ImageFrame).Data = child.Data;
                                         var temp = image.GetThumbnailImage(38, 38, null, new IntPtr());
                                         //make sure to update the thumbnail.
-                                        (Children[i] as ImageFrame).ThumbnailSource = ImageHelper.ByteArrayToImageSource((Children[i] as ImageFrame).Data);
-                                        
+                                        (Children[i] as ImageFrame).ThumbnailSource =
+                                            ImageHelper.ByteArrayToImageSource((Children[i] as ImageFrame).Data);
+                                        var frame = Children[i] as ImageFrame;
+                                        if (frame == null) continue;
+
+                                        frame.CenterPointX = image.Width/2;
+                                        frame.CenterPointY = image.Height/2;
+                                        //frame.Thumbnail = ImageHelper.ImageToByteArray(thumbnail);
+                                        frame.Name = "Frame " + (i + 1);
+                                        var item = image.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
+                                        // Time is in 1/100th of a second, in miliseconds
+                                        var time = (item.Value[0] + item.Value[1]*256)*10;
+                                        frame.Duration = time;
                                     }
                                     else
                                     {
-                                        //we'll have to figure out what to do if the new animation has more frames...
+                                        return false;
                                     }
-
-                                    var frame = Children[i] as ImageFrame;
-                                    if (frame == null) continue;
-
-                                    frame.CenterPointX = image.Width / 2;
-                                    frame.CenterPointY = image.Height / 2;
-                                    //frame.Thumbnail = ImageHelper.ImageToByteArray(thumbnail);
-                                    frame.Name = "Frame " + (i + 1);
-                                    var item = image.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
-                                    // Time is in 1/100th of a second, in miliseconds
-                                    var time = (item.Value[0] + item.Value[1] * 256) * 10;
-                                    frame.Duration = time;
                                 }
                             }
                         }
                     }
                 }
             }
+
             FilePath = fileName;
             //FileLastModified = File.GetLastAccessTimeUtc(filename).ToUniversalTime();
             Name = Path.GetFileNameWithoutExtension(fileName);
             Extension = extension;
+            return true;
         }
 
         #endregion
