@@ -168,8 +168,8 @@ namespace Boxer.Data
                     }
                 }
             }
-            //FilePath = filename;
-            //FileLastModified = File.GetLastAccessTimeUtc(filename).ToUniversalTime();
+            FilePath = filename;
+            FileLastModified = File.GetLastAccessTimeUtc(filename).ToUniversalTime();
             Name = Path.GetFileNameWithoutExtension(filename);
             Extension = extension;
         }

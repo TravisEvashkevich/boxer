@@ -901,7 +901,7 @@ namespace Boxer.ViewModel
             {
                 foreach (var child in startPoint.Children)
                     if (child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString()) &&
-                       !child.Type.Contains(typeof(Polygon).ToString()))
+                       (child.Type != "Polygon" && child.Type !=  "PolyPoint" && child.Type != "PolygonGroup"))
                         FindMatches(criteria, fullPath, ancestors, child as NodeWithName);
             }
 
