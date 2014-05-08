@@ -114,6 +114,7 @@
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
+                    <MenuItem Header="Reimport From New Path" Command="{Binding ReimportFromNewPathCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>
@@ -125,7 +126,7 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Source="{Binding ThumbnailSource}" ></Image>
+                <Image Grid.Column="0" Source="{Binding ThumbnailSource, UpdateSourceTrigger= LostFocus}" ></Image>
                 <TextBlock Grid.Column="1" Margin="2">
                     <TextBlock.Text>
                         <MultiBinding Converter="{StaticResource ImageFrameHeaderConverter}" Mode="OneWay">

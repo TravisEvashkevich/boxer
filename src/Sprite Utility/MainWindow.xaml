@@ -27,12 +27,16 @@
                 <Separator></Separator>
                 <MenuItem Header="Export" HorizontalAlignment="Left" Command="{Binding ExportCommand}" InputGestureText="Ctrl + E" />
             </MenuItem>
+            <MenuItem Header="Reimports">
+                <MenuItem Header="Reimport Selected from New Path" InputGestureText="Ctrl+R" Command="{Binding ReimportFromNewPathCommand}"/>
+                <MenuItem Header="Reimport Multiple" InputGestureText="Ctrl+Shift+R" Command="{Binding ReimportMultipleCommand}"/>
+            </MenuItem>
             <MenuItem Header="Preferences" Command="{Binding OpenPreferencesWindowCommand}">
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="360"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>

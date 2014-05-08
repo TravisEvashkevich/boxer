@@ -138,6 +138,7 @@ namespace Boxer.Data.Formats
                 Parent = parent
             };
             imageData.Approved = approved;
+            imageData.Type = "Image";
             //read in the frames of the image
             var count = reader.ReadInt32();
             for (var i = 0; i < count; i++)
@@ -174,6 +175,8 @@ namespace Boxer.Data.Formats
             frame.CenterPointY = reader.ReadInt32();
             frame.IsOpen = reader.ReadBoolean();
             frame.FailsAutoTrace = reader.ReadBoolean();
+            frame.Type = "ImageFrame";
+            frame.Name = Path.GetFileNameWithoutExtension(imagePath);
 
             ReadPolygons(reader, frame, frame.Children);
             frame.Parent = imageData;
@@ -187,6 +190,7 @@ namespace Boxer.Data.Formats
             writer.Write(imageData.Name);
             writer.Write(imageData.Extension);
             writer.Write(imageData.Approved);
+            //writer.Write(imageData.FilePath);
 
             var frameCount = imageData.Children;
             writer.Write(frameCount.Count);
@@ -201,7 +205,7 @@ namespace Boxer.Data.Formats
             writer.Write(frame.Width);
             writer.Write(frame.Height);
             writer.Write(frame.Duration);
-            writer.Write(frame.ImagePath ?? imageData.Filename);
+            //writer.Write(frame.ImagePath ?? imageData.Filename);
             writer.Write(frame.Data.LongLength);
             writer.Write(frame.Data);
             writer.Write(frame.Thumbnail != null? frame.Thumbnail.LongLength : 0);
@@ -221,14 +225,17 @@ namespace Boxer.Data.Formats
             {
                 var polyGroup = new PolygonGroup {Name = reader.ReadString(), Parent = parent};
                 var polyCount = reader.ReadInt32();
+                polyGroup.Type = "PolygonGroup";
 
                 for (var j = 0; j < polyCount; j++)
                 {
                     var polygon = new Polygon {Name = reader.ReadString(), Parent = polyGroup};
                     var pointCount = reader.ReadInt32();
+                    polygon.Type = "Polygon";
                     for (var k = 0; k < pointCount; k++)
                     {
                         var point = new PolyPoint(reader.ReadInt32(), reader.ReadInt32()) {Parent = polygon};
+                        point.Type = "PolyPoint";
                         polygon.Children.Add(point);
                     }
                     polyGroup.Children.Add(polygon);
