@@ -442,7 +442,7 @@ namespace Boxer.WinForm
                     _moving = CheckIfMouseIsInPolygon(e.X, e.Y);
 
                     //if not add point
-                    if (_moving == null)
+                    if (_moving == null && _poly.Children.Count < Settings.Default.MaxVerts)
                     {
                         var polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
                         var p = new PolyPoint()
@@ -452,6 +452,12 @@ namespace Boxer.WinForm
                         };
                         _poly.Children.Add(p);
                         _moving = p;
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            string.Format("Max Amount of Verts hit! The Max amount of verts for a polygon is {0}.",
+                                Settings.Default.MaxVerts));
                     }
                 }
             }
