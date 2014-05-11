@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -205,7 +206,7 @@ namespace Boxer.Data.Formats
             writer.Write(frame.Width);
             writer.Write(frame.Height);
             writer.Write(frame.Duration);
-            //writer.Write(frame.ImagePath ?? imageData.Filename);
+            writer.Write(frame.ImagePath ?? imageData.Filename);
             writer.Write(frame.Data.LongLength);
             writer.Write(frame.Data);
             writer.Write(frame.Thumbnail != null? frame.Thumbnail.LongLength : 0);
