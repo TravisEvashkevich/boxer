@@ -250,6 +250,21 @@ namespace Boxer.Properties {
                 this["SimulationRatio"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("9")]
+        public float MaxVerts
+        {
+            get
+            {
+                return ((float)(this["MaxVerts"]));
+            }
+            set
+            {
+                this["MaxVerts"] = value;
+            }
+        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

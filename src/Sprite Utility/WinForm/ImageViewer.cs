@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using Boxer.Core;
@@ -442,7 +443,7 @@ namespace Boxer.WinForm
                     _moving = CheckIfMouseIsInPolygon(e.X, e.Y);
 
                     //if not add point
-                    if (_moving == null)
+                    if (_moving == null && _poly.Children.Count < Settings.Default.MaxVerts)
                     {
                         var polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
                         var p = new PolyPoint()
@@ -452,6 +453,12 @@ namespace Boxer.WinForm
                         };
                         _poly.Children.Add(p);
                         _moving = p;
+                    }
+                    else if( _poly.Children.Count >= Settings.Default.MaxVerts)
+                    {
+                        MessageBox.Show(
+                            string.Format("Max Amount of Verts hit! The Max amount of verts for a polygon is {0}.",
+                                Settings.Default.MaxVerts));
                     }
                 }
             }
@@ -469,6 +476,37 @@ namespace Boxer.WinForm
             else if (_mode == Mode.Polygon)
             {
                 _moving = null;
+                if(_poly.Children.Count > 1)
+                {
+                    //Double check points for doubles on the same spot
+                    var removal = new List<int>();
+                    for (int i = 0; i < _poly.Children.Count; ++i)
+                    {
+                        foreach (PolyPoint child in _poly.Children)
+                        {
+                            if (child.X == (_poly.Children[i] as PolyPoint).X &&
+                                child.Y == (_poly.Children[i] as PolyPoint).Y)
+                            {
+                                //check to make sure that the point isn't actually the exact same one index wise etc.
+                                if (child != _poly.Children[i])
+                                {
+
+                                    if(!removal.Contains(i))
+                                        removal.Add(i);
+                                }
+                            }
+                        }
+                    }
+                    if (removal.Count != 0)
+                    {
+                        removal.Reverse();
+                        foreach (var i in removal)
+                        {
+                            _poly.Children.RemoveAt(i);
+                        }
+                        MessageBox.Show("Removed duplicate Verts. Try not to do this...It breaks things.");
+                    }
+                }
             }
         }
 
@@ -500,6 +538,8 @@ namespace Boxer.WinForm
 
                 _moving.X = (int) polyWorldCenter.X;
                 _moving.Y = (int) polyWorldCenter.Y;
+
+                
             }
 
             //Indicate Cursor
