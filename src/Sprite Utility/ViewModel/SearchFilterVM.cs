@@ -70,8 +70,8 @@ namespace Boxer.ViewModel
             
             ancestors.Push(startPoint);
                 foreach (var child in startPoint.Children)
-                    if(child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString() )&& 
-                       !child.Type.Contains(typeof(Polygon).ToString()) )
+                    if(child.Type != null && !child.Type.Contains("ImageFrame" )&& 
+                       !child.Type.Contains("Polygon") && !child.Type.Contains("PolyPoint") )
                         ApplyCriteria(criteria, ancestors,child as NodeWithName);
 
                 ancestors.Pop();
