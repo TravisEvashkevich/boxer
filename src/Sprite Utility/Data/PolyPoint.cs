@@ -1,8 +1,10 @@
-﻿using Boxer.Properties;
+﻿using System.Diagnostics;
+using Boxer.Properties;
 using Newtonsoft.Json;
 
 namespace Boxer.Data
 {
+    [DebuggerDisplay("{X},{Y} ({MappedX}, {MappedY})")]
     public class PolyPoint : NodeWithName
     {
         private int _x;

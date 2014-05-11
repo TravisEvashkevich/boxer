@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using Microsoft.Xna.Framework;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Boxer.Data.Formats
 {
@@ -261,7 +264,7 @@ namespace Boxer.Data.Formats
             }
         }
 
-        private static void WritePolygons(BinaryWriter writer, INode parent)
+        private static void WritePolygons(BinaryWriter writer, ImageFrame parent)
         {
             var polyGroups = parent.Children.Cast<PolygonGroup>();
             var groupCount = parent.Children.Count();
@@ -274,7 +277,20 @@ namespace Boxer.Data.Formats
                 {
                     writer.Write(polygon.Name);
                     writer.Write(polygon.Children.Count);
+
+                    var validPoints = new List<PolyPoint>();
                     foreach (var point in polygon.Children.Cast<PolyPoint>())
+                    {
+                        if (point.X < 0 || point.Y < 0)
+                        {
+                            Console.WriteLine(@"neg vertices for {0}!", parent.Name);
+                            validPoints.Add(new PolyPoint(0, 0) { Parent = point.Parent});
+                            continue;
+                        }
+                        validPoints.Add(point);
+                    }
+
+                    foreach (var point in validPoints)
                     {
                         writer.Write(point.X);
                         writer.Write(point.Y);
