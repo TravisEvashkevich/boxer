@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -176,6 +177,14 @@ namespace Boxer.Data.Formats
             frame.CenterPointY = reader.ReadInt32();
             frame.IsOpen = reader.ReadBoolean();
             frame.FailsAutoTrace = reader.ReadBoolean();
+            reader.ReadInt32(); // MappedCenterPointX
+            reader.ReadInt32(); // MappedCenterPointY
+            frame.TrimRectangle = new Rectangle(
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32()
+            );
             frame.Type = "ImageFrame";
             frame.Name = Path.GetFileNameWithoutExtension(imagePath);
 
@@ -191,7 +200,6 @@ namespace Boxer.Data.Formats
             writer.Write(imageData.Name);
             writer.Write(imageData.Extension);
             writer.Write(imageData.Approved);
-            //writer.Write(imageData.FilePath);
 
             var frameCount = imageData.Children;
             writer.Write(frameCount.Count);
@@ -215,6 +223,12 @@ namespace Boxer.Data.Formats
             writer.Write(frame.CenterPointY);
             writer.Write(frame.IsOpen);
             writer.Write(frame.FailsAutoTrace);
+            writer.Write(frame.MappedCenterPointX);
+            writer.Write(frame.MappedCenterPointY);
+            writer.Write(frame.TrimRectangle.X);
+            writer.Write(frame.TrimRectangle.Y);
+            writer.Write(frame.TrimRectangle.Width);
+            writer.Write(frame.TrimRectangle.Height);
 
             WritePolygons(writer, frame);
         }
@@ -236,6 +250,8 @@ namespace Boxer.Data.Formats
                     for (var k = 0; k < pointCount; k++)
                     {
                         var point = new PolyPoint(reader.ReadInt32(), reader.ReadInt32()) {Parent = polygon};
+                        reader.ReadInt32(); // MappedX
+                        reader.ReadInt32(); // MappedY
                         point.Type = "PolyPoint";
                         polygon.Children.Add(point);
                     }
@@ -262,6 +278,8 @@ namespace Boxer.Data.Formats
                     {
                         writer.Write(point.X);
                         writer.Write(point.Y);
+                        writer.Write(point.MappedX);
+                        writer.Write(point.MappedY);
                     }
                 }
             }
