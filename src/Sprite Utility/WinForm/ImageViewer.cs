@@ -467,46 +467,43 @@ namespace Boxer.WinForm
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            //update CenterPoint
+            // update CenterPoint
             if (_mode == Mode.Center && _centerMoving)
             {
                 _centerMoving = false;
             }
-            //update PolygonPoint
+            // update PolygonPoint
             else if (_mode == Mode.Polygon)
             {
                 _moving = null;
-                if(_poly.Children.Count > 1)
-                {
-                    //Double check points for doubles on the same spot
-                    var removal = new List<int>();
-                    for (int i = 0; i < _poly.Children.Count; ++i)
-                    {
-                        foreach (PolyPoint child in _poly.Children)
-                        {
-                            if (child.X == (_poly.Children[i] as PolyPoint).X &&
-                                child.Y == (_poly.Children[i] as PolyPoint).Y)
-                            {
-                                //check to make sure that the point isn't actually the exact same one index wise etc.
-                                if (child != _poly.Children[i])
-                                {
+                if (_poly.Children.Count <= 1) return;
 
-                                    if(!removal.Contains(i))
-                                        removal.Add(i);
-                                }
-                            }
-                        }
-                    }
-                    if (removal.Count != 0)
+                // Double check points for doubles on the same spot
+                var removal = new List<int>();
+                for (int i = 0; i < _poly.Children.Count; ++i)
+                {
+                    foreach (var node in _poly.Children)
                     {
-                        removal.Reverse();
-                        foreach (var i in removal)
+                        var child = (PolyPoint) node;
+                        var polyPoint = _poly.Children[i] as PolyPoint;
+                        if (polyPoint == null || (child.X != polyPoint.X || child.Y != polyPoint.Y)) continue;
+
+                        // Check to make sure that the point isn't actually the exact same one index wise etc.
+                        if (child == _poly.Children[i]) continue;
+                        if (!removal.Contains(i))
                         {
-                            _poly.Children.RemoveAt(i);
+                            removal.Add(i);
                         }
-                        MessageBox.Show("Removed duplicate Verts. Try not to do this...It breaks things.");
                     }
                 }
+                
+                if (removal.Count == 0) return;
+                removal.Reverse();
+                foreach (var i in removal)
+                {
+                    _poly.Children.RemoveAt(i);
+                }
+                MessageBox.Show(@"Removed duplicate vertices. Try not to do this... it breaks things.");
             }
         }
 
