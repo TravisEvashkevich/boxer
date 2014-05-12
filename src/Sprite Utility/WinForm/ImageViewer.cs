@@ -436,20 +436,20 @@ namespace Boxer.WinForm
                     _image.CenterPointX = (int)centerPoint.X;
                     _image.CenterPointY = (int)centerPoint.Y;
                 }
-                //end polygon mode
                 else if (_poly != null && _mode == Mode.Polygon && _moving == null)
                 {
                     //check if selecting existing point
                     _moving = CheckIfMouseIsInPolygon(e.X, e.Y);
 
-                    //if not add point
+                    // if not add point
                     if (_moving == null && _poly.Children.Count < Settings.Default.MaxVerts)
                     {
                         var polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
-                        var p = new PolyPoint()
+                        var p = new PolyPoint
                         {
-                            X = (int)polyWorldCenter.X,
-                            Y = (int)polyWorldCenter.Y
+                            X = (int) polyWorldCenter.X,
+                            Y = (int) polyWorldCenter.Y,
+                            Parent = _poly
                         };
                         _poly.Children.Add(p);
                         _moving = p;
