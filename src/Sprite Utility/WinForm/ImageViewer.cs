@@ -476,7 +476,7 @@ namespace Boxer.WinForm
             else if (_mode == Mode.Polygon)
             {
                 _moving = null;
-                if (_poly.Children.Count <= 1) return;
+                if (_poly == null || _poly.Children.Count <= 1) return;
 
                 // Double check points for doubles on the same spot
                 var removal = new List<int>();
