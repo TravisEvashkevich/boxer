@@ -454,7 +454,7 @@ namespace Boxer.WinForm
                         _poly.Children.Add(p);
                         _moving = p;
                     }
-                    else if( _poly.Children.Count >= Settings.Default.MaxVerts)
+                    else if( _poly.Children.Count >= Settings.Default.MaxVerts && _moving == null)
                     {
                         MessageBox.Show(
                             string.Format("Max Amount of Verts hit! The Max amount of verts for a polygon is {0}.",
