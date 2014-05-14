@@ -473,7 +473,7 @@ namespace Boxer.WinForm
                 _centerMoving = false;
             }
             // update PolygonPoint
-            else if (_mode == Mode.Polygon)
+            else if (_mode == Mode.Polygon && _poly != null)
             {
                 _moving = null;
                 if (_poly == null || _poly.Children.Count <= 1) return;
