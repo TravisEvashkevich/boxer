@@ -15,7 +15,7 @@ namespace Boxer.Services
 {
     public static class TraceService
     {
-        public static void Clean(Polygon polygon)
+        public static void Clean(PolygonGroup group)
         {
             // Simplify...
             // Triangulate if needed...
