@@ -269,5 +269,14 @@ namespace Boxer.Data
             AutoTraceCommand = new SmartCommand<object>(ExecuteAutoTraceCommand, CanExecuteAutoTraceCommand);
             base.InitializeCommands();
         }
+
+        public void CleanPolygroups()
+        {
+            foreach (var pGroup in Children )
+            {
+                if(pGroup is PolygonGroup)
+                    TraceService.Clean(pGroup as PolygonGroup);
+            }
+        }
     }
 }
