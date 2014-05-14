@@ -14,6 +14,13 @@ namespace Boxer.Services
 {
     public static class TraceService
     {
+        public static void Clean(Shape shape)
+        {
+            // Simplify...
+            // Triangulate if needed...
+            // TODO 
+        }
+
         public static void SetDisplayUnitToSimUnitRatio(float simulationRatio)
         {
             ConvertUnits.SetDisplayUnitToSimUnitRatio(simulationRatio);
