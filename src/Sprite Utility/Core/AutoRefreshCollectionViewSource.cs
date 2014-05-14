@@ -75,7 +75,7 @@ namespace Boxer.Core
             else
             {
                 // TODO: Support this
-                Debug.Assert(false);
+                //Debug.Assert(false);
 
             }
         }

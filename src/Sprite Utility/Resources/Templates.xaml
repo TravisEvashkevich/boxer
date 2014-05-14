@@ -151,6 +151,7 @@
                     <MenuItem Header="{Binding IsOpen, Converter={StaticResource IsOpenToHeaderConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Command="{Binding MarkOpenClosedStateCommand}"></MenuItem>
                     <MenuItem Header="Auto-Trace" Command="{Binding AutoTraceCommand}"></MenuItem>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
+                    <MenuItem Header="Clean Groups" Command="{Binding CleanPolyGroupsCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>
@@ -169,6 +170,7 @@
                 <ContextMenu>
                     <MenuItem Header="Add Polygon" Command="{Binding NewPolygonCommand}"></MenuItem>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
+                    <MenuItem Header="Clean Group" Command="{Binding CleanGroupCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>

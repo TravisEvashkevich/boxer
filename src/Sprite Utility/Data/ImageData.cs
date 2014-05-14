@@ -328,7 +328,7 @@ namespace Boxer.Data
             foreach (var child in Children)
             {
                 if(child is ImageFrame)
-                    (child as ImageFrame).CleanPolygroups();
+                    (child as ImageFrame).ExecuteCleanPolygroupsCommand(null);
             }
         }
 
