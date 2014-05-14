@@ -97,6 +97,14 @@ namespace Boxer.Data
 
         public static bool EnsureDefaults(ImageFrame frame, bool rebuildAll)
         {
+            if (frame.TrimRectangle == Rectangle.Empty)
+            {
+                // There is no significant space in the cell, i.e., it's blank.
+                //   We don't bother drawing any boxes for it because these would cause errors,
+                //   though this can make sense for situations like "blinking"
+                return true;
+            }
+
             bool addAttack = true,
                  addClipping = true,
                  addPlatform = true,
@@ -207,11 +215,11 @@ namespace Boxer.Data
 
         private static void AddDefaultDepthBox(ImageFrame frame)
         {
-            var footGroup = new PolygonGroup { Name = "Depth" };
-            footGroup.Initialize();
+            var depthGroup = new PolygonGroup { Name = "Depth", Parent = frame };
+            depthGroup.Initialize();
 
-            frame.AddChild(footGroup);
-            var foot = new Polygon { Name = "Depth" };
+            frame.AddChild(depthGroup);
+            var depth = new Polygon { Name = "Depth", Parent = depthGroup };
 
             var bottom = frame.TrimRectangle.Bottom - 1;
             var left = frame.TrimRectangle.Left;
@@ -221,16 +229,16 @@ namespace Boxer.Data
             var defaultDepthPercentage = (int)(frame.TrimRectangle.Height * 0.125f);
             const float defaultWidthBorder = 0.9f; // 10% on each side = 80%
 
-            var tl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage);
-            var tr = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage);
-            var br = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom);
-            var bl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom);
-            foot.AddChild(tl);
-            foot.AddChild(tr);
-            foot.AddChild(br);
-            foot.AddChild(bl);
+            var tl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage) { Parent = depth };
+            var tr = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom - defaultDepthPercentage) { Parent = depth };
+            var br = new PolyPoint(right - (int)(width * defaultWidthBorder), bottom) { Parent = depth };
+            var bl = new PolyPoint(left + (int)(width * defaultWidthBorder), bottom) { Parent = depth };
+            depth.AddChild(tl);
+            depth.AddChild(tr);
+            depth.AddChild(br);
+            depth.AddChild(bl);
 
-            footGroup.AddChild(foot);
+            depthGroup.AddChild(depth);
         }
 
         private static void AddBodyTrace(ImageFrame frame)
@@ -247,13 +255,13 @@ namespace Boxer.Data
                     return;
                 }
 
-                var bodyGroup = new PolygonGroup { Name = "Body" };
+                var bodyGroup = new PolygonGroup { Name = "Body", Parent = frame };
                 bodyGroup.Initialize();
 
                 var count = 1;
                 foreach (var polygon in shape.Vertices)
                 {
-                    var poly = new Polygon() { Name = "Polygon " + count };
+                    var poly = new Polygon() { Name = "Polygon " + count, Parent = bodyGroup };
 
 
                     foreach (var point in polygon)
@@ -264,7 +272,7 @@ namespace Boxer.Data
                         x += (int)(frame.Width * 0.5f);
                         y += (int)(frame.Height * 0.5f);
 
-                        poly.AddChild(new PolyPoint(x, y));
+                        poly.AddChild(new PolyPoint(x, y) { Parent = poly });
                     }
 
                     bodyGroup.AddChild(poly);
@@ -288,21 +296,21 @@ namespace Boxer.Data
 
         private static void AddDefaultFootBox(ImageFrame frame)
         {
-            var footGroup = new PolygonGroup { Name = "Foot" };
+            var footGroup = new PolygonGroup { Name = "Foot", Parent = frame };
             footGroup.Initialize();
 
             frame.AddChild(footGroup);
-            var foot = new Polygon { Name = "Foot" };
+            var foot = new Polygon { Name = "Foot", Parent = footGroup };
 
             var bottom = frame.TrimRectangle.Bottom - 1;
             var left = frame.TrimRectangle.Left;
             var right = frame.TrimRectangle.Right;
             var width = frame.TrimRectangle.Width;
 
-            var tl = new PolyPoint(left + (int)(width * 0.25f), bottom - 2);
-            var tr = new PolyPoint(right - (int)(width * 0.25f), bottom - 2);
-            var br = new PolyPoint(right - (int)(width * 0.25f), bottom);
-            var bl = new PolyPoint(left + (int)(width * 0.25f), bottom);
+            var tl = new PolyPoint(left + (int)(width * 0.25f), bottom - 2) { Parent = foot };
+            var tr = new PolyPoint(right - (int)(width * 0.25f), bottom - 2) { Parent = foot };
+            var br = new PolyPoint(right - (int)(width * 0.25f), bottom) { Parent = foot };
+            var bl = new PolyPoint(left + (int)(width * 0.25f), bottom) { Parent = foot };
 
             foot.AddChild(tl);
             foot.AddChild(tr);
@@ -314,41 +322,41 @@ namespace Boxer.Data
 
         private static void AddPlatformBoxStub(ImageFrame frame)
         {
-            var platformGroup = new PolygonGroup { Name = "Platform" };
+            var platformGroup = new PolygonGroup { Name = "Platform", Parent = frame };
             platformGroup.Initialize();
 
             frame.AddChild(platformGroup);
-            var attack = new Polygon { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1", Parent = platformGroup };
             platformGroup.AddChild(attack);
         }
 
         private static void AddLandingBoxStub(ImageFrame frame)
         {
-            var platformGroup = new PolygonGroup { Name = "Landing" };
-            platformGroup.Initialize();
+            var landingGroup = new PolygonGroup { Name = "Landing", Parent = frame };
+            landingGroup.Initialize();
 
-            frame.AddChild(platformGroup);
-            var attack = new Polygon { Name = "Polygon 1" };
-            platformGroup.AddChild(attack);
+            frame.AddChild(landingGroup);
+            var attack = new Polygon { Name = "Polygon 1", Parent = landingGroup};
+            landingGroup.AddChild(attack);
         }
 
         private static void AddAttackBoxStub(ImageFrame frame)
         {
-            var attackGroup = new PolygonGroup { Name = "Attack" };
+            var attackGroup = new PolygonGroup { Name = "Attack", Parent = frame};
             attackGroup.Initialize();
 
             frame.AddChild(attackGroup);
-            var attack = new Polygon { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1", Parent = attackGroup };
             attackGroup.AddChild(attack);
         }
 
         private static void AddClippingBoxStub(ImageFrame frame)
         {
-            var attackGroup = new PolygonGroup { Name = "Clipping" };
+            var attackGroup = new PolygonGroup { Name = "Clipping", Parent = frame };
             attackGroup.Initialize();
 
             frame.AddChild(attackGroup);
-            var attack = new Polygon { Name = "Polygon 1" };
+            var attack = new Polygon { Name = "Polygon 1", Parent = attackGroup };
             attackGroup.AddChild(attack);
         }
     }
