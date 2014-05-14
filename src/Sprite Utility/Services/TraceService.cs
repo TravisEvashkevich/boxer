@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Linq;
+using Boxer.Data;
 using FarseerPhysics;
 using FarseerPhysics.Common;
 using FarseerPhysics.Common.Decomposition;
@@ -14,7 +15,7 @@ namespace Boxer.Services
 {
     public static class TraceService
     {
-        public static void Clean(Shape shape)
+        public static void Clean(Polygon polygon)
         {
             // Simplify...
             // Triangulate if needed...
