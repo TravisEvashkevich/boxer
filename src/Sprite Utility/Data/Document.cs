@@ -144,12 +144,34 @@ namespace Boxer.Data
 
         #endregion
 
+        #region CleanAllPolygroupCommand
+        [JsonIgnore]
+        public SmartCommand<object> CleanAllPolygroupCommand { get; private set; }
+
+        public void ExecuteCleanAllPolygroupCommand(object o)
+        {
+            foreach (var child in Children)
+            {
+                if (child is Folder)
+                {
+                    (child as Folder).ExecuteCleanImagePolygroupsCommand(null);
+                }
+            }
+        }
+
+        #endregion
+
         protected override void InitializeCommands()
         {
             AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);
             NewFolderCommand = new SmartCommand<object>(ExecuteNewFolderCommand, CanExecuteNewFolderCommand);
+            CleanAllPolygroupCommand = new SmartCommand<object>(ExecuteCleanAllPolygroupCommand, CanExecuteCleanAllPolygroupsCommand);
             base.InitializeCommands();
         }
 
+        private bool CanExecuteCleanAllPolygroupsCommand(object arg)
+        {
+            return !(Children == null && Children.Count == 0);
+        }
     }
 }

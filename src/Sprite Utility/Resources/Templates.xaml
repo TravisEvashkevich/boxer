@@ -52,6 +52,7 @@
                         <ContextMenu>
                             <MenuItem Header="New Folder" Command="{Binding NewFolderCommand}"></MenuItem>
                             <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
+                            <MenuItem Header="Clean Up All PolyGroups" Command="{Binding CleanAllPolygroupCommand}"></MenuItem>
                         </ContextMenu>
                     </Border.ContextMenu>
                 </Border>
@@ -95,6 +96,7 @@
                     <MenuItem Header="New Image" Command="{Binding NewImageCommand}"></MenuItem>
                     <MenuItem Header="Add from existing folder" Command="{Binding AddExistingFolderCommand}"></MenuItem>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
+                    <MenuItem Header="Clean Folder Polygroups (all Images in Folder)" Command="{Binding CleanImagePolygroupsCommand}"></MenuItem>
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>
@@ -115,6 +117,8 @@
                 <ContextMenu>
                     <MenuItem Header="Remove" Command="{Binding RemoveCommand}"></MenuItem>
                     <MenuItem Header="Reimport From New Path" Command="{Binding ReimportFromNewPathCommand}"></MenuItem>
+                    <MenuItem Header="Clean Polygroups" Command="{Binding CleanPolygroupsCommand}"></MenuItem>
+                    
                 </ContextMenu>
             </Border.ContextMenu>
         </Border>

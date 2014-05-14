@@ -127,11 +127,34 @@ namespace Boxer.Data
 
         #endregion
 
+        #region CleanImagePolygroupsCommand
+        [JsonIgnore]
+        public SmartCommand<object> CleanImagePolygroupsCommand { get; private set; }
+
+        public void ExecuteCleanImagePolygroupsCommand(object o)
+        {
+            if(Children == null)return;
+
+            foreach (var child in Children)
+            {
+                if (child is ImageData)
+                {
+                    (child as ImageData).ExecuteCleanPolygroupsCommand(null);
+                }
+                else if (child is Folder)
+                {
+                    (child as Folder).ExecuteCleanImagePolygroupsCommand(null);
+                }
+            }
+        }
+        #endregion
+
         protected override void InitializeCommands()
         {
             AddExistingFolderCommand = new SmartCommand<object>(ExecuteAddExistingFolderCommand, CanExecuteAddExistingFolderCommand);  
             NewFolderCommand = new SmartCommand<object>(ExecuteNewFolderCommand, CanExecuteNewFolderCommand);
             NewImageCommand = new SmartCommand<object>(ExecuteNewImageCommand, CanExecuteNewImageCommand);
+            CleanImagePolygroupsCommand = new SmartCommand<object>(ExecuteCleanImagePolygroupsCommand);
             base.InitializeCommands();
         }
     }

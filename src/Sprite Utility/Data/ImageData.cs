@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Xml.Serialization;
 using Boxer.Core;
+using Boxer.Services;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Image = System.Drawing.Image;
@@ -318,10 +319,25 @@ namespace Boxer.Data
 
         #endregion
 
+        #region CleanPolygroupsCommand
+        [JsonIgnore]
+        public SmartCommand<object> CleanPolygroupsCommand { get; private set; }
+
+        public void ExecuteCleanPolygroupsCommand(object o)
+        {
+            foreach (var child in Children)
+            {
+                if(child is ImageFrame)
+                    (child as ImageFrame).CleanPolygroups();
+            }
+        }
+
+        #endregion
 
         protected override void InitializeCommands()
         {
             ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand);
+            CleanPolygroupsCommand = new SmartCommand<object>(ExecuteCleanPolygroupsCommand);
             base.InitializeCommands();
         }
         #endregion
