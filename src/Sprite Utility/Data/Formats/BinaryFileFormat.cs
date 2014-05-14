@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using Boxer.Properties;
+using Boxer.ViewModel;
+using Boxer.Views;
 using Microsoft.Xna.Framework;
 using Rectangle = System.Drawing.Rectangle;
 
@@ -257,6 +260,10 @@ namespace Boxer.Data.Formats
                         reader.ReadInt32(); // MappedY
                         point.Type = "PolyPoint";
                         polygon.Children.Add(point);
+                    }
+                    if (polygon.Children.Count > Settings.Default.MaxVerts)
+                    {
+                        Debug.Assert(false, string.Format("{0} has more than {1} vets in group {2} in {3} image", polygon.Name,Settings.Default.MaxVerts, polyGroup.Name, parent.Name));
                     }
                     polyGroup.Children.Add(polygon);
                 }
