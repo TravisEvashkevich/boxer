@@ -1,8 +1,10 @@
-﻿using Boxer.Core;
+﻿using System.Diagnostics;
+using Boxer.Core;
 using Newtonsoft.Json;
 
 namespace Boxer.Data
 {
+    [DebuggerDisplay("Polygon Group '{Name}' ({Children.Count} children)")]
     public sealed class PolygonGroup : NodeWithName
     {
         [JsonProperty("polygons")]

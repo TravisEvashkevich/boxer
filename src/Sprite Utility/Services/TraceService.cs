@@ -13,13 +13,77 @@ using fwd;
 
 namespace Boxer.Services
 {
+    public static class TraceServiceExtensions
+    {
+        public static Shape ToShape(this PolygonGroup polygonGroup)
+        {
+            var shape = new Shape();
+
+            foreach (var polygon in polygonGroup.Children.Cast<Polygon>())
+            {
+                var polyPoints = polygon.Children.Cast<PolyPoint>().ToList();
+                var vertices = new List<Vector2>(polyPoints.Count);
+                vertices.AddRange(polyPoints.Select(point => ConvertUnits.ToSimUnits(new Vector2(point.X, point.Y))));
+
+                shape.Vertices.Add(vertices);
+            }
+
+            return shape;
+        }
+    }
     public static class TraceService
     {
         public static void Clean(PolygonGroup group)
         {
-            // Simplify...
-            // Triangulate if needed...
-            // TODO 
+            var shape = group.ToShape();
+
+            var partitioned = new Dictionary<int, List<List<Vector2>>>();
+            for (var i = 0; i < shape.Vertices.Count; i++)
+            {
+                var polygon = shape.Vertices[i];
+                var simplified = SimplifyTools.CollinearSimplify(new Vertices(polygon));
+                var partition = Triangulate.ConvexPartition(simplified, TriangulationAlgorithm.Earclip);
+                var vertices = partition.Select(verts => verts.Select(v => new Vector2(v.X, v.Y)).ToList()).ToList();
+                partitioned.Add(i, vertices);
+            }
+
+            var polygons = @group.Children.Cast<Polygon>().ToList();
+            group.Children.Clear();
+
+            var index = 0;
+            var hash = polygons.ToDictionary(k => index++, v=>v.Name);
+            
+            for (var i = 0; i < partitioned.Count; i++)
+            {
+                var name = hash[i];
+                var partition = partitioned[i];
+
+                if (partition.Count == 1)
+                {
+                    TransformPolygon(@group, partition[0], name);
+                }
+                else
+                {
+                    for (var j = 0; j < partition.Count; j++)
+                    {
+                        var n = j > 0 ? name + "-" + (j + 1) : name;
+                        var p = partition[j];
+                        TransformPolygon(@group, p, n);
+                    }
+                }
+            }
+        }
+
+        private static void TransformPolygon(NodeWithName @group, IEnumerable<Vector2> points, string name)
+        {
+            var poly = new Polygon {Name = name, Parent = @group};
+            foreach (var point in points)
+            {
+                var x = ConvertUnits.ToDisplayUnits(point.X);
+                var y = ConvertUnits.ToDisplayUnits(point.Y);
+                poly.AddChild(new PolyPoint((int) x, (int) y) {Parent = poly});
+            }
+            @group.AddChild(poly);
         }
 
         public static void SetDisplayUnitToSimUnitRatio(float simulationRatio)
