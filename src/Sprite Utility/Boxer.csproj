@@ -172,6 +172,7 @@
     <Compile Include="Data\PolyPoint.cs" />
     <Compile Include="Services\Shape.cs" />
     <Compile Include="Services\TraceService.cs" />
+    <Compile Include="Services\TraceServiceExtensions.cs" />
     <Compile Include="ViewModel\AutoTraceWindowVM.cs" />
     <Compile Include="ViewModel\ImageViewVM.cs" />
     <Compile Include="ViewModel\DocumentViewVM.cs" />
