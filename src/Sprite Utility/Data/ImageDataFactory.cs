@@ -247,23 +247,22 @@ namespace Boxer.Data
             {
                 var imageBitmap = Image.FromStream(ms);
                 var errorBuilder = new StringBuilder();
-                var shape = TraceService.CreateSimpleShape(imageBitmap, 200, errorBuilder);
 
+                var bodyGroup = new PolygonGroup { Name = "Body", Parent = frame };
+                bodyGroup.Initialize();
+                frame.AddChild(bodyGroup);
+
+                var shape = TraceService.CreateSimpleShape(imageBitmap, 200, errorBuilder);
                 if (shape == null)
                 {
                     frame.FailsAutoTrace = true;
                     return;
                 }
 
-                var bodyGroup = new PolygonGroup { Name = "Body", Parent = frame };
-                bodyGroup.Initialize();
-
                 var count = 1;
                 foreach (var polygon in shape.Vertices)
                 {
-                    var poly = new Polygon() { Name = "Polygon " + count, Parent = bodyGroup };
-
-
+                    var poly = new Polygon { Name = "Polygon " + count, Parent = bodyGroup };
                     foreach (var point in polygon)
                     {
                         var x = (int)ConvertUnits.ToDisplayUnits(point.X);
@@ -271,15 +270,12 @@ namespace Boxer.Data
 
                         x += (int)(frame.Width * 0.5f);
                         y += (int)(frame.Height * 0.5f);
-
                         poly.AddChild(new PolyPoint(x, y) { Parent = poly });
                     }
 
                     bodyGroup.AddChild(poly);
                     count++;
                 }
-
-                frame.AddChild(bodyGroup);
             }
         }
 
