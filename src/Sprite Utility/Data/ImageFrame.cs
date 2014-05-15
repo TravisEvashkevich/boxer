@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 using System.Windows.Media;
 using Boxer.Core;
 using Boxer.Properties;
@@ -262,21 +263,29 @@ namespace Boxer.Data
             }
         }
 
+        #region CleanPolygroupsCommand
+
+        public SmartCommand<object> CleanPolyGroupsCommand { get; private set; }
+
+        public void ExecuteCleanPolygroupsCommand(object o)
+        {
+            foreach (var pGroup in Children)
+            {
+                if (pGroup is PolygonGroup)
+                    TraceService.Clean(pGroup as PolygonGroup);
+            }
+        }
+        #endregion
+
+
         protected override void InitializeCommands()
         {
             NewPolygonGroupCommand = new SmartCommand<object>(ExecuteNewPolygonGroupCommand, CanExecuteNewPolygonGroupCommand);
             MarkOpenClosedStateCommand = new SmartCommand<object>(ExecuteNewMarkOpenClosedStateCommand, CanExecuteMarkOpenClosedStateCommand);
             AutoTraceCommand = new SmartCommand<object>(ExecuteAutoTraceCommand, CanExecuteAutoTraceCommand);
+            CleanPolyGroupsCommand = new SmartCommand<object>(ExecuteCleanPolygroupsCommand );
             base.InitializeCommands();
         }
 
-        public void CleanPolygroups()
-        {
-            foreach (var pGroup in Children )
-            {
-                if(pGroup is PolygonGroup)
-                    TraceService.Clean(pGroup as PolygonGroup);
-            }
-        }
     }
 }
