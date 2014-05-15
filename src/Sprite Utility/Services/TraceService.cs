@@ -23,13 +23,16 @@ namespace Boxer.Services
             for (var i = 0; i < shape.Vertices.Count; i++)
             {
                 var polygon = shape.Vertices[i];
-                if (polygon.IsConvex())
+                var farseerVertices = new Vertices(polygon);
+
+                if (farseerVertices.IsConvex())
                 {
                     partitioned.Add(i, new List<List<Vector2>> { polygon });
                     continue;
                 }
                 
-                var simplified = SimplifyTools.CollinearSimplify(new Vertices(polygon));
+                
+                var simplified = SimplifyTools.CollinearSimplify(farseerVertices);
                 var partition = Triangulate.ConvexPartition(simplified, TriangulationAlgorithm.Earclip);
                 var vertices = partition.Select(verts => verts.Select(v => new Vector2(v.X, v.Y)).ToList()).ToList();
                 partitioned.Add(i, vertices);
