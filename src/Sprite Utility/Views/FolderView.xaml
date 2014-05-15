@@ -5,8 +5,20 @@
         <Binding Path="FolderView" Source="{StaticResource Locator}"/>
     </UserControl.DataContext>
     <Grid>
-        <Label Content="Folder Name: " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="93,13,0,0" TextWrapping="Wrap" Text="{Binding Folder.Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" VerticalAlignment="Top" Width="120"/>
-
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Folder Display Name: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBox HorizontalAlignment="Left" Height="23" Margin="10,0,0,0" TextWrapping="Wrap" Text="{Binding Folder.Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" VerticalAlignment="Top" Width="120"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Current Boxer Parent is : "/>
+                <Label Content="{Binding Folder.Parent.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Boxer Parent"  ToolTip="What folder does this sit in?"/>
+                <ComboBox Name="FilePathBox" Width="150" Margin="10,0,0,0" ItemsSource="{Binding Path=FoldersList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" 
+                          SelectedItem="{Binding Path=SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

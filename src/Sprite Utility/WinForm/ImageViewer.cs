@@ -452,6 +452,8 @@ namespace Boxer.WinForm
                             Parent = _poly
                         };
                         _poly.Children.Add(p);
+                        //added point, now dirty.
+                        Glue.Instance.DocumentIsSaved = false;
                         _moving = p;
                     }
                     else if( _poly.Children.Count >= Settings.Default.MaxVerts && _moving == null)

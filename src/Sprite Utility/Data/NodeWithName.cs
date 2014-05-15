@@ -15,7 +15,11 @@ namespace Boxer.Data
         public virtual string Name
         {
             get { return _name; }
-            set { Set(ref _name, value); }
+            set
+            {
+                Set(ref _name, value);
+                Glue.Instance.DocumentIsSaved = false;
+            }
         }
 
         private bool _isVisible = true;
@@ -43,7 +47,6 @@ namespace Boxer.Data
 
         public override void Set<T>(ref T field, T value, [CallerMemberName] string name = "")
         {
-            Glue.Instance.DocumentIsSaved = false;
             base.Set(ref field, value, name);
         }
 
@@ -51,7 +54,13 @@ namespace Boxer.Data
         protected FastObservableCollection<INode> _children;
       
         public string Type { get; set; }
-        public virtual FastObservableCollection<INode> Children { get { return _children; } set { Set(ref _children, value); } }
+        public virtual FastObservableCollection<INode> Children 
+        { get { return _children; } 
+            set
+            {
+                Set(ref _children, value);
+            Glue.Instance.DocumentIsSaved = false;
+        } }
 
         public INode Parent { get; set; }
 
@@ -69,6 +78,7 @@ namespace Boxer.Data
         {
             child.Parent = this;
             Children.Add(child);
+            Glue.Instance.DocumentIsSaved = false;
         }
 
         [JsonIgnore]

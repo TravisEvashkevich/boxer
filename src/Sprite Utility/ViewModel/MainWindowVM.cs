@@ -173,7 +173,18 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+                    var pGroup = new PolygonGroup();
+                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
+                    {
+                        if (groups.Name == _lastPolygonGroupName)
+                        {
+                            pGroup = groups as PolygonGroup;
+                        }
+                    }
+                    if (pGroup.Name == "New Polygon Group")
+                    {
+                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                    }
 
                     (pGroup as PolygonGroup).Expanded = true;
 
@@ -267,7 +278,18 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+                    var pGroup = new PolygonGroup();
+                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
+                    {
+                        if (groups.Name == _lastPolygonGroupName)
+                        {
+                            pGroup = groups as PolygonGroup;
+                        }
+                    }
+                    if (pGroup.Name == "New Polygon Group")
+                    {
+                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                    }
 
                     (pGroup as PolygonGroup).Expanded = true;
 
@@ -370,7 +392,19 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+                    var pGroup = new PolygonGroup();
+                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
+                    {
+                        if (groups.Name == _lastPolygonGroupName)
+                        {
+                            pGroup = groups as PolygonGroup;
+                        }
+                    }
+                    if (pGroup.Name == "New Polygon Group")
+                    {
+                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                    }
+                    
 
                     (pGroup as PolygonGroup).Expanded = true;
 
@@ -414,7 +448,19 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+
+                    var pGroup = new PolygonGroup();
+                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
+                    {
+                        if (groups.Name == _lastPolygonGroupName)
+                        {
+                            pGroup = groups as PolygonGroup;
+                        }
+                    }
+                    if (pGroup.Name == "New Polygon Group")
+                    {
+                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                    }
 
                     (pGroup as PolygonGroup).Expanded = true;
 
