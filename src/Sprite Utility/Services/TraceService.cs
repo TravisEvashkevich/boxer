@@ -31,9 +31,8 @@ namespace Boxer.Services
                     continue;
                 }
                 
-                
                 var simplified = SimplifyTools.CollinearSimplify(farseerVertices);
-                var partition = Triangulate.ConvexPartition(simplified, TriangulationAlgorithm.Earclip);
+                var partition = Triangulate.ConvexPartition(simplified, TriangulationAlgorithm.Bayazit);
                 var vertices = partition.Select(verts => verts.Select(v => new Vector2(v.X, v.Y)).ToList()).ToList();
                 partitioned.Add(i, vertices);
             }
