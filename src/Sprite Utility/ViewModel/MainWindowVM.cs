@@ -966,6 +966,37 @@ namespace Boxer.ViewModel
 
         #endregion
 
+        #region
+
+        public SmartCommand<object> MergeCommand { get; private set; }
+
+        public bool CanExecuteMergeCommand(object o)
+        {
+            return Documents.Count != 0 && Documents != null;
+        }
+
+        public void ExecuteMergeCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+
+            var dialog = new OpenFileDialog();
+            dialog.Title = string.Format("Find SUF To Merge");
+            dialog.Filter = ".suf| *.suf";
+            dialog.Multiselect = false;
+
+            bool? result = dialog.ShowDialog();
+            if (result == true)
+            {
+                string[] names = dialog.FileNames;
+
+                merger.ExecuteMergeCommand(names);
+            }
+
+            
+        }
+
+        #endregion
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -985,6 +1016,8 @@ namespace Boxer.ViewModel
             //Reimport Commands
             ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand, CanExecutreReimportFromNewPathCommand);
             ReimportMultipleCommand = new SmartCommand<object>(ExecuteReimportMultipleCommand, CanExecuteReimportMultipleCommand);
+
+            MergeCommand = new SmartCommand<object>(ExecuteMergeCommand,CanExecuteMergeCommand);
         }
 
 #endregion

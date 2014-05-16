@@ -184,6 +184,7 @@
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="Core\MainViewModel.cs" />
     <Compile Include="Core\ViewModelLocator.cs" />
+    <Compile Include="ViewModel\MergeVM.cs" />
     <Compile Include="ViewModel\PreferencesVM.cs" />
     <Compile Include="ViewModel\SearchFilterVM.cs" />
     <Compile Include="Views\AutoTraceWindow.xaml.cs">
@@ -200,6 +201,9 @@
     </Compile>
     <Compile Include="Views\DocumentView.xaml.cs">
       <DependentUpon>DocumentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MergeWindow.xaml.cs">
+      <DependentUpon>MergeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Preferences.xaml.cs">
       <DependentUpon>Preferences.xaml</DependentUpon>
@@ -254,6 +258,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\DocumentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MergeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

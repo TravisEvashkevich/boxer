@@ -29,14 +29,6 @@ namespace Boxer.Views
             InitializeComponent();
         }
 
-        /*private void SearchBox_OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                
-            }
-        }*/
-
         private void SearchBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             if (SearchBox.Text != _searchFilterVm.SearchText)

@@ -50,6 +50,7 @@ namespace Boxer.Core
             SimpleIoc.Default.Register<ImageViewVM>();
             SimpleIoc.Default.Register<AutoTraceWindowVM>();
             SimpleIoc.Default.Register<SearchFilterVM>();
+            SimpleIoc.Default.Register<MergeVM>();
             SimpleIoc.Default.Register<Glue>();
         }
 
@@ -68,6 +69,16 @@ namespace Boxer.Core
             get
             {
                 var instance = ServiceLocator.Current.GetInstance<PreferencesVM>();
+                instance.Initialize();
+                return instance;
+            }
+        }
+
+        public MergeVM MergeVm
+        {
+            get
+            {
+                var instance = ServiceLocator.Current.GetInstance<MergeVM>();
                 instance.Initialize();
                 return instance;
             }

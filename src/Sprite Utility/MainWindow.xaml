@@ -23,9 +23,12 @@
                 <MenuItem Header="Open" HorizontalAlignment="Left" Command="{Binding OpenDocumentCommand}" InputGestureText="Ctrl + O"/>
                 <MenuItem Header="Save" HorizontalAlignment="Left" Command="{Binding SaveDocumentCommand}" InputGestureText="Ctrl + S"/>
                 <MenuItem Header="Save As" HorizontalAlignment="Left" Command="{Binding SaveAsCommand}" InputGestureText="Ctrl + Shift + S" />
-                <MenuItem Header="Close" HorizontalAlignment="Left" Command="{Binding CloseCommand}" InputGestureText="Ctrl + Q"/>
+                <MenuItem Header="Quit" HorizontalAlignment="Left" Command="{Binding CloseCommand}" InputGestureText="Ctrl + Q"/>
                 <Separator></Separator>
                 <MenuItem Header="Export" HorizontalAlignment="Left" Command="{Binding ExportCommand}" InputGestureText="Ctrl + E" />
+            </MenuItem>
+            <MenuItem Header="Merge">
+                <MenuItem Header="Merge SUF's" Command="{Binding MergeCommand}" InputGestureText="Ctrl+M"/>
             </MenuItem>
             <MenuItem Header="Reimports">
                 <MenuItem Header="Reimport Selected from New Path" InputGestureText="Ctrl+R" Command="{Binding ReimportFromNewPathCommand}"/>
