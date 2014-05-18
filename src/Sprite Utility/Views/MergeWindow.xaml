@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MergeWindow" Height="300" Width="300">
-
+<Window.DataContext>
+    <Binding Path="MergeVm" Source="{StaticResource Locator}"/>
+</Window.DataContext>
         <DataTemplate DataType="{x:Type List}">
             
         </DataTemplate>

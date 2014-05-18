@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Boxer.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 
 namespace Boxer.Views
 {
@@ -19,6 +21,7 @@ namespace Boxer.Views
     /// </summary>
     public partial class MergeWindow : Window
     {
+        private MergeVM _mergeVm = ServiceLocator.Current.GetInstance<MergeVM>();
         public MergeWindow()
         {
             InitializeComponent();

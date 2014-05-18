@@ -14,6 +14,8 @@ namespace Boxer.ViewModel
 {
     public class MergeVM : MainWindowVM
     {
+        private List<NodeWithName> _needsToBeChecked;
+        private List<NodeWithName> _noDuplicatesFound;
         private static readonly FileFormat Format = new BinaryFileFormat();
 
         //This is used for the Merge Function/view
@@ -21,6 +23,15 @@ namespace Boxer.ViewModel
 
         public void ExecuteMergeCommand(object o)
         {
+
+            if (_needsToBeChecked == null)
+                _needsToBeChecked = new List<NodeWithName>();
+            if (_noDuplicatesFound == null)
+                _noDuplicatesFound = new List<NodeWithName>();
+
+            _needsToBeChecked.Clear();
+            _noDuplicatesFound.Clear();
+
             //for starters we only use one file at a time but for extensibility (quicker later) mid as well make it ready to take multiple 
             var strings = o as string[];
             var doc = new List<Document>();
@@ -28,44 +39,187 @@ namespace Boxer.ViewModel
             {
                 doc.Add(Format.Load(s));
             }
-            /*
-             * after reading in the files and loading them through the binaryFileFormat, we begin the oh so troublesome 
-             * and arduous journey of merging.
-             * Step 1. Loop through images and check their names
-             * Step 2. If names match, do a compare to see if they are the same or not
-             * Step 3. If they are not the same, add to the mergeCheckList
-             * Step 4. If item is not a match to anything, Create a new folder in the doc root called "Merged" and then add the folder structure up from the image to that folder
-             * Step 5. When all items have been checked, Present the MergedWindow to the user and get results of "check box = overwrite"
-             * Step 6.  ????
-             * Step 7. Profit??
-             */
+
             var existingDoc = ServiceLocator.Current.GetInstance<MainWindowVM>().Documents[0];
 
+            //We are going to compare the files in binary before we do anything because this will save time in the long run if there is no difference. 
+            var isSame = FileEquals(existingDoc.Filename, strings[0]);
 
-
-            MessageBox.Show(doc[0].Name);
-        }
-
-        public void FindMatches(string criteria, string fullPath, Stack<NodeWithName> ancestors, NodeWithName startPoint)
-        {
-            if (IsCriteriaMatched(criteria, startPoint))
+            if (!isSame)
             {
-                if (startPoint is ImageData)
+                MessageBox.Show("We have different files on our hands boys! Let's get to comparing and merging :D");
+
+                //We flatten both trees to loop over and check the items in them.
+                var flattenedExisting = Flatten(existingDoc.Children);
+                var flattenedIncoming = Flatten(doc[0].Children);
+               
+                foreach (var incomingNode in flattenedIncoming)
                 {
-                    (startPoint as ImageData).ReimportImageData(fullPath);
+                    bool dealtWith = false;
+                    if(incomingNode is ImageData)
+                    {
+                        foreach (var existingNode in flattenedExisting)
+                        {
+                            /*
+                            * see if the types are the same, if they are we'll check further to see if they are the same name at least
+                            * if they are, then we check to see if they are the same or if they are different. 
+                            * if different add to the needToCheck list
+                            */
 
-                    MessageBox.Show(String.Format("We reimported {0} successfully.", Path.GetFileNameWithoutExtension(criteria)));
+                            if(existingNode is ImageData)
+                            {
+                                if (((ImageData) incomingNode).Filename == ((ImageData) existingNode).Filename)
+                                {
+                                    //This is where it gets annoying and long, we have to check all the children to see if they are the same
+                                    //first we'll do a quick check to see if the frame count is the same, if they are then we'll check to see
+                                    //if the polygroups in each frame are the same
+                                    if (incomingNode.Children.Count != existingNode.Children.Count)
+                                    {
+                                        _needsToBeChecked.Add(incomingNode as NodeWithName);
+                                        dealtWith = true;
+                                    }
+                                    else
+                                    {
+                                        //Now we have to check per frame, all the polygroups to see if they
+                                        for (int index = 0; index < incomingNode.Children.Count; index++)
+                                        {
+                                            var incChild = incomingNode.Children[index];
+                                            for (int i = index; i < existingNode.Children.Count; )
+                                            {
+                                                var existChild = existingNode.Children[i];
+                                                foreach (PolygonGroup incPolyGroup in incChild.Children)
+                                                {
+                                                    foreach (PolygonGroup existingPolyGroup in existChild.Children)
+                                                    {
+                                                        if (incPolyGroup.Name == existingPolyGroup.Name)
+                                                        {
+                                                            var result =
+                                                                (incPolyGroup).CheckAgainstOtherGroup(existingPolyGroup);
+                                                            if (!result)
+                                                            {
+                                                                _needsToBeChecked.Add(incomingNode as NodeWithName);
+                                                                dealtWith = true;
+                                                                goto Outer;
+                                                            }
+                                                            //since this group was fine, let's check the next one
+                                                            goto NextGroup;
+                                                        }
+                                                    }
+                                                    NextGroup:
+                                                    ;
+                                                }
 
+                                                goto NextFrame;
+                                            }
+                                            NextFrame:
+                                            ;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(!dealtWith)
+                            _noDuplicatesFound.Add(incomingNode as NodeWithName);
+                    }
+                  Outer:
+                        ;
                 }
             }
+            else
+            {
+                MessageBox.Show("There is no differences between these files. Please select files that have differences for merging (It will be more effective :D )");
+            }
+            string names = "";
+            foreach (var nodeWithName in _needsToBeChecked)
+            {
+                names += nodeWithName.Name;
+                names += "\n";
+            }
+            foreach (var unique in _noDuplicatesFound)
+            {
+                names += unique.Name;
+                names += "\n";
+            }
+            MessageBox.Show(string.Format("Finished Merge Process. We found {0} difference(s). \n Files that differ are : \n {1}", _needsToBeChecked.Count + _noDuplicatesFound.Count,names));
+        }
 
+        static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
+        {
+            foreach (var node in collection)
+            {
+                yield return node;
+                if (node.Children == null) continue;
+                foreach (var child in Flatten(node.Children))
+                {
+                    yield return child;
+                }
+            }
+        }
+
+        #region BinaryCompare
+        static bool FileEquals(string fileName1, string fileName2)
+        {
+            // Check the file size and CRC equality here.. if they are equal...    
+            using (var file1 = new FileStream(fileName1, FileMode.Open))
+            using (var file2 = new FileStream(fileName2, FileMode.Open))
+                return StreamEquals(file1, file2);
+        }
+
+        static bool StreamEquals(Stream stream1, Stream stream2)
+        {
+            const int bufferSize = 2048;
+            byte[] buffer1 = new byte[bufferSize]; //buffer size
+            byte[] buffer2 = new byte[bufferSize];
+            while (true)
+            {
+                int count1 = stream1.Read(buffer1, 0, bufferSize);
+                int count2 = stream2.Read(buffer2, 0, bufferSize);
+
+                if (count1 != count2)
+                    return false;
+
+                if (count1 == 0)
+                    return true;
+
+                // You might replace the following with an efficient "memcmp"
+                if (!buffer1.Take(count1).SequenceEqual(buffer2.Take(count2)))
+                    return false;
+            }
+        }
+
+        #endregion
+
+        public void CheckFoldersForNonExisting(NodeWithName toCheck, Stack<NodeWithName> ancestors, NodeWithName startPoint)
+        {
+
+        }
+
+
+        //Feed an incoming node against the document we have, loop through Everything and check to see what is there...this is going to be a looooooooong process I think
+        public void CheckForDuplicates(NodeWithName incoming, Stack<NodeWithName> ancestors, NodeWithName startPoint)
+        {
+            if (IsCriteriaMatched(incoming.Name, startPoint))
+            {
+                if (incoming is ImageData)
+                {
+                    //check to see if the image data is the same or not, not sure whether doing a compareTo or equality would be the best and most efficient way to do this.
+                    if (incoming == startPoint)
+                    {
+                        MessageBox.Show(incoming.Name + " is the same as " + startPoint.Name);
+                    }
+                }
+            }
+            else
+            {
+                _noDuplicatesFound.Add(incoming);
+            }
             ancestors.Push(startPoint);
             if (startPoint.Children != null && startPoint.Children.Count > 0)
             {
-                foreach (var child in startPoint.Children)
+                foreach (var child in incoming.Children)
                     if (child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString()) &&
                        (child.Type != "Polygon" && child.Type != "PolyPoint" && child.Type != "PolygonGroup"))
-                        FindMatches(criteria, fullPath, ancestors, child as NodeWithName);
+                        CheckForDuplicates(incoming, ancestors, child as NodeWithName);
             }
 
             ancestors.Pop();
