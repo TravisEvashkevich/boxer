@@ -1004,8 +1004,7 @@ namespace Boxer.ViewModel
         public bool CanExecuteOpenMergeWindowCommand(object o)
         {
             var merger = ServiceLocator.Current.GetInstance<MergeVM>();
-            return merger.NoDuplicatesFound != null && merger.NoDuplicatesFound.Count != 0 ||
-                        merger.NeedsToBeChecked != null && merger.NeedsToBeChecked.Count != 0;
+            return true;//merger.NoDuplicatesFound != null && merger.NoDuplicatesFound.Count != 0 ||merger.NeedsToBeChecked != null && merger.NeedsToBeChecked.Count != 0;
         }
 
         public void ExecuteOpenMergeWindowCommand(object o)

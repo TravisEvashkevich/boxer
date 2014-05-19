@@ -25,6 +25,8 @@ namespace Boxer.ViewModel
 
         public ObservableCollection<NodeWithName> NeedsToBeChecked { get { return _needsToBeChecked; } }
 
+        public NodeWithName SelectedItem { get; set; }
+
         //This is used for the Merge Function/view
         public SmartCommand<object> MergeCommand { get; private set; }
 
@@ -176,7 +178,7 @@ namespace Boxer.ViewModel
                     {
                         exists = true;
                     }
-
+                
                 }
                 if (exists) continue;
 
@@ -311,9 +313,107 @@ namespace Boxer.ViewModel
 
         #endregion
 
+        #region MergeSelectionChanged
+
+        public SmartCommand<object> MergeSelectionChangedCommand { get; private set; }
+
+        public void ExecuteMergeSelectionChangedCommand(object o)
+        {
+            var e = o as RoutedPropertyChangedEventArgs<object>;
+            //To enable Delete key to remove nodes, we will store the last item you clicked on 
+            //cause you won't try to delete something without clicking on it anyways
+            if(e.OldValue != e.NewValue)
+
+            if (e.NewValue is Folder)
+            {
+                SelectedItem = e.NewValue as NodeWithName;
+            }
+            else if (e.NewValue is ImageData)
+            {
+                SelectedItem = e.NewValue as NodeWithName;
+            }
+            else
+            {
+                SelectedItem = null;
+            }
+        }
+
+        #endregion
+
+        #region KeepSelectedCommand
+        public SmartCommand<object> KeepSelectedCommand { get; private set; }
+
+        public bool CanExecuteKeepSelectedCommand(object o)
+        {
+            return SelectedItem != null;
+        }
+
+        public void ExecuteKeepSelectedCommand(object o)
+        {
+            var main = ServiceLocator.Current.GetInstance<MainWindowVM>();
+            //check the document to see if the "merged" folder is made or not.
+            bool mergedCreated = main.Documents[0].Children.Any(child => child.Name == "Merged");
+
+            //do stuff based on if merged exists already or not
+            var merged = new Folder();
+            if (!mergedCreated)
+            {
+                main.Documents[0].AddChild(new Folder(){Name = "Merged"});
+            }
+            merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
+            //add the item to the merged folder
+            if(SelectedItem != null)
+            {
+                merged.AddChild(SelectedItem);
+                //find and remove the item from the list in Merged
+                bool found = false;
+                NeedsToBeChecked.Remove(SelectedItem);
+                NoDuplicatesFound.Remove(SelectedItem);
+                if (NoDuplicatesFound.Count > 0)
+                {
+                    SelectedItem = NoDuplicatesFound[0];
+                    NoDuplicatesFound[0].IsSelected = true;
+                }
+                else if (NeedsToBeChecked.Count > 0)
+                {
+                    SelectedItem = NeedsToBeChecked[0];
+                    NeedsToBeChecked[0].IsSelected = true;
+                }
+                else
+                {
+                    SelectedItem = null;
+                }
+            }
+        }
+
+        #endregion
+
+        #region TrashSelectedCommand
+
+        public SmartCommand<object> TrashSelectedCommand { get; private set; }
+
+        public bool CanExecuteTrashSelectedCommand(object o)
+        {
+            return SelectedItem != null;
+        }
+
+        public void ExecuteTrashSelectedCommand(object o)
+        {
+            //Just Remove the shit.
+            NeedsToBeChecked.Remove(SelectedItem);
+            NoDuplicatesFound.Remove(SelectedItem);
+        }
+
+
+        #endregion
+
         protected override void InitializeCommands()
         {
             MergeCommand = new SmartCommand<object>(ExecuteMergeCommand);
+            MergeSelectionChangedCommand = new SmartCommand<object>(ExecuteMergeSelectionChangedCommand);
+
+            KeepSelectedCommand = new SmartCommand<object>(ExecuteKeepSelectedCommand, CanExecuteKeepSelectedCommand);
+            TrashSelectedCommand = new SmartCommand<object>(ExecuteTrashSelectedCommand, CanExecuteTrashSelectedCommand);
             base.InitializeCommands();
         }
     }
