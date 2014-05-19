@@ -85,6 +85,7 @@ namespace Boxer.ViewModel
                         Image.Parent.Children.RemoveAt(index);
                     }
                     Image.Parent = value;
+                    Glue.Instance.DocumentIsSaved = false;
                 }
                 Set(ref _selectedFolder, value);
                 _selectedFolder = null;
