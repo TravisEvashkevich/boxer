@@ -966,7 +966,7 @@ namespace Boxer.ViewModel
 
         #endregion
 
-        #region
+        #region MergeSUF's command
 
         public SmartCommand<object> MergeCommand { get; private set; }
 
@@ -997,6 +997,24 @@ namespace Boxer.ViewModel
 
         #endregion
 
+        #region Open MergeWindow Command
+        [JsonIgnore]
+        public SmartCommand<object> OpenMergeWindowCommand { get; private set; }
+
+        public bool CanExecuteOpenMergeWindowCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+            return merger.NoDuplicatesFound != null && merger.NoDuplicatesFound.Count != 0 ||
+                        merger.NeedsToBeChecked != null && merger.NeedsToBeChecked.Count != 0;
+        }
+
+        public void ExecuteOpenMergeWindowCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+            merger.OpenMergeWindow();
+        }
+        #endregion
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -1018,6 +1036,7 @@ namespace Boxer.ViewModel
             ReimportMultipleCommand = new SmartCommand<object>(ExecuteReimportMultipleCommand, CanExecuteReimportMultipleCommand);
 
             MergeCommand = new SmartCommand<object>(ExecuteMergeCommand,CanExecuteMergeCommand);
+            OpenMergeWindowCommand = new SmartCommand<object>(ExecuteOpenMergeWindowCommand, CanExecuteOpenMergeWindowCommand);
         }
 
 #endregion

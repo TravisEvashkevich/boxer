@@ -21,10 +21,9 @@ namespace Boxer.ViewModel
         private ObservableCollection<NodeWithName> _noDuplicatesFound;
         private static readonly FileFormat Format = new BinaryFileFormat();
 
-        public ObservableCollection<NodeWithName> NoDuplicatesFound { get { return _noDuplicatesFound; }
-            private set { }
-        }
+        public ObservableCollection<NodeWithName> NoDuplicatesFound { get { return _noDuplicatesFound; } }
 
+        public ObservableCollection<NodeWithName> NeedsToBeChecked { get { return _needsToBeChecked; } }
 
         //This is used for the Merge Function/view
         public SmartCommand<object> MergeCommand { get; private set; }
@@ -159,9 +158,7 @@ namespace Boxer.ViewModel
             watch.Stop();
             MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count, names));
             
-            //Time to show the window and display stuff.
-            MergeWindow merge = new MergeWindow();
-            merge.Show();
+            OpenMergeWindow();
         }
 
         private void CheckImagesForNonExisting(IEnumerable<INode> incomingImageDatas, IEnumerable<INode> existingImageDatas)
@@ -301,6 +298,18 @@ namespace Boxer.ViewModel
             return String.IsNullOrEmpty(criteria) || check.Name.ToLower() == (criteria.ToLower()) && check is ImageData;
         }
 
+        #region OpenMergeWindow
+
+        public void OpenMergeWindow()
+        {
+
+            //Time to show the window and display stuff.
+            MergeWindow merge = new MergeWindow();
+            merge.Show();
+        }
+
+
+        #endregion
 
         protected override void InitializeCommands()
         {

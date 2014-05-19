@@ -28,6 +28,7 @@
                 <MenuItem Header="Export" HorizontalAlignment="Left" Command="{Binding ExportCommand}" InputGestureText="Ctrl + E" />
             </MenuItem>
             <MenuItem Header="Merge">
+                <MenuItem Header="Open Merge Window" Command="{Binding OpenMergeWindowCommand}" ToolTip="Opens the Merge Window with the results from the last Merge Attempt."/>
                 <MenuItem Header="Merge SUF's" Command="{Binding MergeCommand}" InputGestureText="Ctrl+M"/>
             </MenuItem>
             <MenuItem Header="Reimports">

@@ -3,24 +3,40 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
-        Title="MergeWindow" Height="300" Width="300">
-<Window.DataContext>
-    <Binding Path="MergeVm" Source="{StaticResource Locator}"/>
-</Window.DataContext>
+        Title="MergeWindow" SizeToContent="WidthAndHeight" >
+    <Window.DataContext>
+        <Binding Path="MergeVm" Source="{StaticResource Locator}"/>
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary Source="../Resources/Templates.xaml"></ResourceDictionary>
     </Window.Resources>
-    <TreeView x:Name="TreeView" Margin="0" Style="{StaticResource ResourceKey=SearchableTreeView}" 
+    <StackPanel Orientation="Horizontal">
+    <GroupBox Header="New Content (No Duplicated Names Found)">
+        <TreeView x:Name="NewTreeView" Margin="0" Style="{StaticResource ResourceKey=SearchableTreeView}" 
                       ItemsSource="{Binding NoDuplicatesFound, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                       Grid.Row="1" Grid.Column="0">
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="SelectedItemChanged">
-                <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectedItemChanged">
+                    <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"
                             PassEventArgsToCommand="True" />
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
-    </TreeView>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TreeView>
+    </GroupBox>
+<GroupBox Header="Changed Content" ToolTip="This is data that is different than data you have already 
+          (anthing from a point to children, polygroups etc. could have changed). Needs user reviewing">
+            <TreeView x:Name="ChangedTreeView" Margin="0" Style="{StaticResource ResourceKey=SearchableTreeView}" 
+                      ItemsSource="{Binding NeedsToBeChecked, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                      Grid.Row="1" Grid.Column="0">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectedItemChanged">
+                        <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"
+                            PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TreeView>
+        </GroupBox>
 
 
-
+    </StackPanel>
 </Window>

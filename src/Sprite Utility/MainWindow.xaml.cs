@@ -32,6 +32,7 @@ namespace Boxer
             InitializeComponent();
 
             WindowState = WindowState.Maximized;
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             Messenger.Default.Register<CloseMainWindowMessage>(this, p => Close());
 
