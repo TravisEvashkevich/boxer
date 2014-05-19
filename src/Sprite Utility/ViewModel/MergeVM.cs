@@ -33,6 +33,7 @@ namespace Boxer.ViewModel
             _needsToBeChecked.Clear();
             _noDuplicatesFound.Clear();
 
+            //Just interested in how long it takes for merge checking
             Stopwatch watch = new Stopwatch();
             watch.Start();
 
@@ -51,21 +52,36 @@ namespace Boxer.ViewModel
 
             if (!isSame)
             {
+                watch.Stop();
                 MessageBox.Show("We have different files on our hands boys! Let's get to comparing and merging :D");
-
+                watch.Start();
                 //We flatten both trees to loop over and check the items in them.
                 var flattenedExisting = Flatten(existingDoc.Children);
                 var flattenedIncoming = Flatten(doc[0].Children);
-               
+
+                //For checking if something exists already or not, we're going to just go on the Folder and Image level so we'll use LINQ
+                //To pull the children out of the flattened lists and then loop quickly 
+
+                var existingFolders = flattenedExisting.Where(i => i.Type == "Folder");
+                var existingImageDatas = flattenedExisting.Where(i => i.Type == "Image");
+
+                var incomingFolders = flattenedIncoming.Where(i => i.Type == "Folder");
+                var incomingImageDatas = flattenedIncoming.Where(i => i.Type == "Image");
+
+                //Check for folders in the INCOMING SUF that don't exist in the EXISTING SUF
+                CheckFoldersForNonExisting(incomingFolders, existingFolders);
+                CheckImagesForNonExisting(incomingImageDatas, existingImageDatas);
+
+
                 foreach (var incomingNode in flattenedIncoming)
                 {
-                    if(incomingNode is ImageData)
+                    if (incomingNode is ImageData)
                     {
                         foreach (var existingNode in flattenedExisting)
                         {
-                            if(existingNode is ImageData)
+                            if (existingNode is ImageData)
                             {
-                                if (((ImageData) incomingNode).Filename == ((ImageData) existingNode).Filename)
+                                if (((ImageData)incomingNode).Filename == ((ImageData)existingNode).Filename)
                                 {
                                     //This is where it gets annoying and long, we have to check all the children to see if they are the same
                                     //first we'll do a quick check to see if the frame count is the same, if they are then we'll check to see
@@ -99,13 +115,13 @@ namespace Boxer.ViewModel
                                                             goto NextGroup;
                                                         }
                                                     }
-                                                    NextGroup:
+                                                NextGroup:
                                                     ;
                                                 }
                                                 //need to get out of the loop so we don't keep comparing the same frame to everything in the inner loop so we jump out
                                                 goto NextFrame;
                                             }
-                                            NextFrame:
+                                        NextFrame:
                                             ;
                                         }
                                     }
@@ -113,8 +129,8 @@ namespace Boxer.ViewModel
                             }
                         }
                     }
-                  Outer:
-                        ;
+                Outer:
+                    ;
                 }
             }
             else
@@ -127,13 +143,69 @@ namespace Boxer.ViewModel
                 names += nodeWithName.Name;
                 names += "\n";
             }
+            names += "Folders or Images with No Duplicates.\n";
             foreach (var unique in _noDuplicatesFound)
             {
                 names += unique.Name;
                 names += "\n";
             }
             watch.Stop();
-            MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count,names));
+            MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count, names));
+        }
+
+        private void CheckImagesForNonExisting(IEnumerable<INode> incomingImageDatas, IEnumerable<INode> existingImageDatas)
+        {
+            //we need to compare (I'm only going to compare the name and children of the folders, not the image childre, just folder children)
+            //to see if there is any new folders being brought in. I think it's better to let the user decide if they want to use the folder or not
+            //even if it could contain dupes/etc. that's up to the user to handle, we're just telling them that there is a folder that isn't in
+            //their current SUF
+            foreach (var incomingImage in incomingImageDatas)
+            {
+                bool exists = false;
+                foreach (var existingImage in existingImageDatas)
+                {
+                    if (incomingImage.Name == existingImage.Name)
+                    {
+                        exists = true;
+                    }
+
+                }
+                if (exists) continue;
+
+                if (!_noDuplicatesFound.Contains(incomingImage))
+                {
+                    //for Images we should probably also check the parent folders to see if we already have the folder in noDupes
+
+                    _noDuplicatesFound.Add(incomingImage as NodeWithName);
+                }
+            }
+        }
+
+        private void CheckFoldersForNonExisting(IEnumerable<INode> incomingFolders, IEnumerable<INode> existingFolders)
+        {
+            //we need to compare (I'm only going to compare the name and children of the folders, not the image childre, just folder children)
+            //to see if there is any new folders being brought in. I think it's better to let the user decide if they want to use the folder or not
+            //even if it could contain dupes/etc. that's up to the user to handle, we're just telling them that there is a folder that isn't in
+            //their current SUF
+            foreach (var incomingFolder in incomingFolders)
+            {
+                bool exists = false;
+                foreach (var existingFolder in existingFolders)
+                {
+                    if (incomingFolder.Name == existingFolder.Name)
+                    {
+                        exists = true;
+                    }
+
+                }
+                if (exists) continue;
+
+                if (!_noDuplicatesFound.Contains(incomingFolder))
+                {
+                    _noDuplicatesFound.Add(incomingFolder as NodeWithName);
+                }
+            }
+
         }
 
         static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
@@ -181,12 +253,6 @@ namespace Boxer.ViewModel
         }
 
         #endregion
-
-        public void CheckFoldersForNonExisting(NodeWithName toCheck, Stack<NodeWithName> ancestors, NodeWithName startPoint)
-        {
-
-        }
-
 
         //Feed an incoming node against the document we have, loop through Everything and check to see what is there...this is going to be a looooooooong process I think
         public void CheckForDuplicates(NodeWithName incoming, Stack<NodeWithName> ancestors, NodeWithName startPoint)
