@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,9 @@ namespace Boxer.ViewModel
             _needsToBeChecked.Clear();
             _noDuplicatesFound.Clear();
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             //for starters we only use one file at a time but for extensibility (quicker later) mid as well make it ready to take multiple 
             var strings = o as string[];
             var doc = new List<Document>();
@@ -55,17 +59,10 @@ namespace Boxer.ViewModel
                
                 foreach (var incomingNode in flattenedIncoming)
                 {
-                    bool dealtWith = false;
                     if(incomingNode is ImageData)
                     {
                         foreach (var existingNode in flattenedExisting)
                         {
-                            /*
-                            * see if the types are the same, if they are we'll check further to see if they are the same name at least
-                            * if they are, then we check to see if they are the same or if they are different. 
-                            * if different add to the needToCheck list
-                            */
-
                             if(existingNode is ImageData)
                             {
                                 if (((ImageData) incomingNode).Filename == ((ImageData) existingNode).Filename)
@@ -76,7 +73,6 @@ namespace Boxer.ViewModel
                                     if (incomingNode.Children.Count != existingNode.Children.Count)
                                     {
                                         _needsToBeChecked.Add(incomingNode as NodeWithName);
-                                        dealtWith = true;
                                     }
                                     else
                                     {
@@ -93,12 +89,10 @@ namespace Boxer.ViewModel
                                                     {
                                                         if (incPolyGroup.Name == existingPolyGroup.Name)
                                                         {
-                                                            var result =
-                                                                (incPolyGroup).CheckAgainstOtherGroup(existingPolyGroup);
+                                                            var result = (incPolyGroup).CheckAgainstOtherGroup(existingPolyGroup);
                                                             if (!result)
                                                             {
                                                                 _needsToBeChecked.Add(incomingNode as NodeWithName);
-                                                                dealtWith = true;
                                                                 goto Outer;
                                                             }
                                                             //since this group was fine, let's check the next one
@@ -108,7 +102,7 @@ namespace Boxer.ViewModel
                                                     NextGroup:
                                                     ;
                                                 }
-
+                                                //need to get out of the loop so we don't keep comparing the same frame to everything in the inner loop so we jump out
                                                 goto NextFrame;
                                             }
                                             NextFrame:
@@ -118,8 +112,6 @@ namespace Boxer.ViewModel
                                 }
                             }
                         }
-                        if(!dealtWith)
-                            _noDuplicatesFound.Add(incomingNode as NodeWithName);
                     }
                   Outer:
                         ;
@@ -140,7 +132,8 @@ namespace Boxer.ViewModel
                 names += unique.Name;
                 names += "\n";
             }
-            MessageBox.Show(string.Format("Finished Merge Process. We found {0} difference(s). \n Files that differ are : \n {1}", _needsToBeChecked.Count + _noDuplicatesFound.Count,names));
+            watch.Stop();
+            MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count,names));
         }
 
         static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
