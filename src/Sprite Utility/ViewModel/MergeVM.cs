@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,15 +10,21 @@ using System.Windows;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.Data.Formats;
+using Boxer.Views;
 using Microsoft.Practices.ServiceLocation;
 
 namespace Boxer.ViewModel
 {
     public class MergeVM : MainWindowVM
     {
-        private List<NodeWithName> _needsToBeChecked;
-        private List<NodeWithName> _noDuplicatesFound;
+        private ObservableCollection<NodeWithName> _needsToBeChecked;
+        private ObservableCollection<NodeWithName> _noDuplicatesFound;
         private static readonly FileFormat Format = new BinaryFileFormat();
+
+        public ObservableCollection<NodeWithName> NoDuplicatesFound { get { return _noDuplicatesFound; }
+            private set { }
+        }
+
 
         //This is used for the Merge Function/view
         public SmartCommand<object> MergeCommand { get; private set; }
@@ -26,9 +33,9 @@ namespace Boxer.ViewModel
         {
 
             if (_needsToBeChecked == null)
-                _needsToBeChecked = new List<NodeWithName>();
+                _needsToBeChecked = new ObservableCollection<NodeWithName>();
             if (_noDuplicatesFound == null)
-                _noDuplicatesFound = new List<NodeWithName>();
+                _noDuplicatesFound = new ObservableCollection<NodeWithName>();
 
             _needsToBeChecked.Clear();
             _noDuplicatesFound.Clear();
@@ -151,6 +158,10 @@ namespace Boxer.ViewModel
             }
             watch.Stop();
             MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count, names));
+            
+            //Time to show the window and display stuff.
+            MergeWindow merge = new MergeWindow();
+            merge.Show();
         }
 
         private void CheckImagesForNonExisting(IEnumerable<INode> incomingImageDatas, IEnumerable<INode> existingImageDatas)
@@ -174,8 +185,9 @@ namespace Boxer.ViewModel
 
                 if (!_noDuplicatesFound.Contains(incomingImage))
                 {
-                    //for Images we should probably also check the parent folders to see if we already have the folder in noDupes
-
+                    //for Images we should probably also check the parent folders to see if we already have the folder in noDupes?
+                    bool testing = true;
+                    
                     _noDuplicatesFound.Add(incomingImage as NodeWithName);
                 }
             }
