@@ -42,6 +42,8 @@ namespace Boxer.ViewModel
         private NodeWithName _currentSelectedNode;
         private Polygon _copyPolygon;
 
+        public NodeWithName CurrentSelectedNode { get { return _currentSelectedNode; } }
+
         public Glue Glue
         {
             get { return ServiceLocator.Current.GetInstance<Glue>(); }
@@ -966,6 +968,54 @@ namespace Boxer.ViewModel
 
         #endregion
 
+        #region MergeSUF's command
+
+        public SmartCommand<object> MergeCommand { get; private set; }
+
+        public bool CanExecuteMergeCommand(object o)
+        {
+            return Documents.Count != 0 && Documents != null;
+        }
+
+        public void ExecuteMergeCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+
+            var dialog = new OpenFileDialog();
+            dialog.Title = string.Format("Find SUF To Merge");
+            dialog.Filter = ".suf| *.suf";
+            dialog.Multiselect = false;
+
+            bool? result = dialog.ShowDialog();
+            if (result == true)
+            {
+                string[] names = dialog.FileNames;
+
+                merger.ExecuteMergeCommand(names);
+            }
+
+            
+        }
+
+        #endregion
+
+        #region Open MergeWindow Command
+        [JsonIgnore]
+        public SmartCommand<object> OpenMergeWindowCommand { get; private set; }
+
+        public bool CanExecuteOpenMergeWindowCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+            return true;//merger.NoDuplicatesFound != null && merger.NoDuplicatesFound.Count != 0 ||merger.NeedsToBeChecked != null && merger.NeedsToBeChecked.Count != 0;
+        }
+
+        public void ExecuteOpenMergeWindowCommand(object o)
+        {
+            var merger = ServiceLocator.Current.GetInstance<MergeVM>();
+            merger.OpenMergeWindow();
+        }
+        #endregion
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -985,6 +1035,9 @@ namespace Boxer.ViewModel
             //Reimport Commands
             ReimportFromNewPathCommand = new SmartCommand<object>(ExecuteReimportFromNewPathCommand, CanExecutreReimportFromNewPathCommand);
             ReimportMultipleCommand = new SmartCommand<object>(ExecuteReimportMultipleCommand, CanExecuteReimportMultipleCommand);
+
+            MergeCommand = new SmartCommand<object>(ExecuteMergeCommand,CanExecuteMergeCommand);
+            OpenMergeWindowCommand = new SmartCommand<object>(ExecuteOpenMergeWindowCommand, CanExecuteOpenMergeWindowCommand);
         }
 
 #endregion

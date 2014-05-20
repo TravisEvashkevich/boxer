@@ -147,6 +147,7 @@
     <Compile Include="Core\ImageHelper.cs" />
     <Compile Include="Core\ISmartCommand.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
+    <Compile Include="Core\MouseUtilities.cs" />
     <Compile Include="Core\Primitives2D.cs" />
     <Compile Include="Core\SmartCommand.cs" />
     <Compile Include="Core\XmlColor.cs" />
@@ -170,9 +171,6 @@
     <Compile Include="Data\Polygon.cs" />
     <Compile Include="Data\PolygonGroup.cs" />
     <Compile Include="Data\PolyPoint.cs" />
-    <Compile Include="Resources\Templates.xaml.cs">
-      <DependentUpon>Templates.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Services\Shape.cs" />
     <Compile Include="Services\TraceService.cs" />
     <Compile Include="Services\TraceServiceExtensions.cs" />
@@ -184,6 +182,7 @@
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="Core\MainViewModel.cs" />
     <Compile Include="Core\ViewModelLocator.cs" />
+    <Compile Include="ViewModel\MergeVM.cs" />
     <Compile Include="ViewModel\PreferencesVM.cs" />
     <Compile Include="ViewModel\SearchFilterVM.cs" />
     <Compile Include="Views\AutoTraceWindow.xaml.cs">
@@ -200,6 +199,9 @@
     </Compile>
     <Compile Include="Views\DocumentView.xaml.cs">
       <DependentUpon>DocumentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MergeWindow.xaml.cs">
+      <DependentUpon>MergeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Preferences.xaml.cs">
       <DependentUpon>Preferences.xaml</DependentUpon>
@@ -254,6 +256,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\DocumentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MergeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

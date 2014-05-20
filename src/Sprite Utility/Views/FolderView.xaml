@@ -14,11 +14,6 @@
                 <Label Content="Current Boxer Parent is : "/>
                 <Label Content="{Binding Folder.Parent.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Boxer Parent"  ToolTip="What folder does this sit in?"/>
-                <ComboBox Name="FilePathBox" Width="150" Margin="10,0,0,0" ItemsSource="{Binding Path=FoldersList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" 
-                          SelectedItem="{Binding Path=SelectedFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

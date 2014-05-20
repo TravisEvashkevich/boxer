@@ -23,9 +23,13 @@
                 <MenuItem Header="Open" HorizontalAlignment="Left" Command="{Binding OpenDocumentCommand}" InputGestureText="Ctrl + O"/>
                 <MenuItem Header="Save" HorizontalAlignment="Left" Command="{Binding SaveDocumentCommand}" InputGestureText="Ctrl + S"/>
                 <MenuItem Header="Save As" HorizontalAlignment="Left" Command="{Binding SaveAsCommand}" InputGestureText="Ctrl + Shift + S" />
-                <MenuItem Header="Close" HorizontalAlignment="Left" Command="{Binding CloseCommand}" InputGestureText="Ctrl + Q"/>
+                <MenuItem Header="Quit" HorizontalAlignment="Left" Command="{Binding CloseCommand}" InputGestureText="Ctrl + Q"/>
                 <Separator></Separator>
                 <MenuItem Header="Export" HorizontalAlignment="Left" Command="{Binding ExportCommand}" InputGestureText="Ctrl + E" />
+            </MenuItem>
+            <MenuItem Header="Merge">
+                <MenuItem Header="Open Merge Window" Command="{Binding OpenMergeWindowCommand}" ToolTip="Opens the Merge Window with the results from the last Merge Attempt."/>
+                <MenuItem Header="Merge SUF's" Command="{Binding MergeCommand}" InputGestureText="Ctrl+M"/>
             </MenuItem>
             <MenuItem Header="Reimports">
                 <MenuItem Header="Reimport Selected from New Path" InputGestureText="Ctrl+R" Command="{Binding ReimportFromNewPathCommand}"/>
@@ -47,7 +51,10 @@
             <views:SearchFilterView Grid.Row="0"/>
             <TreeView x:Name="TreeView" Margin="0" Style="{StaticResource ResourceKey=SearchableTreeView}" 
                       ItemsSource="{Binding Documents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      Grid.Row="1" Grid.Column="0" PreviewKeyDown="TreeView_OnPreviewKeyDown" >
+                      Grid.Row="1" Grid.Column="0" PreviewKeyDown="TreeView_OnPreviewKeyDown" 
+                      PreviewMouseMove="TreeView_OnPreviewMouseMove"
+                      PreviewMouseDown="TreeView_OnPreviewMouseDown" 
+                      Drop="TreeView_OnDrop" AllowDrop="True">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectedItemChanged">
                         <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"

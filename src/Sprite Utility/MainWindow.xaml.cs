@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -14,9 +16,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Boxer.Core;
+using Boxer.Data;
 using Boxer.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
+using Xceed.Wpf.Toolkit.Primitives;
+using Point = System.Windows.Point;
+using Polygon = Boxer.Data.Polygon;
 
 namespace Boxer
 {
@@ -27,11 +33,18 @@ namespace Boxer
     {
         //want to save in a var so I can use across methods, can't load right at the start cause it doesn't exist till after the initcomp
         private MainWindowVM _mainWindowVm = null;
+        private bool _isDragging;
+        private Point _startPoint;
+        private bool _isReordering;
+
+        public TreeViewItem ReOrderItem { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
 
             WindowState = WindowState.Maximized;
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             Messenger.Default.Register<CloseMainWindowMessage>(this, p => Close());
 
@@ -54,7 +67,9 @@ namespace Boxer
 
             //Reimport commands
             InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportFromNewPathCommand, new KeyGesture(Key.R, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportMultipleCommand, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift))); 
+            InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportMultipleCommand, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift)));
+            //Merge Command
+            InputBindings.Add(new KeyBinding(_mainWindowVm.MergeCommand, new KeyGesture(Key.M, ModifierKeys.Control)));
 
         }
 
@@ -69,7 +84,7 @@ namespace Boxer
                     Glue.Instance.Document.Save(false);
                 }
             }
-            
+
         }
 
         private void TreeView_OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -81,9 +96,184 @@ namespace Boxer
             else if (e.Key == Key.Enter)
             {
                 _mainWindowVm.JumpToNextImageFrame();
-
             }
-            
         }
+
+        private void TreeView_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _startPoint = e.GetPosition(null);
+        }
+
+        private void TreeView_OnPreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && !_isDragging)
+            {
+                Point position = e.GetPosition(null);
+
+                if (Math.Abs(position.X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(position.Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    ReOrderDrag(e);
+                }
+            }
+        }
+
+        private void ReOrderDrag(MouseEventArgs e)
+        {
+            _isDragging = true;
+            _isReordering = true;
+            //We can get the item that you're "dragging" and set it to the currentSelectedAction already
+            var pos = MouseUtilities.GetMousePosition(TreeView);
+            var element = GetItemAtLocation<TreeViewItem>(pos);
+            if (element == null || (element.Header.GetType() != typeof(Folder) && element.Header.GetType() != typeof(ImageData)))
+            {
+                _isDragging = false;
+                _isReordering = false;
+                return;
+            }
+            ReOrderItem = element;
+            DataObject data = new DataObject(DataFormats.Text, "abcd");
+            DragDropEffects de = DragDrop.DoDragDrop(TreeView, data, DragDropEffects.Move);
+
+            _isDragging = false;
+            _isReordering = false;
+        }
+
+        private void TreeView_OnDrop(object sender, DragEventArgs e)
+        {
+            #region Folder Drops
+            //Get the currentSelected from the MainWindowVM and see if it's a Folder/ImageData
+            if (ReOrderItem.Header is Folder)
+            {
+                //find drop spot (get item you're dropping on, null = not on an item, 
+                var pos = MouseUtilities.GetMousePosition(TreeView);
+                var dropItem = GetItemAtLocation<TreeViewItem>(pos);
+                if(dropItem == null)
+                    return;
+                
+                if ( dropItem.Header is Folder)
+                {
+                    if (!FolderIsChildOf(ReOrderItem.Header as Folder, dropItem.Header as Folder))
+                    {
+                        var targetFolder = dropItem.Header as Folder;
+                        var sourceFolder = ReOrderItem.Header as Folder;
+
+                        targetFolder.Children.Add(sourceFolder);
+                        sourceFolder.Parent.Children.Remove(sourceFolder);
+                        sourceFolder.Parent = targetFolder;
+                    }
+                }
+                else if (dropItem.Header is Document)
+                {
+                    var targetFolder = dropItem.Header as Document;
+                    var sourceFolder = ReOrderItem.Header as Folder;
+
+                    targetFolder.Children.Add(sourceFolder);
+                    sourceFolder.Parent.Children.Remove(sourceFolder);
+                    sourceFolder.Parent = targetFolder;
+                }
+            }
+            #endregion
+            #region Image Drops
+            else if (ReOrderItem.Header is ImageData)
+            {
+                //find drop spot (get item you're dropping on, null = not on an item, 
+                var pos = MouseUtilities.GetMousePosition(TreeView);
+                var dropItem = GetItemAtLocation<TreeViewItem>(pos);
+                if (dropItem == null)
+                    return;
+                if (dropItem.Header is Folder)
+                {
+                    var targetFolder = dropItem.Header as Folder;
+                    var sourceImage = ReOrderItem.Header as ImageData;
+
+                    targetFolder.Children.Add(sourceImage);
+                    sourceImage.Parent.Children.Remove(sourceImage);
+                    sourceImage.Parent = targetFolder;
+                }
+                    //if we dropped on another image I guess we just add to the folder that image is contained in
+                else if (dropItem.Header is ImageData)
+                {
+                    var targetFolder = dropItem.Header as ImageData;
+                    var sourceImage = ReOrderItem.Header as ImageData;
+
+                    targetFolder.Parent.Children.Add(sourceImage);
+                    sourceImage.Parent.Children.Remove(sourceImage);
+                    sourceImage.Parent = targetFolder.Parent;
+                }
+            }
+            #endregion
+        }
+
+        private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
+        {
+            foreach (var child in parentFolder.Children)
+            {
+                if (child is Folder && child.Name == childFolder.Name)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        #region Visual Finder Methods
+        private childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is childItem)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = FindVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
+
+        //Use these next two methods to find the object that is under the mouse cursor at drop AND find the parent (else it will give you a label or a tbox or something)
+        T GetItemAtLocation<T>(Point location)
+        {
+            T foundItem = default(T);
+            HitTestResult hitTestResults = VisualTreeHelper.HitTest(TreeView, location);
+
+
+            if (hitTestResults != null)
+            {
+                var treeViewItem = GetParentOfType<TreeViewItem>(hitTestResults.VisualHit);
+
+                object dataObject = treeViewItem;
+
+                if (treeViewItem is T)
+                {
+                    foundItem = (T)dataObject;
+                }
+            }
+
+            return foundItem;
+        }
+
+        private T GetParentOfType<T>(DependencyObject o) where T : DependencyObject
+        {
+            DependencyObject parent = o;
+            do
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+                if (parent == null)
+                    break;
+                if (parent.GetType() == typeof(T))
+                {
+                    return (T)parent;
+                }
+            } while (parent != null);
+            return null;
+        }
+
+        #endregion
+
     }
 }
