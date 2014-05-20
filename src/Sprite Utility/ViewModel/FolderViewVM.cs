@@ -61,13 +61,14 @@ namespace Boxer.ViewModel
                     var index = Folder.Parent.Children.IndexOf(Folder);
                     if (index != -1)
                     {
-                        Folder.Parent.Children.RemoveAt(index);
+                        _selectedFolder = null;
+                        (Folder.Parent as NodeWithName).Children.Remove(Folder);
                     }
                     Folder.Parent = value;
+                    Folder.IsSelected = false;
+                    
                     Glue.Instance.DocumentIsSaved = false;
                 }
-                Set(ref _selectedFolder, value);
-                _selectedFolder = null;
             }
         }
 

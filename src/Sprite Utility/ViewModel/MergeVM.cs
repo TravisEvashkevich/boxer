@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,9 @@ namespace Boxer.ViewModel
     public class MergeVM : MainWindowVM
     {
         private ObservableCollection<NodeWithName> _needsToBeChecked;
+        private List<ImageData> _originals; 
         private ObservableCollection<NodeWithName> _noDuplicatesFound;
+
         private static readonly FileFormat Format = new BinaryFileFormat();
 
         public ObservableCollection<NodeWithName> NoDuplicatesFound { get { return _noDuplicatesFound; } }
@@ -37,9 +40,12 @@ namespace Boxer.ViewModel
                 _needsToBeChecked = new ObservableCollection<NodeWithName>();
             if (_noDuplicatesFound == null)
                 _noDuplicatesFound = new ObservableCollection<NodeWithName>();
+            if(_originals == null)
+                _originals = new List<ImageData>();
 
             _needsToBeChecked.Clear();
             _noDuplicatesFound.Clear();
+            _originals.Clear();
 
             //Just interested in how long it takes for merge checking
             Stopwatch watch = new Stopwatch();
@@ -97,6 +103,7 @@ namespace Boxer.ViewModel
                                     if (incomingNode.Children.Count != existingNode.Children.Count)
                                     {
                                         _needsToBeChecked.Add(incomingNode as NodeWithName);
+                                        _originals.Add(existingNode as ImageData);
                                     }
                                     else
                                     {
@@ -117,6 +124,7 @@ namespace Boxer.ViewModel
                                                             if (!result)
                                                             {
                                                                 _needsToBeChecked.Add(incomingNode as NodeWithName);
+                                                                _originals.Add(existingNode as ImageData);
                                                                 goto Outer;
                                                             }
                                                             //since this group was fine, let's check the next one
@@ -265,41 +273,6 @@ namespace Boxer.ViewModel
 
         #endregion
 
-        //Feed an incoming node against the document we have, loop through Everything and check to see what is there...this is going to be a looooooooong process I think
-        public void CheckForDuplicates(NodeWithName incoming, Stack<NodeWithName> ancestors, NodeWithName startPoint)
-        {
-            if (IsCriteriaMatched(incoming.Name, startPoint))
-            {
-                if (incoming is ImageData)
-                {
-                    //check to see if the image data is the same or not, not sure whether doing a compareTo or equality would be the best and most efficient way to do this.
-                    if (incoming == startPoint)
-                    {
-                        MessageBox.Show(incoming.Name + " is the same as " + startPoint.Name);
-                    }
-                }
-            }
-            else
-            {
-                _noDuplicatesFound.Add(incoming);
-            }
-            ancestors.Push(startPoint);
-            if (startPoint.Children != null && startPoint.Children.Count > 0)
-            {
-                foreach (var child in incoming.Children)
-                    if (child.Type != null && !child.Type.Contains(typeof(ImageFrame).ToString()) &&
-                       (child.Type != "Polygon" && child.Type != "PolyPoint" && child.Type != "PolygonGroup"))
-                        CheckForDuplicates(incoming, ancestors, child as NodeWithName);
-            }
-
-            ancestors.Pop();
-        }
-
-        private bool IsCriteriaMatched(string criteria, NodeWithName check)
-        {
-            return String.IsNullOrEmpty(criteria) || check.Name.ToLower() == (criteria.ToLower()) && check is ImageData;
-        }
-
         #region OpenMergeWindow
 
         public void OpenMergeWindow()
@@ -358,10 +331,26 @@ namespace Boxer.ViewModel
             var merged = new Folder();
             if (!mergedCreated)
             {
+                merged.Parent = main.Documents[0];
                 main.Documents[0].AddChild(new Folder(){Name = "Merged"});
             }
             merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
-            //add the item to the merged folder
+            //add the item to the merged folder OR overwrite the original data
+
+
+            for (int index   = 0; index < _originals.Count; index++)
+            {
+                if (_originals[index].Name == SelectedItem.Name)
+                {
+                    var parent = _originals[index].Parent;
+                    _originals[index].Remove();
+                    parent.Children.Add(SelectedItem);
+                   // _originals[index] = SelectedItem as ImageData;
+                    
+                }
+            }
+
+
             if(SelectedItem != null)
             {
                 merged.AddChild(SelectedItem);
