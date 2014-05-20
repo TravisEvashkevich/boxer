@@ -148,37 +148,23 @@ namespace Boxer
                 var pos = MouseUtilities.GetMousePosition(TreeView);
                 var dropItem = GetItemAtLocation<TreeViewItem>(pos);
 
-                if (dropItem != null && dropItem.Header is Folder &&
-                    !FolderIsChildOf(dropItem.Header as Folder, ReOrderItem.Header as Folder))
+                if (dropItem != null && dropItem.Header is Folder)
                 {
-                    var targetFolder = dropItem.Header as Folder;
-                    var sourceFolder = ReOrderItem.Header as Folder;
 
-                    targetFolder.Children.Add(ReOrderItem.Header as Folder);
-                    sourceFolder.Parent.Children.Remove(sourceFolder);
-                    sourceFolder.Parent = targetFolder;
+                    if (!FolderIsChildOf(ReOrderItem.Header as Folder, dropItem.Header as Folder))
+                    {
+                        var targetFolder = dropItem.Header as Folder;
+                        var sourceFolder = ReOrderItem.Header as Folder;
+
+                        targetFolder.Children.Add(ReOrderItem.Header as Folder);
+                        sourceFolder.Parent.Children.Remove(sourceFolder);
+                        sourceFolder.Parent = targetFolder;
+                    }
+                    
 
                 }
             }
         }
-
-        /*public void FindFolders(ObservableCollection<NodeWithName> allFolders, Stack<NodeWithName> ancestors, NodeWithName startPoint)
-        {
-            ancestors.Push(startPoint);
-            if (startPoint.Children != null && startPoint.Children.Count > 0)
-            {
-                foreach (var child in startPoint.Children)
-                {
-                    if (child.Type == "Folder" && !FolderIsChildOf(_mainWindowVm.CurrentSelectedNode as Folder, child as Folder) && !child.Name.Contains(Folder.Name))
-                    {
-                        allFolders.Add(child as Folder);
-                        FindFolders(allFolders, ancestors, child as NodeWithName);
-                    }
-                }
-            }
-
-            ancestors.Pop();
-        }*/
 
         private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
         {
