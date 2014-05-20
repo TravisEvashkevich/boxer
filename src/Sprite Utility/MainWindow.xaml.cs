@@ -161,6 +161,7 @@ namespace Boxer
                         targetFolder.Children.Add(sourceFolder);
                         sourceFolder.Parent.Children.Remove(sourceFolder);
                         sourceFolder.Parent = targetFolder;
+                        Glue.Instance.DocumentIsSaved = false;
                     }
                 }
                 else if (dropItem.Header is Document)
@@ -171,6 +172,7 @@ namespace Boxer
                     targetFolder.Children.Add(sourceFolder);
                     sourceFolder.Parent.Children.Remove(sourceFolder);
                     sourceFolder.Parent = targetFolder;
+                    Glue.Instance.DocumentIsSaved = false;
                 }
             }
             #endregion
@@ -190,6 +192,7 @@ namespace Boxer
                     targetFolder.Children.Add(sourceImage);
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder;
+                    Glue.Instance.DocumentIsSaved = false;
                 }
                     //if we dropped on another image I guess we just add to the folder that image is contained in
                 else if (dropItem.Header is ImageData)
@@ -200,6 +203,7 @@ namespace Boxer
                     targetFolder.Parent.Children.Add(sourceImage);
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder.Parent;
+                    Glue.Instance.DocumentIsSaved = false;
                 }
             }
             #endregion

@@ -189,8 +189,11 @@ namespace Boxer.ViewModel
             //to see if there is any new folders being brought in. I think it's better to let the user decide if they want to use the folder or not
             //even if it could contain dupes/etc. that's up to the user to handle, we're just telling them that there is a folder that isn't in
             //their current SUF
+            var tempList = new List<Folder>();
             foreach (var incomingFolder in incomingFolders)
             {
+                tempList.Clear();
+
                 bool exists = false;
                 foreach (var existingFolder in existingFolders)
                 {
@@ -200,12 +203,29 @@ namespace Boxer.ViewModel
                     }
                 }
                 if (exists) continue;
-
-                if (!_noDuplicatesFound.Contains(incomingFolder))
+                foreach (var nodeWithName in _noDuplicatesFound)
                 {
-                    _noDuplicatesFound.Add(incomingFolder as NodeWithName);
+                    if (FolderIsChildOf(nodeWithName as Folder, incomingFolder as Folder))
+                    {
+                        return;
+                    }
+                }
+
+                _noDuplicatesFound.Add(incomingFolder as Folder);
+            }
+        }
+
+        private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
+        {
+            var flattened = Flatten(parentFolder.Children);
+            foreach (var child in flattened)
+            {
+                if (child is Folder && child.Name == childFolder.Name)
+                {
+                    return true;
                 }
             }
+            return false;
         }
 
         static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
