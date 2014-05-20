@@ -147,10 +147,11 @@ namespace Boxer
                 //find drop spot (get item you're dropping on, null = not on an item, 
                 var pos = MouseUtilities.GetMousePosition(TreeView);
                 var dropItem = GetItemAtLocation<TreeViewItem>(pos);
-
-                if (dropItem != null && dropItem.Header is Folder)
+                if(dropItem == null)
+                    return;
+                
+                if ( dropItem.Header is Folder)
                 {
-
                     if (!FolderIsChildOf(ReOrderItem.Header as Folder, dropItem.Header as Folder))
                     {
                         var targetFolder = dropItem.Header as Folder;
@@ -160,8 +161,15 @@ namespace Boxer
                         sourceFolder.Parent.Children.Remove(sourceFolder);
                         sourceFolder.Parent = targetFolder;
                     }
-                    
+                }
+                else if (dropItem.Header is Document)
+                {
+                    var targetFolder = dropItem.Header as Document;
+                    var sourceFolder = ReOrderItem.Header as Folder;
 
+                    targetFolder.Children.Add(ReOrderItem.Header as Folder);
+                    sourceFolder.Parent.Children.Remove(sourceFolder);
+                    sourceFolder.Parent = targetFolder;
                 }
             }
         }
