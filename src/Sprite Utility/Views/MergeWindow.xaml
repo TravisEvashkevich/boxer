@@ -50,6 +50,10 @@
 
         <Button Grid.Row="0" Grid.Column="1" Margin="10,5,10,5" Content="Keep Selected" Command="{Binding KeepSelectedCommand}"/>
         <Button Grid.Row="0" Grid.Column="2" Margin="10,5,10,5" Content="Trash it!" Command="{Binding TrashSelectedCommand}"/>
+        <StackPanel Grid.Row="0" Grid.Column="3"  Orientation="Horizontal">
+            <Label Content="All Selected ="/>
+            <Label Content="{Binding AllSelected, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
 
     </Grid>
 </Window>
