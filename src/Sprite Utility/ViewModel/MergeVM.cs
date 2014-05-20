@@ -86,7 +86,6 @@ namespace Boxer.ViewModel
                 CheckFoldersForNonExisting(incomingFolders, existingFolders);
                 CheckImagesForNonExisting(incomingImageDatas, existingImageDatas);
 
-
                 foreach (var incomingNode in flattenedIncoming)
                 {
                     if (incomingNode is ImageData)
@@ -153,21 +152,6 @@ namespace Boxer.ViewModel
             {
                 MessageBox.Show("There is no differences between these files. Please select files that have differences for merging (It will be more effective :D )");
             }
-            string names = "";
-            foreach (var nodeWithName in _needsToBeChecked)
-            {
-                names += nodeWithName.Name;
-                names += "\n";
-            }
-            names += "Folders or Images with No Duplicates.\n";
-            foreach (var unique in _noDuplicatesFound)
-            {
-                names += unique.Name;
-                names += "\n";
-            }
-            watch.Stop();
-            MessageBox.Show(string.Format("Finished Merge Process. It took {0} We found {1} difference(s). \n Files that differ are : \n {2}", watch.Elapsed, _needsToBeChecked.Count + _noDuplicatesFound.Count, names));
-            
             OpenMergeWindow();
         }
 
@@ -186,7 +170,6 @@ namespace Boxer.ViewModel
                     {
                         exists = true;
                     }
-                
                 }
                 if (exists) continue;
 
@@ -215,7 +198,6 @@ namespace Boxer.ViewModel
                     {
                         exists = true;
                     }
-
                 }
                 if (exists) continue;
 
@@ -224,7 +206,6 @@ namespace Boxer.ViewModel
                     _noDuplicatesFound.Add(incomingFolder as NodeWithName);
                 }
             }
-
         }
 
         static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
@@ -345,11 +326,8 @@ namespace Boxer.ViewModel
                     var parent = _originals[index].Parent;
                     _originals[index].Remove();
                     parent.Children.Add(SelectedItem);
-                   // _originals[index] = SelectedItem as ImageData;
-                    
                 }
             }
-
 
             if(SelectedItem != null)
             {
