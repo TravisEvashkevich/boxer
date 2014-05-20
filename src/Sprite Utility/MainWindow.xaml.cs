@@ -191,6 +191,16 @@ namespace Boxer
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder;
                 }
+                    //if we dropped on another image I guess we just add to the folder that image is contained in
+                else if (dropItem.Header is ImageData)
+                {
+                    var targetFolder = dropItem.Header as ImageData;
+                    var sourceImage = ReOrderItem.Header as ImageData;
+
+                    targetFolder.Parent.Children.Add(sourceImage);
+                    sourceImage.Parent.Children.Remove(sourceImage);
+                    sourceImage.Parent = targetFolder.Parent;
+                }
             }
             #endregion
         }

@@ -171,9 +171,6 @@
     <Compile Include="Data\Polygon.cs" />
     <Compile Include="Data\PolygonGroup.cs" />
     <Compile Include="Data\PolyPoint.cs" />
-    <Compile Include="Resources\Templates.xaml.cs">
-      <DependentUpon>Templates.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Services\Shape.cs" />
     <Compile Include="Services\TraceService.cs" />
     <Compile Include="Services\TraceServiceExtensions.cs" />
