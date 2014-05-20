@@ -42,6 +42,8 @@ namespace Boxer.ViewModel
         private NodeWithName _currentSelectedNode;
         private Polygon _copyPolygon;
 
+        public NodeWithName CurrentSelectedNode { get { return _currentSelectedNode; } }
+
         public Glue Glue
         {
             get { return ServiceLocator.Current.GetInstance<Glue>(); }

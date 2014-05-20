@@ -147,6 +147,7 @@
     <Compile Include="Core\ImageHelper.cs" />
     <Compile Include="Core\ISmartCommand.cs" />
     <Compile Include="Core\JsonSerializer.cs" />
+    <Compile Include="Core\MouseUtilities.cs" />
     <Compile Include="Core\Primitives2D.cs" />
     <Compile Include="Core\SmartCommand.cs" />
     <Compile Include="Core\XmlColor.cs" />

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -14,9 +15,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Boxer.Core;
+using Boxer.Data;
 using Boxer.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
+using Xceed.Wpf.Toolkit.Primitives;
+using Point = System.Windows.Point;
+using Polygon = Boxer.Data.Polygon;
 
 namespace Boxer
 {
@@ -27,6 +32,12 @@ namespace Boxer
     {
         //want to save in a var so I can use across methods, can't load right at the start cause it doesn't exist till after the initcomp
         private MainWindowVM _mainWindowVm = null;
+        private bool _isDragging;
+        private Point _startPoint;
+        private bool _isReordering;
+
+        public TreeViewItem ReOrderItem { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -84,9 +95,209 @@ namespace Boxer
             else if (e.Key == Key.Enter)
             {
                 _mainWindowVm.JumpToNextImageFrame();
-
             }
-            
         }
+
+        private void TreeView_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _startPoint = e.GetPosition(null);
+        }
+
+        private void TreeView_OnPreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && !_isDragging)
+            {
+                Point position = e.GetPosition(null);
+
+                if (Math.Abs(position.X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(position.Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    ReOrderDrag(e);
+                }
+            }
+        }
+
+        private void ReOrderDrag(MouseEventArgs e)
+        {
+            _isDragging = true;
+            _isReordering = true;
+            //We can get the item that you're "dragging" and set it to the currentSelectedAction already
+            var pos = MouseUtilities.GetMousePosition(TreeView);
+            var element = GetItemAtLocation<TreeViewItem>(pos);
+            if (element == null || (element.Header.GetType() !=  typeof(Folder) && element.Header.GetType() != typeof(ImageData)))
+            {
+                _isDragging = false;
+                _isReordering = false;
+                return;
+            }
+            ReOrderItem = element;
+            DataObject data = new DataObject(DataFormats.Text, "abcd");
+            DragDropEffects de = DragDrop.DoDragDrop(TreeView, data, DragDropEffects.Move);
+
+            _isDragging = false;
+            _isReordering = false;
+        }
+
+        private void TreeView_OnDrop(object sender, DragEventArgs e)
+        {
+            //Get the currentSelected from the MainWindowVM and see if it's a Folder/ImageData
+            if (_mainWindowVm.CurrentSelectedNode is Folder || _mainWindowVm.CurrentSelectedNode is ImageData)
+            {
+                
+            }
+
+
+            /*//parent item
+            var parent = GetParentOfType<TreeViewItem>(ReOrderItem);
+            if (parent == null)
+                return;
+
+            //parent list
+            var actList = parent.Header as ActionList;
+            //get the index of the item before hand, we'll have to remove it from the list at some point
+            var startIndex = actList.ChildActions.IndexOf(ReOrderItem.Header as Actions);
+
+            //find drop spot (get item you're dropping on, null = not on an item, 
+            var pos = MouseUtilities.GetMousePosition(AteTreeView);
+            var dropItem = GetItemAtLocation<TreeViewItem>(pos);
+
+            if (dropItem != null)
+            {
+                var type = ReOrderItem.Header.GetType();
+                if (type == typeof(Actions))
+                {
+                    var dropParent = GetParentOfType<TreeViewItem>(dropItem);
+                    if (dropParent == null)
+                        return;
+                    var dropActList = dropParent.Header as ActionList;
+                    if (dropActList == actList)
+                    {
+                        //try to find the item in the list and get the index
+                        var innerIndex = -1;
+
+                        innerIndex = actList.ChildActions.IndexOf(dropItem.Header as Actions);
+
+                        //get the position of the mouse relative to the treeitem and it's width then decide where to insert (leftside = before the item, right side, after)
+                        var mousePos = MouseUtilities.GetMousePosition(parent);
+
+                        if (mousePos.X > dropItem.ActualWidth / 2)
+                        {
+                            //Insert into the list
+                            actList.ChildActions.Move(startIndex, innerIndex);
+                        }
+                        else if (mousePos.X < dropItem.ActualWidth / 2)
+                        {
+                            //Insert into the list
+                            actList.ChildActions.Move(startIndex, innerIndex);
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        //the item isn't being dropped in the same row, we still find the same index's but we have to make sure we insert and then remove the orig from the first list
+                        var innerIndex = -1;
+
+                        innerIndex = dropActList.ChildActions.IndexOf(dropItem.Header as Actions);
+
+                        //get the position of the mouse relative to the treeitem and it's width then decide where to insert (leftside = before the item, right side, after)
+                        var mousePos = MouseUtilities.GetMousePosition(parent);
+
+                        if (mousePos.X > dropItem.ActualWidth / 2)
+                        {
+                            //Insert into the list
+                            dropActList.ChildActions.Insert(innerIndex, ReOrderItem.Header as Actions);
+                        }
+                        else if (mousePos.X < dropItem.ActualWidth / 2)
+                        {
+                            //Insert into the list
+                            dropActList.ChildActions.Insert(innerIndex, ReOrderItem.Header as Actions);
+                        }
+                        actList.ChildActions.RemoveAt(startIndex);
+                        //check to see if that was actually the last item in that list or not, if it is we remove the list from the collection
+                        if (actList.ChildActions.Count == 0)
+                        {
+                            TickEditorVm.ActionsList.Remove(actList);
+                        }
+                        UpdateTickNumbers();
+                        return;
+                    }
+                }
+            }
+
+            if (ReOrderItem != null)
+            {
+                //null was the target to just add to new list and then remove from the original list
+                var aList = new ActionList() { Tick = AteTreeView.Items.Count };
+                aList.ChildActions.Add(ReOrderItem.Header as Actions);
+                TickEditorVm.ActionsList.Add(aList);
+
+                actList.ChildActions.RemoveAt(startIndex);
+                //check to see if that was actually the last item in that list or not, if it is we remove the list from the collection
+                if (actList.ChildActions.Count == 0)
+                {
+                    TickEditorVm.ActionsList.Remove(actList);
+                }
+                UpdateTickNumbers();
+            }*/
+        }
+
+        #region Visual Finder Methods
+        private childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is childItem)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = FindVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
+
+        //Use these next two methods to find the object that is under the mouse cursor at drop AND find the parent (else it will give you a label or a tbox or something)
+        T GetItemAtLocation<T>(Point location)
+        {
+            T foundItem = default(T);
+            HitTestResult hitTestResults = VisualTreeHelper.HitTest(TreeView, location);
+
+
+            if (hitTestResults != null)
+            {
+                var treeViewItem = GetParentOfType<TreeViewItem>(hitTestResults.VisualHit);
+
+                object dataObject = treeViewItem;
+
+                if (treeViewItem is T)
+                {
+                    foundItem = (T)dataObject;
+                }
+            }
+
+            return foundItem;
+        }
+
+        private T GetParentOfType<T>(DependencyObject o) where T : DependencyObject
+        {
+            DependencyObject parent = o;
+            do
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+                if (parent == null)
+                    break;
+                if (parent.GetType() == typeof(T))
+                {
+                    return (T)parent;
+                }
+            } while (parent != null);
+            return null;
+        }
+
+        #endregion
+
     }
 }

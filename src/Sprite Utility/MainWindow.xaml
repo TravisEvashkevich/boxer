@@ -51,7 +51,10 @@
             <views:SearchFilterView Grid.Row="0"/>
             <TreeView x:Name="TreeView" Margin="0" Style="{StaticResource ResourceKey=SearchableTreeView}" 
                       ItemsSource="{Binding Documents, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      Grid.Row="1" Grid.Column="0" PreviewKeyDown="TreeView_OnPreviewKeyDown" >
+                      Grid.Row="1" Grid.Column="0" PreviewKeyDown="TreeView_OnPreviewKeyDown" 
+                      PreviewMouseMove="TreeView_OnPreviewMouseMove"
+                      PreviewMouseDown="TreeView_OnPreviewMouseDown" 
+                      Drop="TreeView_OnDrop" AllowDrop="True">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectedItemChanged">
                         <command:EventToCommand Command="{Binding Mode=OneWay, Path=SelectedItemChangedCommand}"

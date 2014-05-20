@@ -3,16 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
-        Title="MergeWindow" SizeToContent="WidthAndHeight" MaxHeight="800" WindowStartupLocation="CenterOwner">
+        Title="MergeWindow" WindowStartupLocation="CenterOwner">
     <Window.DataContext>
         <Binding Path="MergeVm" Source="{StaticResource Locator}"/>
     </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary Source="../Resources/Templates.xaml"></ResourceDictionary>
     </Window.Resources>
-    <StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <GroupBox Header="New Content" ToolTip="Content that has no duplicates (at least in name) in the document.">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Header="New Content" ToolTip="Content that has no duplicates (at least in name) in the document.">
                 <TreeView x:Name="NewTreeView" Margin="0"
                       ItemsSource="{Binding NoDuplicatesFound, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                       Grid.Row="1" Grid.Column="0">
@@ -24,7 +34,7 @@
                     </i:Interaction.Triggers>
                 </TreeView>
             </GroupBox>
-            <GroupBox Header="Changed Content" ToolTip="This is data that is different than data you have already 
+            <GroupBox Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Header="Changed Content" ToolTip="This is data that is different than data you have already 
           (anthing from a point to children, polygroups etc. could have changed). Needs user reviewing">
                 <TreeView x:Name="ChangedTreeView" Margin="0" 
                       ItemsSource="{Binding NeedsToBeChecked, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
@@ -37,10 +47,9 @@
                     </i:Interaction.Triggers>
                 </TreeView>
             </GroupBox>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Keep Selected" Command="{Binding KeepSelectedCommand}"/>
-            <Button Content="Trash it!" Margin="20,0,0,0" Command="{Binding TrashSelectedCommand}"/>
-        </StackPanel>
-    </StackPanel>
+
+        <Button Grid.Row="1" Grid.Column="1" Content="Keep Selected" Command="{Binding KeepSelectedCommand}"/>
+        <Button Grid.Row="2" Grid.Column="2"  Content="Trash it!" Margin="20,0,0,0" Command="{Binding TrashSelectedCommand}"/>
+
+    </Grid>
 </Window>

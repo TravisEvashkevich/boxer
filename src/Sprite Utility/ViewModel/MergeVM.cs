@@ -19,7 +19,7 @@ namespace Boxer.ViewModel
     public class MergeVM : MainWindowVM
     {
         private ObservableCollection<NodeWithName> _needsToBeChecked;
-        private List<ImageData> _originals; 
+        private List<ImageData> _originals;
         private ObservableCollection<NodeWithName> _noDuplicatesFound;
 
         private static readonly FileFormat Format = new BinaryFileFormat();
@@ -40,7 +40,7 @@ namespace Boxer.ViewModel
                 _needsToBeChecked = new ObservableCollection<NodeWithName>();
             if (_noDuplicatesFound == null)
                 _noDuplicatesFound = new ObservableCollection<NodeWithName>();
-            if(_originals == null)
+            if (_originals == null)
                 _originals = new List<ImageData>();
 
             _needsToBeChecked.Clear();
@@ -177,7 +177,7 @@ namespace Boxer.ViewModel
                 {
                     //for Images we should probably also check the parent folders to see if we already have the folder in noDupes?
                     bool testing = true;
-                    
+
                     _noDuplicatesFound.Add(incomingImage as NodeWithName);
                 }
             }
@@ -261,6 +261,7 @@ namespace Boxer.ViewModel
 
             //Time to show the window and display stuff.
             MergeWindow merge = new MergeWindow();
+            merge.WindowState = WindowState.Maximized;
             merge.Show();
         }
 
@@ -276,20 +277,20 @@ namespace Boxer.ViewModel
             var e = o as RoutedPropertyChangedEventArgs<object>;
             //To enable Delete key to remove nodes, we will store the last item you clicked on 
             //cause you won't try to delete something without clicking on it anyways
-            if(e.OldValue != e.NewValue)
+            if (e.OldValue != e.NewValue)
 
-            if (e.NewValue is Folder)
-            {
-                SelectedItem = e.NewValue as NodeWithName;
-            }
-            else if (e.NewValue is ImageData)
-            {
-                SelectedItem = e.NewValue as NodeWithName;
-            }
-            else
-            {
-                SelectedItem = null;
-            }
+                if (e.NewValue is Folder)
+                {
+                    SelectedItem = e.NewValue as NodeWithName;
+                }
+                else if (e.NewValue is ImageData)
+                {
+                    SelectedItem = e.NewValue as NodeWithName;
+                }
+                else
+                {
+                    SelectedItem = null;
+                }
         }
 
         #endregion
@@ -305,6 +306,26 @@ namespace Boxer.ViewModel
         public void ExecuteKeepSelectedCommand(object o)
         {
             var main = ServiceLocator.Current.GetInstance<MainWindowVM>();
+
+            //if the "keep" refers to a changed data, then we just replace and remove
+            for (int index = 0; index < _originals.Count; index++)
+            {
+                if (_originals[index].Name == SelectedItem.Name)
+                {
+                    var parent = _originals[index].Parent;
+                    _originals[index].Remove();
+                    parent.Children.Add(SelectedItem);
+                    NeedsToBeChecked.Remove(SelectedItem);
+
+                    if (NeedsToBeChecked.Count > 0)
+                    {
+                        SelectedItem = NeedsToBeChecked[0];
+                        NeedsToBeChecked[0].IsSelected = true;
+                    }
+                    return;
+                }
+            }
+
             //check the document to see if the "merged" folder is made or not.
             bool mergedCreated = main.Documents[0].Children.Any(child => child.Name == "Merged");
 
@@ -313,28 +334,18 @@ namespace Boxer.ViewModel
             if (!mergedCreated)
             {
                 merged.Parent = main.Documents[0];
-                main.Documents[0].AddChild(new Folder(){Name = "Merged"});
+                main.Documents[0].AddChild(new Folder() { Name = "Merged" });
             }
             merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
             //add the item to the merged folder OR overwrite the original data
 
 
-            for (int index   = 0; index < _originals.Count; index++)
-            {
-                if (_originals[index].Name == SelectedItem.Name)
-                {
-                    var parent = _originals[index].Parent;
-                    _originals[index].Remove();
-                    parent.Children.Add(SelectedItem);
-                }
-            }
 
-            if(SelectedItem != null)
+
+            if (SelectedItem != null)
             {
                 merged.AddChild(SelectedItem);
                 //find and remove the item from the list in Merged
-                bool found = false;
-                NeedsToBeChecked.Remove(SelectedItem);
                 NoDuplicatesFound.Remove(SelectedItem);
                 if (NoDuplicatesFound.Count > 0)
                 {
