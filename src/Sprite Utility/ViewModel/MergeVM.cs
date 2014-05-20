@@ -18,9 +18,6 @@ namespace Boxer.ViewModel
 {
     public class MergeVM : MainWindowVM
     {
-        private bool _allSelected = false;
-        public bool AllSelected { get { return _allSelected; } set { Set(ref _allSelected, value); } }
-
         private ObservableCollection<NodeWithName> _needsToBeChecked;
         private List<ImageData> _originals;
         private ObservableCollection<NodeWithName> _noDuplicatesFound;
@@ -30,10 +27,8 @@ namespace Boxer.ViewModel
         public ObservableCollection<NodeWithName> NoDuplicatesFound { get { return _noDuplicatesFound; } }
 
         public ObservableCollection<NodeWithName> NeedsToBeChecked { get { return _needsToBeChecked; } }
-        private NodeWithName _selectedItem;
-        public NodeWithName SelectedItem { get { return _selectedItem; } set { Set(ref _selectedItem, value);
-            AllSelected = false;
-        } }
+
+        public NodeWithName SelectedItem { get; set; }
 
         //This is used for the Merge Function/view
         public SmartCommand<object> MergeCommand { get; private set; }
@@ -52,6 +47,10 @@ namespace Boxer.ViewModel
             _noDuplicatesFound.Clear();
             _originals.Clear();
 
+            //Just interested in how long it takes for merge checking
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             //for starters we only use one file at a time but for extensibility (quicker later) mid as well make it ready to take multiple 
             var strings = o as string[];
             var doc = new List<Document>();
@@ -67,84 +66,16 @@ namespace Boxer.ViewModel
 
             if (!isSame)
             {
+                watch.Stop();
+                MessageBox.Show("We have different files on our hands boys! Let's get to comparing and merging :D");
+                watch.Start();
+                
                 //We flatten both trees to loop over and check the items in them.
-                var flattenedExisting = Flatten(existingDoc.Children);
-                var flattenedIncoming = Flatten(doc[0].Children);
+                var flattenedExisting = Flatten(existingDoc.Children).AsParallel().ToList();
+                var flattenedIncoming = Flatten(doc[0].Children).AsParallel().ToList();
 
-                //For checking if something exists already or not, we're going to just go on the Folder and Image level so we'll use LINQ
-                //To pull the children out of the flattened lists and then loop quickly 
-
-                var existingFolders = flattenedExisting.Where(i => i.Type == "Folder");
-                var existingImageDatas = flattenedExisting.Where(i => i.Type == "Image");
-
-                var incomingFolders = flattenedIncoming.Where(i => i.Type == "Folder");
-                var incomingImageDatas = flattenedIncoming.Where(i => i.Type == "Image");
-
-                //Check for folders in the INCOMING SUF that don't exist in the EXISTING SUF
-                CheckFoldersForNonExisting(incomingFolders, existingFolders);
-                CheckImagesForNonExisting(incomingImageDatas, existingImageDatas);
-
-                foreach (var incomingNode in flattenedIncoming)
-                {
-                    if (incomingNode is ImageData)
-                    {
-                        foreach (var existingNode in flattenedExisting)
-                        {
-                            if (existingNode is ImageData)
-                            {
-                                if (((ImageData)incomingNode).Filename == ((ImageData)existingNode).Filename)
-                                {
-                                    //This is where it gets annoying and long, we have to check all the children to see if they are the same
-                                    //first we'll do a quick check to see if the frame count is the same, if they are then we'll check to see
-                                    //if the polygroups in each frame are the same
-                                    if (incomingNode.Children.Count != existingNode.Children.Count)
-                                    {
-                                        _needsToBeChecked.Add(incomingNode as NodeWithName);
-                                        _originals.Add(existingNode as ImageData);
-                                    }
-                                    else
-                                    {
-                                        //Now we have to check per frame, all the polygroups to see if they
-                                        for (int index = 0; index < incomingNode.Children.Count; index++)
-                                        {
-                                            var incChild = incomingNode.Children[index];
-                                            for (int i = index; i < existingNode.Children.Count; )
-                                            {
-                                                var existChild = existingNode.Children[i];
-                                                foreach (PolygonGroup incPolyGroup in incChild.Children)
-                                                {
-                                                    foreach (PolygonGroup existingPolyGroup in existChild.Children)
-                                                    {
-                                                        if (incPolyGroup.Name == existingPolyGroup.Name)
-                                                        {
-                                                            var result = (incPolyGroup).CheckAgainstOtherGroup(existingPolyGroup);
-                                                            if (!result)
-                                                            {
-                                                                _needsToBeChecked.Add(incomingNode as NodeWithName);
-                                                                _originals.Add(existingNode as ImageData);
-                                                                goto Outer;
-                                                            }
-                                                            //since this group was fine, let's check the next one
-                                                            goto NextGroup;
-                                                        }
-                                                    }
-                                                NextGroup:
-                                                    ;
-                                                }
-                                                //need to get out of the loop so we don't keep comparing the same frame to everything in the inner loop so we jump out
-                                                goto NextFrame;
-                                            }
-                                        NextFrame:
-                                            ;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                Outer:
-                    ;
-                }
+                PopulateNewContent(flattenedExisting, flattenedIncoming);
+                PopulateExistingContent(flattenedIncoming, flattenedExisting);
             }
             else
             {
@@ -153,77 +84,115 @@ namespace Boxer.ViewModel
             OpenMergeWindow();
         }
 
-        private void CheckImagesForNonExisting(IEnumerable<INode> incomingImageDatas, IEnumerable<INode> existingImageDatas)
+        private void PopulateExistingContent(List<INode> flattenedIncoming, List<INode> flattenedExisting)
         {
-            //we need to compare (I'm only going to compare the name and children of the folders, not the image childre, just folder children)
-            //to see if there is any new folders being brought in. I think it's better to let the user decide if they want to use the folder or not
-            //even if it could contain dupes/etc. that's up to the user to handle, we're just telling them that there is a folder that isn't in
-            //their current SUF
-            foreach (var incomingImage in incomingImageDatas)
+            foreach (var incomingNode in flattenedIncoming)
             {
-                bool exists = false;
-                foreach (var existingImage in existingImageDatas)
+                var data = incomingNode as ImageData;
+                if (data != null)
                 {
-                    if (incomingImage.Name == existingImage.Name)
+                    foreach (var existingNode in flattenedExisting)
                     {
-                        exists = true;
+                        var node = existingNode as ImageData;
+                        if (node == null) continue;
+                        if (data.Filename != node.Filename) continue;
+
+                        //This is where it gets annoying and long, we have to check all the children to see if they are the same
+                        //first we'll do a quick check to see if the frame count is the same, if they are then we'll check to see
+                        //if the polygroups in each frame are the same
+                        if (incomingNode.Children.Count != existingNode.Children.Count)
+                        {
+                            _needsToBeChecked.Add(data);
+                            _originals.Add(node);
+                        }
+                        else
+                        {
+                            //Now we have to check per frame, all the polygroups to see if they
+                            for (int index = 0; index < incomingNode.Children.Count; index++)
+                            {
+                                var incChild = incomingNode.Children[index];
+                                for (int i = index; i < existingNode.Children.Count;)
+                                {
+                                    var existChild = existingNode.Children[i];
+                                    foreach (PolygonGroup incPolyGroup in incChild.Children)
+                                    {
+                                        foreach (PolygonGroup existingPolyGroup in existChild.Children)
+                                        {
+                                            if (incPolyGroup.Name == existingPolyGroup.Name)
+                                            {
+                                                var result = (incPolyGroup).CheckAgainstOtherGroup(existingPolyGroup);
+                                                if (!result)
+                                                {
+                                                    _needsToBeChecked.Add(data);
+                                                    _originals.Add(node);
+                                                    goto Outer;
+                                                }
+                                                //since this group was fine, let's check the next one
+                                                goto NextGroup;
+                                            }
+                                        }
+                                        NextGroup:
+                                        ;
+                                    }
+                                    //need to get out of the loop so we don't keep comparing the same frame to everything in the inner loop so we jump out
+                                    goto NextFrame;
+                                }
+                                NextFrame:
+                                ;
+                            }
+                        }
                     }
                 }
-                if (exists) continue;
-
-                if (!_noDuplicatesFound.Contains(incomingImage))
-                {
-                    //for Images we should probably also check the parent folders to see if we already have the folder in noDupes?
-                    bool testing = true;
-
-                    _noDuplicatesFound.Add(incomingImage as NodeWithName);
-                }
+                Outer:
+                ;
             }
         }
 
-        private void CheckFoldersForNonExisting(IEnumerable<INode> incomingFolders, IEnumerable<INode> existingFolders)
+        private void PopulateNewContent(List<INode> existing, List<INode> incoming)
         {
-            //we need to compare (I'm only going to compare the name and children of the folders, not the image childre, just folder children)
-            //to see if there is any new folders being brought in. I think it's better to let the user decide if they want to use the folder or not
-            //even if it could contain dupes/etc. that's up to the user to handle, we're just telling them that there is a folder that isn't in
-            //their current SUF
-            var tempList = new List<Folder>();
-            foreach (var incomingFolder in incomingFolders)
+            //For checking if something exists already or not, we're going to just go on the Folder and Image level so we'll use LINQ
+            //To pull the children out of the flattened lists and then loop quickly 
+
+            var existingFolders = existing.Where(i => i.Type == "Folder").ToList().Cast<Folder>(); 
+            var existingImageDatas = existing.Where(i => i.Type == "Image").ToList().Cast<ImageData>();
+
+            var incomingFolders = incoming.Where(i => i.Type == "Folder").ToList().Cast<Folder>();
+            var incomingImageDatas = incoming.Where(i => i.Type == "Image").ToList().Cast<ImageData>();
+
+            foreach (var newFolder in incomingFolders.Except(existingFolders, new FolderMergeComparer()))
             {
-                tempList.Clear();
-
-                bool exists = false;
-                foreach (var existingFolder in existingFolders)
-                {
-                    if (incomingFolder.Name == existingFolder.Name)
-                    {
-                        exists = true;
-                    }
-                }
-                if (exists) continue;
-                foreach (var nodeWithName in _noDuplicatesFound)
-                {
-                    if (FolderIsChildOf(nodeWithName as Folder, incomingFolder as Folder))
-                    {
-                        return;
-                    }
-                }
-
-                _noDuplicatesFound.Add(incomingFolder as Folder);
+                _noDuplicatesFound.Add(newFolder);
+            }
+            foreach (var newImage in incomingImageDatas.Except(existingImageDatas, new ImageDataMergeComparer()))
+            {
+                _noDuplicatesFound.Add(newImage);
             }
         }
 
-        private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
+        private class FolderMergeComparer : IEqualityComparer<Folder>
         {
-            var flattened = Flatten(parentFolder.Children);
-            foreach (var child in flattened)
+            public bool Equals(Folder x, Folder y)
             {
-                if (child is Folder && child.Name == childFolder.Name)
-                {
-                    return true;
-                }
+                return x.Name == y.Name;
             }
-            return false;
+            
+            public int GetHashCode(Folder obj)
+            {
+                return obj.Name.GetHashCode();
+            }
+        }
+
+        private class ImageDataMergeComparer : IEqualityComparer<ImageData>
+        {
+            public bool Equals(ImageData x, ImageData y)
+            {
+                return x.Name == y.Name;
+            }
+
+            public int GetHashCode(ImageData obj)
+            {
+                return obj.Name.GetHashCode();
+            }
         }
 
         static IEnumerable<INode> Flatten(IEnumerable<INode> collection)
@@ -325,114 +294,61 @@ namespace Boxer.ViewModel
         {
             var main = ServiceLocator.Current.GetInstance<MainWindowVM>();
 
-            if (!_allSelected)
+            //if the "keep" refers to a changed data, then we just replace and remove
+            for (int index = 0; index < _originals.Count; index++)
             {
-                //if the "keep" refers to a changed data, then we just replace and remove
-                for (int index = 0; index < _originals.Count; index++)
+                if (_originals[index].Name == SelectedItem.Name)
                 {
-                    if (_originals[index].Name == SelectedItem.Name)
-                    {
-                        var parent = _originals[index].Parent;
-                        _originals[index].Remove();
-                        parent.Children.Add(SelectedItem);
-                        NeedsToBeChecked.Remove(SelectedItem);
+                    var parent = _originals[index].Parent;
+                    _originals[index].Remove();
+                    parent.Children.Add(SelectedItem);
+                    NeedsToBeChecked.Remove(SelectedItem);
 
-                        if (NeedsToBeChecked.Count > 0)
-                        {
-                            SelectedItem = NeedsToBeChecked[0];
-                            NeedsToBeChecked[0].IsSelected = true;
-                        }
-                        return;
-                    }
-                }
-
-                //check the document to see if the "merged" folder is made or not.
-                bool mergedCreated = main.Documents[0].Children.Any(child => child.Name == "Merged");
-
-                //do stuff based on if merged exists already or not
-                var merged = new Folder();
-                if (!mergedCreated)
-                {
-                    merged.Parent = main.Documents[0];
-                    main.Documents[0].AddChild(new Folder() { Name = "Merged" });
-                }
-                merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
-                //add the item to the merged folder OR overwrite the original data
-
-                if (SelectedItem != null)
-                {
-                    merged.AddChild(SelectedItem);
-                    //find and remove the item from the list in Merged
-                    NoDuplicatesFound.Remove(SelectedItem);
-                    if (NoDuplicatesFound.Count > 0)
-                    {
-                        SelectedItem = NoDuplicatesFound[0];
-                        NoDuplicatesFound[0].IsSelected = true;
-                    }
-                    else if (NeedsToBeChecked.Count > 0)
+                    if (NeedsToBeChecked.Count > 0)
                     {
                         SelectedItem = NeedsToBeChecked[0];
                         NeedsToBeChecked[0].IsSelected = true;
                     }
-                    else
-                    {
-                        SelectedItem = null;
-                    }
+                    return;
                 }
             }
-            else
-            {
-                //find the element you selected so we can then select it all
-                //if the "keep" refers to a changed data, then we just replace and remove
-                if (NeedsToBeChecked.Contains(SelectedItem))
-                {
-                    for (int index = 0; index < _originals.Count; index++)
-                    {
-                        var parent = _originals[index].Parent;
-                        _originals[index].Remove();
-                        parent.Children.Add(SelectedItem);
-                        NeedsToBeChecked.Remove(SelectedItem);
 
-                        if (NeedsToBeChecked.Count > 0)
-                        {
-                            SelectedItem = NeedsToBeChecked[0];
-                            NeedsToBeChecked[0].IsSelected = true;
-                        }
-                        else
-                        {
-                            SelectedItem = null;
-                            return;
-                        }
-                    }
+            //check the document to see if the "merged" folder is made or not.
+            bool mergedCreated = main.Documents[0].Children.Any(child => child.Name == "Merged");
+
+            //do stuff based on if merged exists already or not
+            var merged = new Folder();
+            if (!mergedCreated)
+            {
+                merged.Parent = main.Documents[0];
+                main.Documents[0].AddChild(new Folder() { Name = "Merged" });
+            }
+            merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
+            //add the item to the merged folder OR overwrite the original data
+
+
+
+
+            if (SelectedItem != null)
+            {
+                merged.AddChild(SelectedItem);
+                //find and remove the item from the list in Merged
+                NoDuplicatesFound.Remove(SelectedItem);
+                if (NoDuplicatesFound.Count > 0)
+                {
+                    SelectedItem = NoDuplicatesFound[0];
+                    NoDuplicatesFound[0].IsSelected = true;
+                }
+                else if (NeedsToBeChecked.Count > 0)
+                {
+                    SelectedItem = NeedsToBeChecked[0];
+                    NeedsToBeChecked[0].IsSelected = true;
                 }
                 else
                 {
-                    //check the document to see if the "merged" folder is made or not.
-                    bool mergedCreated = main.Documents[0].Children.Any(child => child.Name == "Merged");
-
-                    //do stuff based on if merged exists already or not
-                    var merged = new Folder();
-                    if (!mergedCreated)
-                    {
-                        merged.Parent = main.Documents[0];
-                        main.Documents[0].AddChild(new Folder() { Name = "Merged" });
-                    }
-
-                    merged = main.Documents[0].Children.First(child => child.Name == "Merged") as Folder;
-                    //add the item to the merged folder OR overwrite the original data
-
-                    if (SelectedItem != null)
-                    {
-                        foreach (var nodeWithName in NoDuplicatesFound)
-                        {
-                            merged.AddChild(nodeWithName);
-                        }
-                        //find and remove the item from the list in Merged
-                        NoDuplicatesFound.Clear();
-                    }
+                    SelectedItem = null;
                 }
             }
-            AllSelected = false;
         }
 
         #endregion
@@ -456,23 +372,6 @@ namespace Boxer.ViewModel
 
         #endregion
 
-        #region SelectAllCommand
-
-        public SmartCommand<object> SelectAllCommand { get; private set; }
-
-        public bool CanExecuteSelectAllCommand(object o)
-        {
-            return SelectedItem != null;
-        }
-
-        public void ExecuteSelectAllCommand(object o)
-        {
-            AllSelected = true;
-
-        }
-
-        #endregion
-
         protected override void InitializeCommands()
         {
             MergeCommand = new SmartCommand<object>(ExecuteMergeCommand);
@@ -480,8 +379,6 @@ namespace Boxer.ViewModel
 
             KeepSelectedCommand = new SmartCommand<object>(ExecuteKeepSelectedCommand, CanExecuteKeepSelectedCommand);
             TrashSelectedCommand = new SmartCommand<object>(ExecuteTrashSelectedCommand, CanExecuteTrashSelectedCommand);
-
-            SelectAllCommand = new SmartCommand<object>(ExecuteSelectAllCommand, CanExecuteSelectAllCommand);
             base.InitializeCommands();
         }
     }
