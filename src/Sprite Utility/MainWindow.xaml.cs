@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -66,7 +67,7 @@ namespace Boxer
 
             //Reimport commands
             InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportFromNewPathCommand, new KeyGesture(Key.R, ModifierKeys.Control)));
-            InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportMultipleCommand, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift))); 
+            InputBindings.Add(new KeyBinding(_mainWindowVm.ReimportMultipleCommand, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift)));
             //Merge Command
             InputBindings.Add(new KeyBinding(_mainWindowVm.MergeCommand, new KeyGesture(Key.M, ModifierKeys.Control)));
 
@@ -83,7 +84,7 @@ namespace Boxer
                     Glue.Instance.Document.Save(false);
                 }
             }
-            
+
         }
 
         private void TreeView_OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -124,7 +125,7 @@ namespace Boxer
             //We can get the item that you're "dragging" and set it to the currentSelectedAction already
             var pos = MouseUtilities.GetMousePosition(TreeView);
             var element = GetItemAtLocation<TreeViewItem>(pos);
-            if (element == null || (element.Header.GetType() !=  typeof(Folder) && element.Header.GetType() != typeof(ImageData)))
+            if (element == null || (element.Header.GetType() != typeof(Folder) && element.Header.GetType() != typeof(ImageData)))
             {
                 _isDragging = false;
                 _isReordering = false;
@@ -141,104 +142,54 @@ namespace Boxer
         private void TreeView_OnDrop(object sender, DragEventArgs e)
         {
             //Get the currentSelected from the MainWindowVM and see if it's a Folder/ImageData
-            if (_mainWindowVm.CurrentSelectedNode is Folder || _mainWindowVm.CurrentSelectedNode is ImageData)
+            if (ReOrderItem.Header is Folder || ReOrderItem.Header is ImageData)
             {
-                
-            }
+                //find drop spot (get item you're dropping on, null = not on an item, 
+                var pos = MouseUtilities.GetMousePosition(TreeView);
+                var dropItem = GetItemAtLocation<TreeViewItem>(pos);
 
-
-            /*//parent item
-            var parent = GetParentOfType<TreeViewItem>(ReOrderItem);
-            if (parent == null)
-                return;
-
-            //parent list
-            var actList = parent.Header as ActionList;
-            //get the index of the item before hand, we'll have to remove it from the list at some point
-            var startIndex = actList.ChildActions.IndexOf(ReOrderItem.Header as Actions);
-
-            //find drop spot (get item you're dropping on, null = not on an item, 
-            var pos = MouseUtilities.GetMousePosition(AteTreeView);
-            var dropItem = GetItemAtLocation<TreeViewItem>(pos);
-
-            if (dropItem != null)
-            {
-                var type = ReOrderItem.Header.GetType();
-                if (type == typeof(Actions))
+                if (dropItem != null && dropItem.Header is Folder &&
+                    !FolderIsChildOf(dropItem.Header as Folder, ReOrderItem.Header as Folder))
                 {
-                    var dropParent = GetParentOfType<TreeViewItem>(dropItem);
-                    if (dropParent == null)
-                        return;
-                    var dropActList = dropParent.Header as ActionList;
-                    if (dropActList == actList)
+                    var targetFolder = dropItem.Header as Folder;
+                    var sourceFolder = ReOrderItem.Header as Folder;
+
+                    targetFolder.Children.Add(ReOrderItem.Header as Folder);
+                    sourceFolder.Parent.Children.Remove(sourceFolder);
+                    sourceFolder.Parent = targetFolder;
+
+                }
+            }
+        }
+
+        /*public void FindFolders(ObservableCollection<NodeWithName> allFolders, Stack<NodeWithName> ancestors, NodeWithName startPoint)
+        {
+            ancestors.Push(startPoint);
+            if (startPoint.Children != null && startPoint.Children.Count > 0)
+            {
+                foreach (var child in startPoint.Children)
+                {
+                    if (child.Type == "Folder" && !FolderIsChildOf(_mainWindowVm.CurrentSelectedNode as Folder, child as Folder) && !child.Name.Contains(Folder.Name))
                     {
-                        //try to find the item in the list and get the index
-                        var innerIndex = -1;
-
-                        innerIndex = actList.ChildActions.IndexOf(dropItem.Header as Actions);
-
-                        //get the position of the mouse relative to the treeitem and it's width then decide where to insert (leftside = before the item, right side, after)
-                        var mousePos = MouseUtilities.GetMousePosition(parent);
-
-                        if (mousePos.X > dropItem.ActualWidth / 2)
-                        {
-                            //Insert into the list
-                            actList.ChildActions.Move(startIndex, innerIndex);
-                        }
-                        else if (mousePos.X < dropItem.ActualWidth / 2)
-                        {
-                            //Insert into the list
-                            actList.ChildActions.Move(startIndex, innerIndex);
-                        }
-                        return;
-                    }
-                    else
-                    {
-                        //the item isn't being dropped in the same row, we still find the same index's but we have to make sure we insert and then remove the orig from the first list
-                        var innerIndex = -1;
-
-                        innerIndex = dropActList.ChildActions.IndexOf(dropItem.Header as Actions);
-
-                        //get the position of the mouse relative to the treeitem and it's width then decide where to insert (leftside = before the item, right side, after)
-                        var mousePos = MouseUtilities.GetMousePosition(parent);
-
-                        if (mousePos.X > dropItem.ActualWidth / 2)
-                        {
-                            //Insert into the list
-                            dropActList.ChildActions.Insert(innerIndex, ReOrderItem.Header as Actions);
-                        }
-                        else if (mousePos.X < dropItem.ActualWidth / 2)
-                        {
-                            //Insert into the list
-                            dropActList.ChildActions.Insert(innerIndex, ReOrderItem.Header as Actions);
-                        }
-                        actList.ChildActions.RemoveAt(startIndex);
-                        //check to see if that was actually the last item in that list or not, if it is we remove the list from the collection
-                        if (actList.ChildActions.Count == 0)
-                        {
-                            TickEditorVm.ActionsList.Remove(actList);
-                        }
-                        UpdateTickNumbers();
-                        return;
+                        allFolders.Add(child as Folder);
+                        FindFolders(allFolders, ancestors, child as NodeWithName);
                     }
                 }
             }
 
-            if (ReOrderItem != null)
-            {
-                //null was the target to just add to new list and then remove from the original list
-                var aList = new ActionList() { Tick = AteTreeView.Items.Count };
-                aList.ChildActions.Add(ReOrderItem.Header as Actions);
-                TickEditorVm.ActionsList.Add(aList);
+            ancestors.Pop();
+        }*/
 
-                actList.ChildActions.RemoveAt(startIndex);
-                //check to see if that was actually the last item in that list or not, if it is we remove the list from the collection
-                if (actList.ChildActions.Count == 0)
+        private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
+        {
+            foreach (var child in parentFolder.Children)
+            {
+                if (child is Folder && child.Name == childFolder.Name)
                 {
-                    TickEditorVm.ActionsList.Remove(actList);
+                    return true;
                 }
-                UpdateTickNumbers();
-            }*/
+            }
+            return false;
         }
 
         #region Visual Finder Methods
