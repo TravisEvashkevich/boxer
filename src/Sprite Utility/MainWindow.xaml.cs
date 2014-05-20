@@ -141,8 +141,9 @@ namespace Boxer
 
         private void TreeView_OnDrop(object sender, DragEventArgs e)
         {
+            #region Folder Drops
             //Get the currentSelected from the MainWindowVM and see if it's a Folder/ImageData
-            if (ReOrderItem.Header is Folder || ReOrderItem.Header is ImageData)
+            if (ReOrderItem.Header is Folder)
             {
                 //find drop spot (get item you're dropping on, null = not on an item, 
                 var pos = MouseUtilities.GetMousePosition(TreeView);
@@ -157,7 +158,7 @@ namespace Boxer
                         var targetFolder = dropItem.Header as Folder;
                         var sourceFolder = ReOrderItem.Header as Folder;
 
-                        targetFolder.Children.Add(ReOrderItem.Header as Folder);
+                        targetFolder.Children.Add(sourceFolder);
                         sourceFolder.Parent.Children.Remove(sourceFolder);
                         sourceFolder.Parent = targetFolder;
                     }
@@ -167,11 +168,31 @@ namespace Boxer
                     var targetFolder = dropItem.Header as Document;
                     var sourceFolder = ReOrderItem.Header as Folder;
 
-                    targetFolder.Children.Add(ReOrderItem.Header as Folder);
+                    targetFolder.Children.Add(sourceFolder);
                     sourceFolder.Parent.Children.Remove(sourceFolder);
                     sourceFolder.Parent = targetFolder;
                 }
             }
+            #endregion
+            #region Image Drops
+            else if (ReOrderItem.Header is ImageData)
+            {
+                //find drop spot (get item you're dropping on, null = not on an item, 
+                var pos = MouseUtilities.GetMousePosition(TreeView);
+                var dropItem = GetItemAtLocation<TreeViewItem>(pos);
+                if (dropItem == null)
+                    return;
+                if (dropItem.Header is Folder)
+                {
+                    var targetFolder = dropItem.Header as Folder;
+                    var sourceImage = ReOrderItem.Header as ImageData;
+
+                    targetFolder.Children.Add(sourceImage);
+                    sourceImage.Parent.Children.Remove(sourceImage);
+                    sourceImage.Parent = targetFolder;
+                }
+            }
+            #endregion
         }
 
         private bool FolderIsChildOf(Folder parentFolder, Folder childFolder)
