@@ -321,6 +321,18 @@ namespace Boxer.ViewModel
                                 SelectedItem = NeedsToBeChecked[0];
                                 NeedsToBeChecked[0].IsSelected = true;
                             }
+                            else if (NoDuplicatesFound.Count > 0)
+                            {
+                                SelectedItem = NoDuplicatesFound[0];
+                                NoDuplicatesFound[0].IsSelected = true;
+                            }
+                            else
+                            {
+                                SelectedItem = null;
+                            }
+
+                            _originals.Remove(_originals[index]);
+
                             return;
                         }
                     }
@@ -364,23 +376,26 @@ namespace Boxer.ViewModel
             {
                 if (SelectedItem is ImageData && NeedsToBeChecked.Contains(SelectedItem))
                 {
-                    for (int index = 0; index < _originals.Count; index++)
+                    if(NeedsToBeChecked.Count == _originals.Count)
                     {
-                        if (_originals[index].Name == NeedsToBeChecked[index].Name)
+                        for (int index = 0; index < _originals.Count; index++)
                         {
-                            var parent = _originals[index].Parent;
-                            _originals[index].Remove();
-                            parent.Children.Add(NeedsToBeChecked[index]);
-                            
-                            if (NeedsToBeChecked.Count > 0)
+                            if (_originals[index].Name == NeedsToBeChecked[index].Name)
                             {
-                                SelectedItem = NeedsToBeChecked[0];
-                                NeedsToBeChecked[0].IsSelected = true;
+                                var parent = _originals[index].Parent;
+                                _originals[index].Remove();
+                                parent.Children.Add(NeedsToBeChecked[index]);
+                            
+                                if (NeedsToBeChecked.Count > 0)
+                                {
+                                    SelectedItem = NeedsToBeChecked[0];
+                                    NeedsToBeChecked[0].IsSelected = true;
+                                }
                             }
                         }
+                        NeedsToBeChecked.Clear();
+                        _originals.Clear();
                     }
-                    NeedsToBeChecked.Clear();
-                    _originals.Clear();
 
                     if (NoDuplicatesFound.Count > 0)
                     {
