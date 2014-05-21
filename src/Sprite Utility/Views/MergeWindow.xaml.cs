@@ -25,6 +25,8 @@ namespace Boxer.Views
         public MergeWindow()
         {
             InitializeComponent();
+
+            InputBindings.Add(new KeyBinding(_mergeVm.SelectAllCommand, new KeyGesture(Key.A, ModifierKeys.Control)));
         }
     }
 }
