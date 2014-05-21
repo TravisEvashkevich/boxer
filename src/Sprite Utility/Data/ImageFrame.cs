@@ -198,6 +198,7 @@ namespace Boxer.Data
         public void ExecuteNewMarkOpenClosedStateCommand(object o)
         {
             IsOpen = !IsOpen;
+            Glue.Instance.DocumentIsSaved = false;
             if (!Settings.Default.MarkAllAsOpen || !IsOpen) return;
             var index = Parent.Children.IndexOf(this);
             for (var i = index; i < Parent.Children.Count; i++)

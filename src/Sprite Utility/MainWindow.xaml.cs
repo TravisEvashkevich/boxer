@@ -1,28 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
-using Xceed.Wpf.Toolkit.Primitives;
+using Keyboard = System.Windows.Input.Keyboard;
 using Point = System.Windows.Point;
-using Polygon = Boxer.Data.Polygon;
 
 namespace Boxer
 {
@@ -153,7 +142,7 @@ namespace Boxer
                 
                 if ( dropItem.Header is Folder)
                 {
-                    if (!FolderIsChildOf(ReOrderItem.Header as Folder, dropItem.Header as Folder))
+                   if ((ReOrderItem.Header as Folder).Name != (dropItem.Header as Folder).Name && !FolderIsChildOf(ReOrderItem.Header as Folder, dropItem.Header as Folder))
                     {
                         var targetFolder = dropItem.Header as Folder;
                         var sourceFolder = ReOrderItem.Header as Folder;
@@ -194,7 +183,8 @@ namespace Boxer
                     sourceImage.Parent = targetFolder;
                     Glue.Instance.DocumentIsSaved = false;
                 }
-                    //if we dropped on another image I guess we just add to the folder that image is contained in
+                /*//if we dropped on another image I guess we just add to the folder that image is contained in
+                 * //UnComment if you want to have drop on Images to add to folders (seemed weird when I coded it and seems weird when I try to use the program)
                 else if (dropItem.Header is ImageData)
                 {
                     var targetFolder = dropItem.Header as ImageData;
@@ -204,7 +194,7 @@ namespace Boxer
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder.Parent;
                     Glue.Instance.DocumentIsSaved = false;
-                }
+                }*/
             }
             #endregion
         }

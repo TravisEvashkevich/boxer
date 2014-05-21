@@ -59,10 +59,6 @@ namespace Boxer.ViewModel
             _noDuplicatesFound.Clear();
             _originals.Clear();
 
-            //Just interested in how long it takes for merge checking
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-
             //for starters we only use one file at a time but for extensibility (quicker later) mid as well make it ready to take multiple 
             var strings = o as string[];
             var doc = new List<Document>();
