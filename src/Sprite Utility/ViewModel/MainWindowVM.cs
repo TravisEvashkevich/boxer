@@ -40,7 +40,7 @@ namespace Boxer.ViewModel
     {
         private string _lastPolygonGroupName;
         private NodeWithName _currentSelectedNode;
-        private Polygon _copyPolygon;
+        private NodeWithName _copyData;
 
         public NodeWithName CurrentSelectedNode { get { return _currentSelectedNode; } }
 
@@ -1022,13 +1022,13 @@ namespace Boxer.ViewModel
 
         public bool CanExecuteCopyCommand(object o)
         {
-            return _currentSelectedNode is Polygon;
+            return _currentSelectedNode is Polygon || _currentSelectedNode is PolygonGroup;
         }
 
         public void ExecuteCopyCommand(object o)
         {
-            //put the polygon data in a copy variable (as the _currentSelectedNode will end up being whatever you click to paste in)
-            _copyPolygon = _currentSelectedNode as Polygon;
+            //put the polygon/group data in a copy variable (as the _currentSelectedNode will end up being whatever you click to paste in)
+            _copyData = _currentSelectedNode;
         }
         #endregion
 
@@ -1046,41 +1046,76 @@ namespace Boxer.ViewModel
             //Setting the data to the Polygon itself doesn't raise propertyChanged so you have to do it directly to the collection
             //This updates in the view automatically as well.  This only changes the points within the poly and nothing else
             //(makes sense to me that it doesn't change the name and such but that is easy to implement as well if desired)
-            var clone = new Polygon().ClonePolygon(_copyPolygon);
-
-            switch (_currentSelectedNode.Type)
+            
+            if(_copyData is Polygon)
             {
-                case "Polygon":
-                    //set the parent of the clone to the polygongroup that you're pasting into.
-                    clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
+                var clone = new Polygon().ClonePolygon(_copyData as Polygon);
+                switch (_currentSelectedNode.Type)
+                {
+                    case "Polygon":
+                        //set the parent of the clone to the polygongroup that you're pasting into.
+                        clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
                         _viewModelLocator.ImageFrameView.Polygon.Children = clone.Children;
-                    break;
+                        break;
 
-                case "PolygonGroup":
-                    clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
-                    if (_viewModelLocator.ImageFrameView.PolygonGroup.Children.Count != 0)
-                        _viewModelLocator.ImageFrameView.PolygonGroup.Children[0] = clone;
-                    else
-                        _viewModelLocator.ImageFrameView.PolygonGroup.Children.Add(clone);
-                    break;
-                case "ImageFrame":
-                    //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
-                    //group that matches, if there is, we then paste the polygon into the first spot, overwriting whatever is there.
-                    foreach (var child in _currentSelectedNode.Children)
-                    {
-                        if (child.Name == clone.Parent.Name)
+                    case "PolygonGroup":
+                        clone.Parent = _viewModelLocator.ImageFrameView.PolygonGroup;
+                        if (_viewModelLocator.ImageFrameView.PolygonGroup.Children.Count != 0)
+                            _viewModelLocator.ImageFrameView.PolygonGroup.Children[0] = clone;
+                        else
+                            _viewModelLocator.ImageFrameView.PolygonGroup.Children.Add(clone);
+                        break;
+                    case "ImageFrame":
+                        //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
+                        //group that matches, if there is, we then paste the polygon into the first spot, overwriting whatever is there.
+                        foreach (var child in _currentSelectedNode.Children)
                         {
-                            clone.Parent = child;
-                            if(child.Children.Count == 0)
-                                child.Children.Add(clone);
-                            else
-                                child.Children[0] = clone;
-                            break;
+                            if (child.Name == clone.Parent.Name)
+                            {
+                                clone.Parent = child;
+                                if (child.Children.Count == 0)
+                                    child.Children.Add(clone);
+                                else
+                                    child.Children[0] = clone;
+                                break;
+                            }
+
                         }
-                       
-                    }
-                    break;
+                        break;
+                }
             }
+            else if(_copyData is PolygonGroup)
+            {
+                var clone = new PolygonGroup();
+                foreach (var child in _copyData.Children)
+                {
+                    clone.Children.Add(new Polygon().ClonePolygon(child as Polygon));
+                }
+                clone.Name = _copyData.Name;
+
+                switch (_currentSelectedNode.Type)
+                {
+                    case "PolygonGroup":
+                        clone.Parent = _currentSelectedNode.Parent;
+                        _viewModelLocator.ImageFrameView.PolygonGroup.Children = clone.Children;
+                        break;
+                    case "ImageFrame":
+                        //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
+                        //group that matches, if there is, we then paste the polygon into the first spot, overwriting whatever is there.
+                        var target =_viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == clone.Name);
+                        if (target != null)
+                        {
+                            target.Children = clone.Children;
+                        }
+                        else
+                        {
+                            _viewModelLocator.ImageFrameView.Frame.AddChild(clone);
+                        }
+                        break;
+                }
+            }
+
+            
         }
 
         #endregion
@@ -1217,9 +1252,57 @@ namespace Boxer.ViewModel
         #endregion
 
 
-        public void FlipPolygon()
+        public void RotatePolygon()
         {
+            if (CurrentSelectedNode is Polygon)
+            {
+                var poly = (CurrentSelectedNode as Polygon).ClonePolygon(CurrentSelectedNode as Polygon);
+                var center = GetCentroid(poly.Children);
+                for (int index = 0; index < poly.Children.Count; index++)
+                {
+                    var  child = poly.Children[index] as PolyPoint;
+                    CurrentSelectedNode.Children[index]= RotatePoint(child, center, 90);
+                }
 
+            }
+        }
+
+        public static bool IsInPolygon(FastObservableCollection<PolyPoint> poly, PolyPoint point)
+        {
+            var coef = poly.Skip(1).Select((p, i) =>
+                                            (point.Y - poly[i].Y) * (p.X - poly[i].X)
+                                          - (point.X - poly[i].X) * (p.Y - poly[i].Y))
+                                    .ToList();
+
+            if (coef.Any(p => p == 0))
+                return true;
+
+            for (int i = 1; i < coef.Count(); i++)
+            {
+                if (coef[i] * coef[i - 1] < 0)
+                    return false;
+            }
+            return true;
+        }
+
+        public static PolyPoint GetCentroid( FastObservableCollection<INode> poly)
+        {
+            PolyPoint result = poly.Aggregate(PolyPoint.Empty(), (current, point) => current + (point as PolyPoint));
+            result /= poly.Count;
+
+            return result;
+        }
+
+        public PolyPoint RotatePoint(PolyPoint point, PolyPoint origin, float angle)
+        {
+            PolyPoint translated = point - origin;
+
+            var X = translated.X* Math.Cos(angle) - translated.Y* Math.Sin(angle);
+            var Y = translated.X* Math.Sin(angle) + translated.Y* Math.Cos(angle);
+
+            PolyPoint rotated = new PolyPoint((int)X, (int)Y);
+
+            return rotated + origin;
         }
 
         protected override void InitializeCommands()
