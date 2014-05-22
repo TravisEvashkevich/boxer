@@ -171,7 +171,9 @@ namespace Boxer.Data
             Name = "Frame";
             Children = new FastObservableCollection<INode>();
         }
+        #region Commands
 
+        #region NewPolygonGroupCommand
         [JsonIgnore]
         public SmartCommand<object> NewPolygonGroupCommand { get; private set; }
 
@@ -186,7 +188,9 @@ namespace Boxer.Data
             polygonGroup.Initialize();
             AddChild(polygonGroup);
         }
+        #endregion
 
+        #region MarkOpenClosedStateCommand
         [JsonIgnore]
         public SmartCommand<object> MarkOpenClosedStateCommand { get; private set; }
 
@@ -207,7 +211,9 @@ namespace Boxer.Data
                 if (imageFrame != null) imageFrame.IsOpen = true;
             }
         }
+        #endregion
 
+        #region AutoTraceCommand
         [JsonIgnore]
         public SmartCommand<object> AutoTraceCommand { get; private set; }
 
@@ -263,9 +269,10 @@ namespace Boxer.Data
                 }
             }
         }
+        #endregion
 
         #region CleanPolygroupsCommand
-
+        [JsonIgnore]
         public SmartCommand<object> CleanPolyGroupsCommand { get; private set; }
 
         public void ExecuteCleanPolygroupsCommand(object o)
@@ -278,7 +285,6 @@ namespace Boxer.Data
         }
         #endregion
 
-
         protected override void InitializeCommands()
         {
             NewPolygonGroupCommand = new SmartCommand<object>(ExecuteNewPolygonGroupCommand, CanExecuteNewPolygonGroupCommand);
@@ -287,6 +293,6 @@ namespace Boxer.Data
             CleanPolyGroupsCommand = new SmartCommand<object>(ExecuteCleanPolygroupsCommand );
             base.InitializeCommands();
         }
-
+        #endregion
     }
 }

@@ -847,6 +847,7 @@ namespace Boxer.ViewModel
         #region Commands
 
         #region New Doc Command
+         [JsonIgnore]
         public SmartCommand<object> NewDocumentCommand { get; private set; }
 
         public bool CanExecuteNewDocumentCommand(object o)
@@ -876,6 +877,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Open Doc Command
+         [JsonIgnore]
         public SmartCommand<object> OpenDocumentCommand { get; private set; }
 
         public bool CanExecuteOpenDocumentCommand(object o)
@@ -911,6 +913,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Save Document Command
+         [JsonIgnore]
         public SmartCommand<object> SaveDocumentCommand { get; private set; }
 
         public bool CanExecuteSaveDocumentCommand(object o)
@@ -925,6 +928,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Open Pref Command
+         [JsonIgnore]
         public SmartCommand<object> OpenPreferencesWindowCommand { get; private set; }
 
         public bool CanExecuteOpenPreferencesWindowCommand(object o)
@@ -939,6 +943,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region SaveAs Command
+         [JsonIgnore]
         public SmartCommand<object> SaveAsCommand { get; private set; }
 
         public bool CanExecuteSaveAsCommand(object o)
@@ -953,6 +958,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Close Command
+         [JsonIgnore]
         public SmartCommand<object> CloseCommand { get; private set; }
 
         public bool CanExecuteCloseCommand(object o)
@@ -967,6 +973,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Export Command
+        [JsonIgnore]
         public SmartCommand<object> ExportCommand { get; private set; }
 
         public bool CanExecuteExportCommand(object o)
@@ -995,6 +1002,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Remove Command
+        [JsonIgnore]
         public SmartCommand<object> RemoveCommand { get; private set; }
 
         public bool CanExecuteRemoveCommand(object o)
@@ -1009,6 +1017,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Copy Command
+        [JsonIgnore]
         public SmartCommand<object> CopyCommand { get; private set; }
 
         public bool CanExecuteCopyCommand(object o)
@@ -1024,6 +1033,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Paste Command
+        [JsonIgnore]
         public SmartCommand<object> PasteCommand { get; private set; }
 
         public bool CanExecutePasteCommand(object o)
@@ -1076,7 +1086,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region Reimport From New Path
-
+        [JsonIgnore]
         public SmartCommand<object> ReimportFromNewPathCommand { get; private set; }
 
         public bool CanExecutreReimportFromNewPathCommand(object o)
@@ -1159,7 +1169,7 @@ namespace Boxer.ViewModel
         #endregion
 
         #region MergeSUF's command
-
+        [JsonIgnore]
         public SmartCommand<object> MergeCommand { get; private set; }
 
         public bool CanExecuteMergeCommand(object o)
@@ -1206,6 +1216,12 @@ namespace Boxer.ViewModel
         }
         #endregion
 
+
+        public void FlipPolygon()
+        {
+
+        }
+
         protected override void InitializeCommands()
         {
             NewDocumentCommand = new SmartCommand<object>(ExecuteNewDocumentCommand, CanExecuteNewDocumentCommand);
@@ -1231,5 +1247,6 @@ namespace Boxer.ViewModel
         }
 
 #endregion
+
     }
 }
