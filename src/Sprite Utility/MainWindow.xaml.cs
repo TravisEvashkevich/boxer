@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Boxer.Converters;
 using Boxer.Core;
 using Boxer.Data;
 using Boxer.ViewModel;
@@ -40,7 +43,7 @@ namespace Boxer
             Icon = new BitmapImage(new Uri("icon@2x.png", UriKind.Relative));
 
             TreeView.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
-
+            
             /*------------------------HotKeys----------------*/
             //Get the MainWindowViewModel as it has all the menu related commands
             _mainWindowVm = ServiceLocator.Current.GetInstance<MainWindowVM>();
@@ -73,7 +76,6 @@ namespace Boxer
                     Glue.Instance.Document.Save(false);
                 }
             }
-
         }
 
         private void TreeView_OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -182,6 +184,8 @@ namespace Boxer
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder;
                     Glue.Instance.DocumentIsSaved = false;
+                    if(targetFolder.Parent != null)
+                        targetFolder.Parent.Children.Refresh();
                 }
                 /*//if we dropped on another image I guess we just add to the folder that image is contained in
                  * //UnComment if you want to have drop on Images to add to folders (seemed weird when I coded it and seems weird when I try to use the program)
@@ -195,6 +199,9 @@ namespace Boxer
                     sourceImage.Parent = targetFolder.Parent;
                     Glue.Instance.DocumentIsSaved = false;
                 }*/
+
+
+
             }
             #endregion
         }
@@ -212,22 +219,6 @@ namespace Boxer
         }
 
         #region Visual Finder Methods
-        private childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child != null && child is childItem)
-                    return (childItem)child;
-                else
-                {
-                    childItem childOfChild = FindVisualChild<childItem>(child);
-                    if (childOfChild != null)
-                        return childOfChild;
-                }
-            }
-            return null;
-        }
 
         //Use these next two methods to find the object that is under the mouse cursor at drop AND find the parent (else it will give you a label or a tbox or something)
         T GetItemAtLocation<T>(Point location)

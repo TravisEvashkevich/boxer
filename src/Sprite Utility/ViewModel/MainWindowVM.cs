@@ -120,6 +120,7 @@ namespace Boxer.ViewModel
             }
         }
 
+        //method to create a new polygon with a button click etc.
         public void CreateNewPolygon()
         {
             if (_currentSelectedNode is Polygon)
@@ -175,32 +176,31 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = new PolygonGroup();
-                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
+                    if(_viewModelLocator.ImageFrameView.Frame.Children.Count >0 )
                     {
-                        if (groups.Name == _lastPolygonGroupName)
+                        var pGroup =_viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == _lastPolygonGroupName);
+                        if (pGroup != null)
                         {
-                            pGroup = groups as PolygonGroup;
+
+                            (pGroup as PolygonGroup).Expanded = true;
+
+                            _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+                            //Set the current node to the first Polygon of the group
+                            if ((pGroup as NodeWithName).Children.Count != 0)
+                            {
+                                _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                                ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                            }
+                            else
+                            {
+                                (pGroup as PolygonGroup).IsSelected = true;
+                                _currentSelectedNode = (pGroup as NodeWithName);
+                            }
                         }
-                    }
-                    if (pGroup.Name == "New Polygon Group")
-                    {
-                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
-                    }
-
-                    (pGroup as PolygonGroup).Expanded = true;
-
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
-                    //Set the current node to the first Polygon of the group
-                    if ((pGroup as NodeWithName).Children.Count != 0)
-                    {
-                        _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
-                        ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
-                    }
-                    else
-                    {
-                        (pGroup as PolygonGroup).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName);
+                        else
+                        {
+                            _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                        }
                     }
                 }
                 //if we are about to go OVER the count of children, we should try to go to the next image entirely
@@ -230,25 +230,37 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
-
-                    (pGroup as PolygonGroup).Expanded = true;
-
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
-                    //Set the current node to the first Polygon of the group
-                    if ((pGroup as NodeWithName).Children.Count != 0)
+                     //check to see if the frame as any polygroups
+                    if (_viewModelLocator.ImageFrameView.Frame.Children.Count > 0)
                     {
-                        _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
-                        ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                        var pGroup =_viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == _lastPolygonGroupName);
+                        if(pGroup != null)
+                        {
+                            (pGroup as PolygonGroup).Expanded = true;
+
+                            _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+                            //Set the current node to the first Polygon of the group
+                            if ((pGroup as NodeWithName).Children.Count != 0)
+                            {
+                                _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                                ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                            }
+                            else
+                            {
+                                (pGroup as PolygonGroup).IsSelected = true;
+                                _currentSelectedNode = (pGroup as NodeWithName);
+                            }
+                        }
+                        else
+                        {
+                            _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                        }
                     }
                     else
                     {
-                        (pGroup as PolygonGroup).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName);
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
                     }
                 }
-
-                
             }
             //pretty the same as the above just with the currentselected as the polygon itself so you don't have to go back up to the parent Polygroup
             else if (_currentSelectedNode is Polygon)
@@ -280,33 +292,32 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = new PolygonGroup();
-                    foreach (var groups in _viewModelLocator.ImageFrameView.Frame.Children)
-                    {
-                        if (groups.Name == _lastPolygonGroupName)
-                        {
-                            pGroup = groups as PolygonGroup;
-                        }
-                    }
-                    if (pGroup.Name == "New Polygon Group")
+                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == _lastPolygonGroupName);
+
+                    if (pGroup != null)
                     {
                         pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
-                    }
 
-                    (pGroup as PolygonGroup).Expanded = true;
 
-                    //double check if there is a polygon to set onto next frame else just select the group
-                    if ((pGroup as PolygonGroup).Children.Count != 0)
-                    {
-                        ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                        (pGroup as PolygonGroup).Expanded = true;
+
+                        //double check if there is a polygon to set onto next frame else just select the group
+                        if ((pGroup as PolygonGroup).Children.Count != 0)
+                        {
+                            ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                            _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                        }
+                        else
+                        {
+                            (pGroup as PolygonGroup).IsSelected = true;
+                            _currentSelectedNode = (pGroup as NodeWithName);
+                        }
+                        _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
                     }
                     else
                     {
-                        (pGroup as PolygonGroup).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName);
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
                     }
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
                 }
                 //if we are about to go OVER the count of children, we should try to go to the next image entirely
                 else
@@ -326,7 +337,6 @@ namespace Boxer.ViewModel
                     parentFrame.Expanded = false;
                     (parentFrame.Parent as ImageData).Expanded = false;
 
-
                     //Set the viewmodellocator varialbes and Open the next Frame
                     _viewModelLocator.ImageFrameView.Frame = previousImage.Children[0] as ImageFrame;
                     _viewModelLocator.ImageFrameView.Frame.Expanded = true;
@@ -335,26 +345,115 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
-
-                    (pGroup as PolygonGroup).Expanded = true;
-
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
-                    //Set the current node to the first Polygon of the group
-                    if ((pGroup as NodeWithName).Children.Count != 0)
+                    //check to see if the frame as any polygroups
+                    if(_viewModelLocator.ImageFrameView.Frame.Children.Count >0)
                     {
-                        _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
-                        ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                        var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == _lastPolygonGroupName);
+
+                        if(pGroup != null)
+                        {
+                            (pGroup as PolygonGroup).Expanded = true;
+
+                            _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
+                            //Set the current node to the first Polygon of the group
+                            if ((pGroup as NodeWithName).Children.Count != 0)
+                            {
+                                _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                                ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                            }
+                            else
+                            {
+                                (pGroup as PolygonGroup).IsSelected = true;
+                                _currentSelectedNode = (pGroup as NodeWithName);
+                            }
+                        }
+                        else
+                        {
+                            _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                        }
                     }
                     else
                     {
-                        (pGroup as PolygonGroup).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName);
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
                     }
                 }  
+            }
+            else if (CurrentSelectedNode is ImageFrame)
+            {
+                //Close all the previous children
+                var parentFrame = _currentSelectedNode as ImageFrame;
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+                //Close the last imageframe we had open. 
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as ImageFrame).Expanded = false;
 
-                
+                //if there's frames left in the image, we'll open the next one
+                if (index - 1 > 0)
+                {
+                    --index;
+                    _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                    _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                    _viewModelLocator.ImageFrameView.Polygon = null;
+                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                    CurrentView = _viewModelLocator.ImageFrameView;
+                    if (_viewModelLocator.ImageFrameView.Frame.Children.Count > 0)
+                    {
+                        (_viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup).IsSelected = true;
+                    }
+                    else
+                    {
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    }
+                }
+                else
+                {
+                    var folder = _viewModelLocator.ImageView.Image.Parent as Folder;
+                    //find the image index in the folder(since every image has to at some point be in a folder this shouldn't be a problem
+                    var imageIndex = folder.Images.IndexOf(parentFrame.Parent as ImageData);
 
+                    if (imageIndex - 1 > 0)
+                    {
+                        --imageIndex;
+                    }
+
+                    var nextImage = folder.Images[imageIndex];
+
+                    //right before we change image and frames, we de expand them first.
+                    parentFrame.Expanded = false;
+                    (parentFrame.Parent as ImageData).Expanded = false;
+
+
+                    //Set the viewmodellocator varialbes and Open the next Frame
+                    _viewModelLocator.ImageFrameView.Frame = nextImage.Children[0] as ImageFrame;
+                    //expand and select it.
+                    _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                    _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    //expand the image itself to show the frames
+                    (_viewModelLocator.ImageFrameView.Frame.Parent as ImageData).Expanded = true;
+                    _viewModelLocator.ImageFrameView.Polygon = null;
+                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                    CurrentView = _viewModelLocator.ImageFrameView;
+                    //Try to open the first polygroup if there is one
+                    if (_viewModelLocator.ImageFrameView.Frame.Children.Count > 0)
+                    {
+                        (_viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup).IsSelected = true;
+                    }
+                    else
+                    {
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    }
+                }
             }
         }
 
@@ -402,12 +501,16 @@ namespace Boxer.ViewModel
                             pGroup = groups as PolygonGroup;
                         }
                     }
-                    if (pGroup.Name == "New Polygon Group")
+                    if (pGroup.Name == "New Polygon Group" && _viewModelLocator.ImageFrameView.Frame.Children.Count >0)
                     {
                         pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
                     }
+                    else if (_viewModelLocator.ImageFrameView.Frame.Children.Count == 0)
+                    {
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                        return;
+                    }
                     
-
                     (pGroup as PolygonGroup).Expanded = true;
 
                     _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
@@ -510,22 +613,31 @@ namespace Boxer.ViewModel
                     _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
                     _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
                     CurrentView = _viewModelLocator.ImageFrameView;
-                    var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
-
-                    (pGroup as PolygonGroup).Expanded = true;
-
-                    //double check if there is a polygon to set onto next frame else just select the group
-                    if ((pGroup as PolygonGroup).Children.Count != 0)
+                    
+                    
+                    if(_viewModelLocator.ImageFrameView.Frame.Children.Count >0)
                     {
-                        ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                        var pGroup = _viewModelLocator.ImageFrameView.Frame.Children.First(t => t.Name == _lastPolygonGroupName);
+                    
+                        (pGroup as PolygonGroup).Expanded = true;
+
+                        //double check if there is a polygon to set onto next frame else just select the group
+                        if ((pGroup as PolygonGroup).Children.Count != 0)
+                        {
+                            ((pGroup as PolygonGroup).Children[0] as Polygon).IsSelected = true;
+                            _currentSelectedNode = (pGroup as NodeWithName).Children[0] as Polygon;
+                        }
+                        else
+                        {
+                            (pGroup as PolygonGroup).IsSelected = true;
+                            _currentSelectedNode = (pGroup as NodeWithName);
+                        }
+                        _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
                     }
                     else
                     {
-                        (pGroup as PolygonGroup).IsSelected = true;
-                        _currentSelectedNode = (pGroup as NodeWithName);
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
                     }
-                    _viewModelLocator.ImageFrameView.PolygonGroup = pGroup as PolygonGroup;
                 }
                 //if we are about to go OVER the count of children, we should try to go to the next image entirely
                 else
@@ -570,8 +682,86 @@ namespace Boxer.ViewModel
                         (pGroup as PolygonGroup).IsSelected = true;
                         _currentSelectedNode = (pGroup as NodeWithName);
                     }
-                }               
+                }
             }
+            else if (CurrentSelectedNode is ImageFrame)
+            {
+                //Close all the previous children
+                var parentFrame = _currentSelectedNode as ImageFrame;
+                if (parentFrame != null)
+                {
+                    parentFrame.Expanded = false;
+                    foreach (var child in parentFrame.Children)
+                    {
+                        (child as NodeWithName).Expanded = false;
+                        (child as NodeWithName).IsSelected = false;
+                    }
+                }
+                //Close the last imageframe we had open. 
+                var index = (parentFrame.Parent as ImageData).Children.IndexOf(parentFrame);
+                ((parentFrame.Parent as ImageData).Children[index] as ImageFrame).IsSelected = false;
+                ((parentFrame.Parent as ImageData).Children[index] as ImageFrame).Expanded = false;
+
+                //if there's frames left in the image, we'll open the next one
+                if (index + 1 < ((parentFrame.Parent as ImageData).Children.Count))
+                {
+                    ++index;
+                    _viewModelLocator.ImageFrameView.Frame = ((parentFrame.Parent as ImageData).Children[index] as ImageFrame);
+                    _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                    _viewModelLocator.ImageFrameView.Polygon = null;
+                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                    CurrentView = _viewModelLocator.ImageFrameView;
+                    if (_viewModelLocator.ImageFrameView.Frame.Children.Count > 0)
+                    {
+                        (_viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup).IsSelected = true;
+                    }
+                    else
+                    {
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    }
+                }
+                else
+                {
+                    var folder = _viewModelLocator.ImageView.Image.Parent as Folder;
+                    //find the image index in the folder(since every image has to at some point be in a folder this shouldn't be a problem
+                    var imageIndex = folder.Images.IndexOf(parentFrame.Parent as ImageData);
+
+                    if (imageIndex + 1 < folder.Images.Count)
+                    {
+                        ++imageIndex;
+                    }
+
+                    var nextImage = folder.Images[imageIndex];
+
+                    //right before we change image and frames, we de expand them first.
+                    parentFrame.Expanded = false;
+                    (parentFrame.Parent as ImageData).Expanded = false;
+
+
+                    //Set the viewmodellocator varialbes and Open the next Frame
+                    _viewModelLocator.ImageFrameView.Frame = nextImage.Children[0] as ImageFrame;
+                    //expand and select it.
+                    _viewModelLocator.ImageFrameView.Frame.Expanded = true;
+                    _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    //expand the image itself to show the frames
+                    (_viewModelLocator.ImageFrameView.Frame.Parent as ImageData).Expanded = true;
+                    _viewModelLocator.ImageFrameView.Polygon = null;
+                    _viewModelLocator.ImageFrameView.ShowPolygonGroupTextBox = true;
+                    _viewModelLocator.ImageFrameView.ShowPolygonTextBox = false;
+                    CurrentView = _viewModelLocator.ImageFrameView;
+                    //Try to open the first polygroup if there is one
+                    if (_viewModelLocator.ImageFrameView.Frame.Children.Count > 0)
+                    {
+                        (_viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup).IsSelected = true;
+                    }
+                    else
+                    {
+                        _viewModelLocator.ImageFrameView.Frame.IsSelected = true;
+                    }
+                }
+            }
+
         }
         #endregion
 
