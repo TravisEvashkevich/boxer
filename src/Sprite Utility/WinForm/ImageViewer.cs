@@ -408,6 +408,13 @@ namespace Boxer.WinForm
             base.OnMouseEnter(e);
         }
 
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            //This makes it so when you mouse over the Document View it focuses that instead of forcing you to click to get focus.
+            App.Current.MainWindow.Focus();
+            base.OnMouseLeave(e);
+        }
+
         protected override void OnClick(EventArgs e)
         {
             Focus();

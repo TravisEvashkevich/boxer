@@ -22,8 +22,8 @@ namespace Boxer.ViewModel
         private List<ImageData> _originals;
         private ObservableCollection<NodeWithName> _noDuplicatesFound;
 
-        private bool _allSelected = false;
-        public bool AllSelected { get { return _allSelected; } set { Set(ref _allSelected, value); } }
+        private bool _isAllSelected = false;
+        public bool IsAllSelected { get { return _isAllSelected; } set { Set(ref _isAllSelected, value); } }
 
         private static readonly FileFormat Format = new BinaryFileFormat();
 
@@ -38,7 +38,7 @@ namespace Boxer.ViewModel
             set
             {
                 Set(ref _selectedItem, value);
-                AllSelected = false;
+                IsAllSelected = false;
             }
         }
 
@@ -58,10 +58,6 @@ namespace Boxer.ViewModel
             _needsToBeChecked.Clear();
             _noDuplicatesFound.Clear();
             _originals.Clear();
-
-            //Just interested in how long it takes for merge checking
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
 
             //for starters we only use one file at a time but for extensibility (quicker later) mid as well make it ready to take multiple 
             var strings = o as string[];
@@ -302,7 +298,7 @@ namespace Boxer.ViewModel
         {
             var main = ServiceLocator.Current.GetInstance<MainWindowVM>();
 
-            if(!AllSelected)
+            if(!IsAllSelected)
             {
                 if (SelectedItem is ImageData && NeedsToBeChecked.Contains(SelectedItem))
                 {
@@ -463,8 +459,15 @@ namespace Boxer.ViewModel
 
         public void ExecuteSelectAllCommand(object o)
         {
-            AllSelected = true;
-
+            IsAllSelected = true;
+            if (SelectedItem is ImageData && NeedsToBeChecked.Contains(SelectedItem))
+            {
+                //if the "keep" refers to a changed data, then we just replace and remove
+                for (int index = 0; index < _originals.Count; index++)
+                {
+                    _originals[index].IsSelected = true;
+                }
+            }
         }
 
         #endregion

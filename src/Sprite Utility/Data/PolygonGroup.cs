@@ -76,6 +76,7 @@ namespace Boxer.Data
             Name = name;
             Children = new FastObservableCollection<INode>();
         }
+        #region Commands
 
         #region newPolyCommand
         [JsonIgnore]
@@ -92,7 +93,7 @@ namespace Boxer.Data
         #endregion
 
         #region CleanGroupComand
-
+        [JsonIgnore]
         public SmartCommand<object> CleanGroupCommand { get; private set; }
 
         public bool CanExecuteCleanGroupCommand(object o)
@@ -112,5 +113,6 @@ namespace Boxer.Data
             CleanGroupCommand = new SmartCommand<object>(ExecuteCleanGroupCommand, CanExecuteCleanGroupCommand);
             base.InitializeCommands();
         }
+        #endregion
     }
 }

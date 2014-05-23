@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.Packaging;
 using Boxer.Properties;
 using Newtonsoft.Json;
 
@@ -49,6 +50,31 @@ namespace Boxer.Data
         {
             X = x;
             Y = y;
+        }
+
+        public static PolyPoint operator -(PolyPoint a, PolyPoint b)
+        {
+            return new PolyPoint(a.X - b.X, a.Y- b.Y);
+        }
+
+        public static PolyPoint operator +(PolyPoint a, PolyPoint b)
+        {
+            return new PolyPoint(a.X + b.X, a.Y + b.X);
+        }
+
+        public static PolyPoint operator / (PolyPoint a, PolyPoint b)
+        {
+            return new PolyPoint(a.X / b.X, a.Y/ b.Y);
+        }
+
+        public static PolyPoint operator /(PolyPoint a, int number)
+        {
+            return  new PolyPoint(a.X / number, a.Y/number);
+        }
+
+        public static PolyPoint Empty()
+        {
+            return  new PolyPoint(0,0);
         }
     }
 }

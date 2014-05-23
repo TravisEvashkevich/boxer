@@ -207,12 +207,7 @@ namespace Boxer.Controls
                 var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
                 instance.ExecuteCloseCommand(instance);
             }
-            //Jump from frame and polygroup you're working on to the next frame and open/select the same polygroup if it exists.
-            if (Keyboard.IsKeyDown(Key.Enter))
-            {
-                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
-                instance.JumpToNextImageFrame();
-            }
+            
             
 
             e.Handled = true;
@@ -256,6 +251,13 @@ namespace Boxer.Controls
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.R)
                 imageViewer.ResetZoom();
             e.Handled = true;
+
+            //Jump from frame and polygroup you're working on to the next frame and open/select the same polygroup if it exists.
+            if (e.Key == Key.F)
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.RotatePolygon();
+            }
 
             base.OnKeyUp(e);
         }

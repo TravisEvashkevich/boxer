@@ -178,6 +178,7 @@ namespace Boxer.Data
         #region Commands
 
         #region Reimport From New Path Command
+         [JsonIgnore]
         public SmartCommand<object> ReimportFromNewPathCommand { get; private set; }
 
         public void ExecuteReimportFromNewPathCommand(object o)
