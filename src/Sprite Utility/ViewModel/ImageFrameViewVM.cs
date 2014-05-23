@@ -15,12 +15,16 @@ namespace Boxer.ViewModel
 
     public class ImageFrameViewVM : MainViewModel
     {
+
         private bool _isNormalMode;
 
         public bool IsNormalMode
         {
             get { return _isNormalMode; }
-            set { Set(ref _isNormalMode, value); }
+            set
+            {
+                Set(ref _isNormalMode, value);
+            }
         }
 
         private bool _isPolygonMode;
@@ -28,7 +32,21 @@ namespace Boxer.ViewModel
         public bool IsPolygonMode
         {
             get { return _isPolygonMode; }
-            set { Set(ref _isPolygonMode, value); }
+            set
+            {
+                Set(ref _isPolygonMode, value);
+            }
+        }
+
+        private bool _isMoveMode;
+
+        public bool IsMoveMode
+        {
+            get { return _isMoveMode; }
+            set
+            {
+                Set(ref _isMoveMode, value);
+            }
         }
 
         private bool _showPolygonTextBox;
@@ -52,11 +70,7 @@ namespace Boxer.ViewModel
         public PolygonGroup PolygonGroup
         {
             get { return _polygonGroup; }
-            set
-            {
-                Set(ref _polygonGroup, value);
-
-            }
+            set{ Set(ref _polygonGroup, value);}
         }
 
         private Polygon _polygon;

@@ -59,7 +59,7 @@ namespace Boxer.Data
 
         public static PolyPoint operator +(PolyPoint a, PolyPoint b)
         {
-            return new PolyPoint(a.X + b.X, a.Y + b.X);
+            return new PolyPoint(a.X + b.X, a.Y + b.Y);
         }
 
         public static PolyPoint operator / (PolyPoint a, PolyPoint b)
@@ -70,6 +70,11 @@ namespace Boxer.Data
         public static PolyPoint operator /(PolyPoint a, int number)
         {
             return  new PolyPoint(a.X / number, a.Y/number);
+        }
+
+        public static PolyPoint operator *(PolyPoint a, int number)
+        {
+            return new PolyPoint(a.X * number, a.Y * number);
         }
 
         public static PolyPoint Empty()

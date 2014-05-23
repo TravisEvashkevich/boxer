@@ -186,6 +186,7 @@ namespace Boxer
                     Glue.Instance.DocumentIsSaved = false;
                     if(targetFolder.Parent != null)
                         targetFolder.Parent.Children.Refresh();
+
                 }
                 /*//if we dropped on another image I guess we just add to the folder that image is contained in
                  * //UnComment if you want to have drop on Images to add to folders (seemed weird when I coded it and seems weird when I try to use the program)

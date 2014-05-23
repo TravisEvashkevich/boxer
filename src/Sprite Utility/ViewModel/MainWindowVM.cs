@@ -1114,8 +1114,6 @@ namespace Boxer.ViewModel
                         break;
                 }
             }
-
-            
         }
 
         #endregion
@@ -1250,60 +1248,6 @@ namespace Boxer.ViewModel
             merger.OpenMergeWindow();
         }
         #endregion
-
-
-        public void RotatePolygon()
-        {
-            if (CurrentSelectedNode is Polygon)
-            {
-                var poly = (CurrentSelectedNode as Polygon).ClonePolygon(CurrentSelectedNode as Polygon);
-                var center = GetCentroid(poly.Children);
-                for (int index = 0; index < poly.Children.Count; index++)
-                {
-                    var  child = poly.Children[index] as PolyPoint;
-                    CurrentSelectedNode.Children[index]= RotatePoint(child, center, 90);
-                }
-
-            }
-        }
-
-        public static bool IsInPolygon(FastObservableCollection<PolyPoint> poly, PolyPoint point)
-        {
-            var coef = poly.Skip(1).Select((p, i) =>
-                                            (point.Y - poly[i].Y) * (p.X - poly[i].X)
-                                          - (point.X - poly[i].X) * (p.Y - poly[i].Y))
-                                    .ToList();
-
-            if (coef.Any(p => p == 0))
-                return true;
-
-            for (int i = 1; i < coef.Count(); i++)
-            {
-                if (coef[i] * coef[i - 1] < 0)
-                    return false;
-            }
-            return true;
-        }
-
-        public static PolyPoint GetCentroid( FastObservableCollection<INode> poly)
-        {
-            PolyPoint result = poly.Aggregate(PolyPoint.Empty(), (current, point) => current + (point as PolyPoint));
-            result /= poly.Count;
-
-            return result;
-        }
-
-        public PolyPoint RotatePoint(PolyPoint point, PolyPoint origin, float angle)
-        {
-            PolyPoint translated = point - origin;
-
-            var X = translated.X* Math.Cos(angle) - translated.Y* Math.Sin(angle);
-            var Y = translated.X* Math.Sin(angle) + translated.Y* Math.Cos(angle);
-
-            PolyPoint rotated = new PolyPoint((int)X, (int)Y);
-
-            return rotated + origin;
-        }
 
         protected override void InitializeCommands()
         {
