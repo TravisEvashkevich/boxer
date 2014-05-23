@@ -485,12 +485,27 @@ namespace Boxer.WinForm
                         X = (int)polyWorldCenter.X,
                         Y = (int)polyWorldCenter.Y,
                     };
-                    //check if selecting existing point
+                    //check if mouse is inside a polygon
                     if (MouseIsInPolygon(_poly.Children, p))
                     {
                         //store the original point then we'll check later to see how much we have to offset all the other points by
                         _originalPoint = p;
                     }
+                    /*//if it wasn't inside the selected polygon see if it's inside another of the same polygroup
+                    else
+                    {
+                        foreach (Polygon polygon in _polyGroup.Children)
+                        {
+                            if (MouseIsInPolygon(polygon.Children, p))
+                            {
+                                _originalPoint = p;
+                                _poly = polygon;
+                                _poly.IsSelected = true;
+                                Mode = Mode.Moving;
+                                break;
+                            }
+                        }
+                    }*/
                 }
             }
         }

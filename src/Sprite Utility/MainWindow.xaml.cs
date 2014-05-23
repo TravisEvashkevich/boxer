@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -184,9 +185,6 @@ namespace Boxer
                     sourceImage.Parent.Children.Remove(sourceImage);
                     sourceImage.Parent = targetFolder;
                     Glue.Instance.DocumentIsSaved = false;
-                    if(targetFolder.Parent != null)
-                        targetFolder.Parent.Children.Refresh();
-
                 }
                 /*//if we dropped on another image I guess we just add to the folder that image is contained in
                  * //UnComment if you want to have drop on Images to add to folders (seemed weird when I coded it and seems weird when I try to use the program)

@@ -296,7 +296,7 @@ namespace Boxer.ViewModel
 
                     if (pGroup != null)
                     {
-                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                        //pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
 
 
                         (pGroup as PolygonGroup).Expanded = true;

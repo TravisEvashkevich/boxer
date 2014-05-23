@@ -221,6 +221,18 @@ namespace Boxer.Controls
                 var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
                 instance.ExecuteCloseCommand(instance);
             }
+            //apparently do need these hot keys 
+            if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ) && (e.Key == Key.Enter))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.JumpBackOneImageFrame();
+            }
+            else if (e.Key == Key.Enter)
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.JumpToNextImageFrame();
+            }
+            
             
             
 
