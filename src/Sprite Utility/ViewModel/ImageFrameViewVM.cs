@@ -49,6 +49,17 @@ namespace Boxer.ViewModel
             }
         }
 
+        private bool _moveAnyPolygon;
+
+        public bool MoveAnyPolygon
+        {
+            get { return _moveAnyPolygon; }
+            set
+            {
+                Set(ref _moveAnyPolygon, value);
+            }
+        }
+
         private bool _showPolygonTextBox;
 
         public bool ShowPolygonTextBox

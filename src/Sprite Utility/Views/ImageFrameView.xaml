@@ -28,6 +28,11 @@
                 <ToggleButton Name="MovingMode" IsChecked="{Binding IsMoveMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               ToolTip="(M)ove Mode">
                     <Image Stretch="None" Source="/Boxer;component/Cursors/PanCursor.png"></Image>
+                    <ToggleButton.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem IsCheckable="True" IsChecked="{Binding MoveAnyPolygon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Select Any Polygon Clicked"></MenuItem>
+                        </ContextMenu>
+                    </ToggleButton.ContextMenu>
                 </ToggleButton>
                 <Button Command="{Binding ZoomInCommand}"
                         ToolTip="Ctrl + Numpad +
@@ -60,6 +65,7 @@
                               IsNormalMode="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               IsPolygonMode="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               IsMovingMode="{Binding IsMoveMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              MoveAnyPolygon="{Binding MoveAnyPolygon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               ></controls:ImageViewer>
 
     </Grid>

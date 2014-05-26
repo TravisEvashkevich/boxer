@@ -83,6 +83,18 @@ namespace Boxer.Controls
         public static readonly DependencyProperty IsMovingModeProperty = DependencyProperty.Register(
         "IsMovingMode", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsMovingModeChangedCallback));
 
+        public bool MoveAnyPolygon
+        {
+            get { return (bool)this.GetValue(MoveAnyPolygonProperty); }
+            set
+            {
+                this.SetValue(MoveAnyPolygonProperty, value);
+            }
+        }
+        public static readonly DependencyProperty MoveAnyPolygonProperty = DependencyProperty.Register(
+        "MoveAnyPolygon", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, MoveAnyPolygonChangeCallback));
+
+
 
         private static void PolygonChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
@@ -138,6 +150,15 @@ namespace Boxer.Controls
                     (dependencyObject as ImageViewer).IsNormalMode = false;
                     (dependencyObject as ImageViewer).IsPolygonMode = false;
                 }
+            }
+        }
+
+        private static void MoveAnyPolygonChangeCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            if (dependencyPropertyChangedEventArgs.NewValue is bool)
+            {
+                var value = (bool)dependencyPropertyChangedEventArgs.NewValue;
+                (dependencyObject as ImageViewer).imageViewer.CanMoveAnyPolygon = value;
             }
         }
 
@@ -266,8 +287,12 @@ namespace Boxer.Controls
             {
                 IsPolygonMode = true;
             }
-
-            if (e.Key == Key.M)
+            if (e.Key == Key.M && Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                //flip the mode
+                MoveAnyPolygon = !MoveAnyPolygon;
+            }
+            else if (e.Key == Key.M)
             {
                 IsMovingMode = true;
             }

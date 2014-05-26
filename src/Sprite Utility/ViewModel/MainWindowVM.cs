@@ -908,6 +908,7 @@ namespace Boxer.ViewModel
                 Glue.Instance.DocumentIsSaved = true;
                 Documents.Clear();
                 Documents.Add(Glue.Instance.Document);
+                Documents[0].IsSelected = true;
             }
         }
         #endregion

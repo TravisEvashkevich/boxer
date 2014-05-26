@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using Boxer.Core;
 using Boxer.Data;
@@ -124,6 +123,8 @@ namespace Boxer.WinForm
                 LoadImageToTexture();
             }
         }
+
+        public bool CanMoveAnyPolygon { get; set; }
 
         #endregion
 
@@ -485,13 +486,16 @@ namespace Boxer.WinForm
                         X = (int)polyWorldCenter.X,
                         Y = (int)polyWorldCenter.Y,
                     };
-                    //check if mouse is inside a polygon
-                    if (MouseIsInPolygon(_poly.Children, p))
+                    if (!CanMoveAnyPolygon)
                     {
-                        //store the original point then we'll check later to see how much we have to offset all the other points by
-                        _originalPoint = p;
+                        //check if mouse is inside a polygon
+                        if (MouseIsInPolygon(_poly.Children, p))
+                        {
+                            //store the original point then we'll check later to see how much we have to offset all the other points by
+                            _originalPoint = p;
+                        }
                     }
-                    /*//if it wasn't inside the selected polygon see if it's inside another of the same polygroup
+                    //if it wasn't inside the selected polygon see if it's inside another of the same polygroup
                     else
                     {
                         foreach (Polygon polygon in _polyGroup.Children)
@@ -505,11 +509,10 @@ namespace Boxer.WinForm
                                 break;
                             }
                         }
-                    }*/
+                    }
                 }
             }
         }
-
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
@@ -685,7 +688,77 @@ namespace Boxer.WinForm
         #endregion
 
         #region Private Methods
+ 
+        #region Methods For Moving Polygons/Checks
+        //A More exact Mouse In PolygonCheck
+        public static bool MouseIsInPolygon(FastObservableCollection<INode> poly, PolyPoint point)
+        {
+            Vector3 vecPoint = new Vector3(point.X, point.Y,0);
 
+            var tempList = new FastObservableCollection<INode>();
+            foreach (var node in poly)
+            {
+                tempList.Add(node);
+            }
+            //Copy the list so we can add the last two verts into the start so we can get a full circle check easy.
+            tempList.Insert(0,tempList[tempList.Count-2]);
+            tempList.Insert(0,tempList[tempList.Count-1]);
+
+           
+
+            for (int i = 1; i < tempList.Count - 2; i++)
+            {
+                //we'll feed 3 verts at a time to PointInTriangle to see if it returns true or not. If one time returns true then we can stop calculating
+                Vector3 A = new Vector3((tempList[0] as PolyPoint).X, (tempList[0] as PolyPoint).Y ,0);
+                Vector3 B = new Vector3((tempList[i + 1] as PolyPoint).X, (tempList[i + 1] as PolyPoint).Y,0);
+                Vector3 C = new Vector3((tempList[i + 2] as PolyPoint).X, (tempList[i + 2] as PolyPoint).Y,0);
+
+                if (PointInTriangle(ref A, ref B, ref C, ref vecPoint))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        ///<summary>
+        /// Determine whether a point P is inside the triangle ABC. Note, this function
+        /// assumes that P is coplanar with the triangle.
+        /// Credit to http://tinyurl.com/n5tfkue 
+        ///</summary>
+        ///<returns>True if the point is inside, false if it is not.</returns>
+        public static bool PointInTriangle(ref Vector3 A, ref Vector3 B, ref Vector3 C, ref Vector3 P)
+        {
+            // Prepare our barycentric variables
+            Vector3 u = B - A;
+            Vector3 v = C - A;
+            Vector3 w = P - A;
+
+            Vector3 vCrossW = Vector3.Cross(v, w);
+            Vector3 vCrossU = Vector3.Cross(v, u);
+
+            // Test sign of r
+            if (Vector3.Dot(vCrossW, vCrossU) < 0)
+                return false;
+
+            Vector3 uCrossW = Vector3.Cross(u, w);
+            Vector3 uCrossV = Vector3.Cross(u, v);
+
+            // Test sign of t
+            if (Vector3.Dot(uCrossW, uCrossV) < 0)
+                return false;
+
+            // At this point, we know that r and t and both > 0.
+            // Therefore, as long as their sum is <= 1, each must be less <= 1
+            float denom = uCrossV.Length();
+            float r = vCrossW.Length() / denom;
+            float t = uCrossW.Length() / denom;
+
+            return (r + t <= 1);
+        }
+
+        #endregion
+        
         //method which shifting polygons or center point (when are fixed size) to center of the pixel
         //sees on big zooms
         private Vector2 ShiftVectorToPixelCenter(Vector2 vector2)
@@ -719,24 +792,8 @@ namespace Boxer.WinForm
 
             return null;
         }
-        //This one seems to work correctly for what I need to see if you are within the actual polygon.
-        public static bool MouseIsInPolygon(FastObservableCollection<INode> poly, PolyPoint point)
-        {
-            var coef = poly.Skip(1).Select((p, i) =>
-                                            (point.Y - (poly[i] as PolyPoint).Y) * ((p as PolyPoint).X - (poly[i] as PolyPoint).X)
-                                          - (point.X - (poly[i] as PolyPoint).X) * ((p as PolyPoint).Y - (poly[i] as PolyPoint).Y))
-                                    .ToList();
 
-            if (coef.Any(p => p == 0))
-                return true;
-
-            for (int i = 1; i < coef.Count(); i++)
-            {
-                if (coef[i] * coef[i - 1] < 0)
-                    return false;
-            }
-            return true;
-        }
+       
 
         //check if mouse location is in center
         private bool CheckifMouseIsInCenter(int x, int y)
