@@ -1090,7 +1090,9 @@ namespace Boxer.ViewModel
                 var clone = new PolygonGroup();
                 foreach (var child in _copyData.Children)
                 {
-                    clone.Children.Add(new Polygon().ClonePolygon(child as Polygon));
+                    var temp = new Polygon().ClonePolygon(child as Polygon);
+                    temp.Parent = clone;
+                    clone.Children.Add(temp);
                 }
                 clone.Name = _copyData.Name;
 
@@ -1098,7 +1100,7 @@ namespace Boxer.ViewModel
                 {
                     case "PolygonGroup":
                         clone.Parent = _currentSelectedNode.Parent;
-                        _viewModelLocator.ImageFrameView.PolygonGroup.Children = clone.Children;
+                        _currentSelectedNode.Children = clone.Children;
                         break;
                     case "ImageFrame":
                         //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
@@ -1106,10 +1108,17 @@ namespace Boxer.ViewModel
                         var target =_viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == clone.Name);
                         if (target != null)
                         {
-                            target.Children = clone.Children;
+                            //rewire the parents of the children to be the target now
+                            target.Children.Clear();
+                            foreach (var child in clone.Children)
+                            {
+                                child.Parent = target;
+                                target.Children.Add(child);
+                            }
                         }
                         else
                         {
+                            clone.Parent = _viewModelLocator.ImageFrameView.Frame;
                             _viewModelLocator.ImageFrameView.Frame.AddChild(clone);
                         }
                         break;
