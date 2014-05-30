@@ -17,13 +17,22 @@
         </Grid.RowDefinitions>
         <ToolBarTray Orientation="Vertical" Grid.RowSpan="2">
             <ToolBar Width="30">
-                <ToggleButton IsChecked="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                <ToggleButton Name="NormalMode" IsChecked="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               ToolTip="(C)enter Mode">
                     <Image  Stretch="None" Source="/Boxer;component/Cursors/ArrowNorm.png"/>
                 </ToggleButton>
-                <ToggleButton IsChecked="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                <ToggleButton Name="PolygonMode" IsChecked="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               ToolTip="(P)olygon Mode">
                     <Image Stretch="None" Source="/Boxer;component/Cursors/Pen.png"/>
+                </ToggleButton>
+                <ToggleButton Name="MovingMode" IsChecked="{Binding IsMoveMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              ToolTip="(M)ove Mode">
+                    <Image Stretch="None" Source="/Boxer;component/Cursors/PanCursor.png"></Image>
+                    <ToggleButton.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem IsCheckable="True" IsChecked="{Binding MoveAnyPolygon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="Select Any Polygon Clicked"></MenuItem>
+                        </ContextMenu>
+                    </ToggleButton.ContextMenu>
                 </ToggleButton>
                 <Button Command="{Binding ZoomInCommand}"
                         ToolTip="Ctrl + Numpad +
@@ -51,10 +60,12 @@
 
         </StackPanel>
         <!--<controls:XNAGame Grid.Row="1" Grid.Column="1" ImageFrame="{Binding Frame}"></controls:XNAGame>-->
-        <controls:ImageViewer Grid.Row="1" Grid.Column="1" ImageFrame="{Binding Frame}" Polygon="{Binding Polygon}" 
+        <controls:ImageViewer x:Name="ImageViewers" Grid.Row="1" Grid.Column="1" ImageFrame="{Binding Frame}" Polygon="{Binding Polygon}" 
                               PolygonGroup="{Binding PolygonGroup}" 
                               IsNormalMode="{Binding IsNormalMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               IsPolygonMode="{Binding IsPolygonMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsMovingMode="{Binding IsMoveMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              MoveAnyPolygon="{Binding MoveAnyPolygon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               ></controls:ImageViewer>
 
     </Grid>

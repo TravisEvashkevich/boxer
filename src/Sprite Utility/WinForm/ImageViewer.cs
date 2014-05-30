@@ -20,7 +20,8 @@ namespace Boxer.WinForm
     {
         Center,
         Polygon,
-        PolygonGroup
+        PolygonGroup,
+        Moving
     }
 
     public class ImageViewer : GraphicsDeviceControl
@@ -34,6 +35,7 @@ namespace Boxer.WinForm
         private readonly Cursor _arrowOverCursor;
         private readonly Cursor _penCursor;
         private readonly Cursor _penOverCursor;
+        private readonly Cursor _movingCursor;
         private Camera2D _camera2D;
         private Rectangle _centerRectangle;
         private Rectangle _currentCenterRectangle;
@@ -46,6 +48,7 @@ namespace Boxer.WinForm
         private Mode _mode;
         private PolyPoint _moving;
         private Polygon _poly;
+        private PolyPoint _originalPoint;
         private PolygonGroup _polyGroup;
         private SpriteBatch _sprite;
         private Texture2D _texture;
@@ -62,7 +65,8 @@ namespace Boxer.WinForm
                 Cursor = _arrowNormCursor;
             if (_mode == Mode.Polygon)
                 Cursor = _penCursor;
-
+            if (_mode == Mode.Moving)
+                Cursor = _movingCursor;
             ModeChanged(sender, e);
         }
 
@@ -120,6 +124,8 @@ namespace Boxer.WinForm
             }
         }
 
+        public bool CanMoveAnyPolygon { get; set; }
+
         #endregion
 
         #region Constructor
@@ -139,6 +145,7 @@ namespace Boxer.WinForm
                 _arrowOverCursor = new Cursor("Cursors/ArrowOver.cur");
                 _penCursor = new Cursor("Cursors/Pen.cur");
                 _penOverCursor = new Cursor("Cursors/PenOver.cur");
+                _movingCursor = Cursors.Hand;
             }
 
             Timer refreshTimer = new Timer();
@@ -470,9 +477,42 @@ namespace Boxer.WinForm
                                 Settings.Default.MaxVerts));
                     }
                 }
+                    //Movement start.
+                else if (_poly != null && _moving == null && _mode == Mode.Moving)
+                {
+                    var polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
+                    var p = new PolyPoint
+                    {
+                        X = (int)polyWorldCenter.X,
+                        Y = (int)polyWorldCenter.Y,
+                    };
+                    if (!CanMoveAnyPolygon)
+                    {
+                        //check if mouse is inside a polygon
+                        if (MouseIsInPolygon(_poly.Children, p))
+                        {
+                            //store the original point then we'll check later to see how much we have to offset all the other points by
+                            _originalPoint = p;
+                        }
+                    }
+                    //if it wasn't inside the selected polygon see if it's inside another of the same polygroup
+                    else
+                    {
+                        foreach (Polygon polygon in _polyGroup.Children)
+                        {
+                            if (MouseIsInPolygon(polygon.Children, p))
+                            {
+                                _originalPoint = p;
+                                _poly = polygon;
+                                _poly.IsSelected = true;
+                                Mode = Mode.Moving;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
-
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
@@ -505,7 +545,7 @@ namespace Boxer.WinForm
                         }
                     }
                 }
-                
+
                 if (removal.Count == 0) return;
                 removal.Reverse();
                 foreach (var i in removal)
@@ -514,11 +554,16 @@ namespace Boxer.WinForm
                 }
                 MessageBox.Show(@"Removed duplicate vertices. Try not to do this... it breaks things.");
             }
+                //Set OriginalPoint to null so we don't keep moving the polygon forever.
+            else if (_mode == Mode.Moving && _originalPoint != null)
+            {
+                _originalPoint = null;
+            }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            //if right button holded - pan
+            //if right button held - pan
             if (e.Button == MouseButtons.Right)
             {
                 var panVector = new Vector2((e.X - _currentX), (e.Y - _currentY));
@@ -529,7 +574,7 @@ namespace Boxer.WinForm
                 _currentY = e.Y;
             }
 
-            //if mode center and left button is holded - still move center
+            //if mode center and left button is held - still move center
             if (_mode == Mode.Center && _centerMoving)
             {
                 Vector2 centerPoint = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
@@ -537,17 +582,43 @@ namespace Boxer.WinForm
                 _image.CenterPointX = (int)centerPoint.X;
                 _image.CenterPointY = (int)centerPoint.Y;
             }
-            //if mode polygon and left button is holded - still move polygon point
+            //if mode polygon and left button is held - still move polygon point
             else if (_mode == Mode.Polygon && _moving != null)
             {
                 Vector2 polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
 
                 _moving.X = (int) polyWorldCenter.X;
                 _moving.Y = (int) polyWorldCenter.Y;
-
-                
             }
+            //Move some Polygons 
+            else if (_mode == Mode.Moving && _originalPoint != null)
+            {
+                //Get the coords of the mouse in image space
+                var polyWorldCenter = _camera2D.GetWorldCoordinates(new Vector2(e.X, e.Y));
+                var p = new PolyPoint
+                {
+                    X = (int)polyWorldCenter.X,
+                    Y = (int)polyWorldCenter.Y,
+                };
 
+                //Get the distance between the original Click point and the mouse currently.
+                var dist = _originalPoint - p;
+                dist *= -1;
+                if (dist.X != 0 || dist.Y != 0 && MouseIsInPolygon(_poly.Children, p))
+                {
+                    var clone = _poly.ClonePolygon(_poly);
+                    for (int i = 0; i < _poly.Children.Count; i++)
+                    {
+                        var child = (clone.Children[i] as PolyPoint);
+                        child += dist;
+                        _poly.Children[i] = child;
+                    }
+                }
+                //set the _origianl point to the new mouse point.
+                _originalPoint = p;
+
+            }
+            
             //Indicate Cursor
             bool overCenter = false;
             bool overPoly = false;
@@ -570,6 +641,10 @@ namespace Boxer.WinForm
                 {
                     Cursor = _arrowNormCursor;
                 }
+            }
+            else if (_mode == Mode.Moving)
+            {
+                Cursor = _movingCursor;
             }
             else
             {
@@ -613,7 +688,77 @@ namespace Boxer.WinForm
         #endregion
 
         #region Private Methods
+ 
+        #region Methods For Moving Polygons/Checks
+        //A More exact Mouse In PolygonCheck
+        public static bool MouseIsInPolygon(FastObservableCollection<INode> poly, PolyPoint point)
+        {
+            Vector3 vecPoint = new Vector3(point.X, point.Y,0);
 
+            var tempList = new FastObservableCollection<INode>();
+            foreach (var node in poly)
+            {
+                tempList.Add(node);
+            }
+            //Copy the list so we can add the last two verts into the start so we can get a full circle check easy.
+            tempList.Insert(0,tempList[tempList.Count-2]);
+            tempList.Insert(0,tempList[tempList.Count-1]);
+
+           
+
+            for (int i = 1; i < tempList.Count - 2; i++)
+            {
+                //we'll feed 3 verts at a time to PointInTriangle to see if it returns true or not. If one time returns true then we can stop calculating
+                Vector3 A = new Vector3((tempList[0] as PolyPoint).X, (tempList[0] as PolyPoint).Y ,0);
+                Vector3 B = new Vector3((tempList[i + 1] as PolyPoint).X, (tempList[i + 1] as PolyPoint).Y,0);
+                Vector3 C = new Vector3((tempList[i + 2] as PolyPoint).X, (tempList[i + 2] as PolyPoint).Y,0);
+
+                if (PointInTriangle(ref A, ref B, ref C, ref vecPoint))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        ///<summary>
+        /// Determine whether a point P is inside the triangle ABC. Note, this function
+        /// assumes that P is coplanar with the triangle.
+        /// Credit to http://tinyurl.com/n5tfkue 
+        ///</summary>
+        ///<returns>True if the point is inside, false if it is not.</returns>
+        public static bool PointInTriangle(ref Vector3 A, ref Vector3 B, ref Vector3 C, ref Vector3 P)
+        {
+            // Prepare our barycentric variables
+            Vector3 u = B - A;
+            Vector3 v = C - A;
+            Vector3 w = P - A;
+
+            Vector3 vCrossW = Vector3.Cross(v, w);
+            Vector3 vCrossU = Vector3.Cross(v, u);
+
+            // Test sign of r
+            if (Vector3.Dot(vCrossW, vCrossU) < 0)
+                return false;
+
+            Vector3 uCrossW = Vector3.Cross(u, w);
+            Vector3 uCrossV = Vector3.Cross(u, v);
+
+            // Test sign of t
+            if (Vector3.Dot(uCrossW, uCrossV) < 0)
+                return false;
+
+            // At this point, we know that r and t and both > 0.
+            // Therefore, as long as their sum is <= 1, each must be less <= 1
+            float denom = uCrossV.Length();
+            float r = vCrossW.Length() / denom;
+            float t = uCrossW.Length() / denom;
+
+            return (r + t <= 1);
+        }
+
+        #endregion
+        
         //method which shifting polygons or center point (when are fixed size) to center of the pixel
         //sees on big zooms
         private Vector2 ShiftVectorToPixelCenter(Vector2 vector2)
@@ -647,6 +792,8 @@ namespace Boxer.WinForm
 
             return null;
         }
+
+       
 
         //check if mouse location is in center
         private bool CheckifMouseIsInCenter(int x, int y)

@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.Windows;
+using Microsoft.Windows;
+using Newtonsoft.Json;
 
 namespace Boxer.Data
 {
@@ -38,5 +41,6 @@ namespace Boxer.Data
 
             return poly;
         }
+
     }
 }

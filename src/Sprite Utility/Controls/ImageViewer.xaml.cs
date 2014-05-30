@@ -1,30 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using Boxer.Core;
 using Boxer.Data;
 using Boxer.ViewModel;
 using Boxer.WinForm;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SpriteUtility;
-using Cursor = System.Windows.Input.Cursor;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using Point = Microsoft.Xna.Framework.Point;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace Boxer.Controls
@@ -87,7 +70,31 @@ namespace Boxer.Controls
             }
         }
         public static readonly DependencyProperty IsPolygonModeProperty = DependencyProperty.Register(
-          "IsPolygonMode", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsPolygonModeChangedCallback));
+        "IsPolygonMode", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsPolygonModeChangedCallback));
+
+        public bool IsMovingMode
+        {
+            get { return (bool)this.GetValue(IsMovingModeProperty); }
+            set
+            {
+                this.SetValue(IsMovingModeProperty, value);
+            }
+        }
+        public static readonly DependencyProperty IsMovingModeProperty = DependencyProperty.Register(
+        "IsMovingMode", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsMovingModeChangedCallback));
+
+        public bool MoveAnyPolygon
+        {
+            get { return (bool)this.GetValue(MoveAnyPolygonProperty); }
+            set
+            {
+                this.SetValue(MoveAnyPolygonProperty, value);
+            }
+        }
+        public static readonly DependencyProperty MoveAnyPolygonProperty = DependencyProperty.Register(
+        "MoveAnyPolygon", typeof(bool), typeof(ImageViewer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, MoveAnyPolygonChangeCallback));
+
+
 
         private static void PolygonChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
@@ -113,7 +120,7 @@ namespace Boxer.Controls
                 {
                     (dependencyObject as ImageViewer).imageViewer.Mode = Mode.Center;
                     (dependencyObject as ImageViewer).IsPolygonMode = false;
-
+                    (dependencyObject as ImageViewer).IsMovingMode = false;
                 }
             }
         }
@@ -127,7 +134,31 @@ namespace Boxer.Controls
                 {
                     (dependencyObject as ImageViewer).imageViewer.Mode = Mode.Polygon;
                     (dependencyObject as ImageViewer).IsNormalMode = false;
+                    (dependencyObject as ImageViewer).IsMovingMode = false;
                 }
+            }
+        }
+
+        private static void IsMovingModeChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            if (dependencyPropertyChangedEventArgs.NewValue is bool)
+            {
+                var value = (bool)dependencyPropertyChangedEventArgs.NewValue;
+                if (value)
+                {
+                    (dependencyObject as ImageViewer).imageViewer.Mode = Mode.Moving;
+                    (dependencyObject as ImageViewer).IsNormalMode = false;
+                    (dependencyObject as ImageViewer).IsPolygonMode = false;
+                }
+            }
+        }
+
+        private static void MoveAnyPolygonChangeCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            if (dependencyPropertyChangedEventArgs.NewValue is bool)
+            {
+                var value = (bool)dependencyPropertyChangedEventArgs.NewValue;
+                (dependencyObject as ImageViewer).imageViewer.CanMoveAnyPolygon = value;
             }
         }
 
@@ -148,6 +179,10 @@ namespace Boxer.Controls
             if (imageViewer.Mode == Mode.Polygon)
             {
                 IsPolygonMode = true;
+            }
+            if (imageViewer.Mode == Mode.Moving)
+            {
+                IsMovingMode = true;
             }
         }
 
@@ -207,6 +242,18 @@ namespace Boxer.Controls
                 var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
                 instance.ExecuteCloseCommand(instance);
             }
+            //apparently do need these hot keys 
+            if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ) && (e.Key == Key.Enter))
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.JumpBackOneImageFrame();
+            }
+            else if (e.Key == Key.Enter)
+            {
+                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
+                instance.JumpToNextImageFrame();
+            }
+            
             
             
 
@@ -234,12 +281,20 @@ namespace Boxer.Controls
             if (e.Key == Key.C)
             {
                 IsNormalMode = true;
-
             }
             //set polygon mode with p key
             if (e.Key == Key.P)
             {
                 IsPolygonMode = true;
+            }
+            if (e.Key == Key.M && Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                //flip the mode
+                MoveAnyPolygon = !MoveAnyPolygon;
+            }
+            else if (e.Key == Key.M)
+            {
+                IsMovingMode = true;
             }
 
              if (Keyboard.IsKeyDown(Key.LeftCtrl) && (e.Key == Key.Add))
@@ -252,12 +307,6 @@ namespace Boxer.Controls
                 imageViewer.ResetZoom();
             e.Handled = true;
 
-            //Jump from frame and polygroup you're working on to the next frame and open/select the same polygroup if it exists.
-            if (e.Key == Key.F)
-            {
-                var instance = ServiceLocator.Current.GetInstance<MainWindowVM>();
-                instance.RotatePolygon();
-            }
 
             base.OnKeyUp(e);
         }

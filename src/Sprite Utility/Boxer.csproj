@@ -308,6 +308,9 @@
     <Content Include="Cursors\ArrowOver.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Cursors\PanCursor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Cursors\Pen.cur">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

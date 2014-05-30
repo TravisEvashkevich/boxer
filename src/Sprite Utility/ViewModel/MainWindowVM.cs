@@ -296,7 +296,7 @@ namespace Boxer.ViewModel
 
                     if (pGroup != null)
                     {
-                        pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
+                        //pGroup = _viewModelLocator.ImageFrameView.Frame.Children[0] as PolygonGroup;
 
 
                         (pGroup as PolygonGroup).Expanded = true;
@@ -908,6 +908,7 @@ namespace Boxer.ViewModel
                 Glue.Instance.DocumentIsSaved = true;
                 Documents.Clear();
                 Documents.Add(Glue.Instance.Document);
+                Documents[0].IsSelected = true;
             }
         }
         #endregion
@@ -1089,7 +1090,9 @@ namespace Boxer.ViewModel
                 var clone = new PolygonGroup();
                 foreach (var child in _copyData.Children)
                 {
-                    clone.Children.Add(new Polygon().ClonePolygon(child as Polygon));
+                    var temp = new Polygon().ClonePolygon(child as Polygon);
+                    temp.Parent = clone;
+                    clone.Children.Add(temp);
                 }
                 clone.Name = _copyData.Name;
 
@@ -1097,7 +1100,7 @@ namespace Boxer.ViewModel
                 {
                     case "PolygonGroup":
                         clone.Parent = _currentSelectedNode.Parent;
-                        _viewModelLocator.ImageFrameView.PolygonGroup.Children = clone.Children;
+                        _currentSelectedNode.Children = clone.Children;
                         break;
                     case "ImageFrame":
                         //in the case of wanting to drop a polygon into a image frame, we'll check the Polygroup that it's from and see if there is a 
@@ -1105,17 +1108,22 @@ namespace Boxer.ViewModel
                         var target =_viewModelLocator.ImageFrameView.Frame.Children.FirstOrDefault(t => t.Name == clone.Name);
                         if (target != null)
                         {
-                            target.Children = clone.Children;
+                            //rewire the parents of the children to be the target now
+                            target.Children.Clear();
+                            foreach (var child in clone.Children)
+                            {
+                                child.Parent = target;
+                                target.Children.Add(child);
+                            }
                         }
                         else
                         {
+                            clone.Parent = _viewModelLocator.ImageFrameView.Frame;
                             _viewModelLocator.ImageFrameView.Frame.AddChild(clone);
                         }
                         break;
                 }
             }
-
-            
         }
 
         #endregion
@@ -1250,60 +1258,6 @@ namespace Boxer.ViewModel
             merger.OpenMergeWindow();
         }
         #endregion
-
-
-        public void RotatePolygon()
-        {
-            if (CurrentSelectedNode is Polygon)
-            {
-                var poly = (CurrentSelectedNode as Polygon).ClonePolygon(CurrentSelectedNode as Polygon);
-                var center = GetCentroid(poly.Children);
-                for (int index = 0; index < poly.Children.Count; index++)
-                {
-                    var  child = poly.Children[index] as PolyPoint;
-                    CurrentSelectedNode.Children[index]= RotatePoint(child, center, 90);
-                }
-
-            }
-        }
-
-        public static bool IsInPolygon(FastObservableCollection<PolyPoint> poly, PolyPoint point)
-        {
-            var coef = poly.Skip(1).Select((p, i) =>
-                                            (point.Y - poly[i].Y) * (p.X - poly[i].X)
-                                          - (point.X - poly[i].X) * (p.Y - poly[i].Y))
-                                    .ToList();
-
-            if (coef.Any(p => p == 0))
-                return true;
-
-            for (int i = 1; i < coef.Count(); i++)
-            {
-                if (coef[i] * coef[i - 1] < 0)
-                    return false;
-            }
-            return true;
-        }
-
-        public static PolyPoint GetCentroid( FastObservableCollection<INode> poly)
-        {
-            PolyPoint result = poly.Aggregate(PolyPoint.Empty(), (current, point) => current + (point as PolyPoint));
-            result /= poly.Count;
-
-            return result;
-        }
-
-        public PolyPoint RotatePoint(PolyPoint point, PolyPoint origin, float angle)
-        {
-            PolyPoint translated = point - origin;
-
-            var X = translated.X* Math.Cos(angle) - translated.Y* Math.Sin(angle);
-            var Y = translated.X* Math.Sin(angle) + translated.Y* Math.Cos(angle);
-
-            PolyPoint rotated = new PolyPoint((int)X, (int)Y);
-
-            return rotated + origin;
-        }
 
         protected override void InitializeCommands()
         {
