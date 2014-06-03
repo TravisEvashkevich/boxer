@@ -70,11 +70,16 @@ namespace Boxer
         {
             if (!Glue.Instance.DocumentIsSaved)
             {
-                if (MessageBox.Show("You have Un-Saved Changes. Would you like to save them now?", "Un-Saved Changes",
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+               var result =  MessageBox.Show("You have Un-Saved Changes. Would you like to save them now?", "Un-Saved Changes",
+                    MessageBoxButton.YesNoCancel);
+                if (result == MessageBoxResult.Yes)
                 {
                     //If they want to save then we save else whatever.
                     Glue.Instance.Document.Save(false);
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
                 }
             }
         }
