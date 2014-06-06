@@ -10,7 +10,7 @@ namespace Boxer.Core
             get { return _instance ?? (_instance = new Glue()); }
         }
 
-        private bool _documentIsSaved;
+        private bool _documentIsSaved = true;
         public bool DocumentIsSaved
         {
             get { return _documentIsSaved; }

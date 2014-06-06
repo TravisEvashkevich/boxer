@@ -33,9 +33,10 @@ namespace Boxer.Data
         {
             var poly = new Polygon();
             poly.Name = toClone.Name;
-            foreach (var child in toClone.Children)
+            foreach (PolyPoint child in toClone.Children)
             {
-                poly.AddChild(child);
+                var point = new PolyPoint(child.X, child.Y);
+                poly.AddChild(point);
             }
             poly.Parent = toClone.Parent;
 
